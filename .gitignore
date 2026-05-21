@@ -1,0 +1,74 @@
+# Local secrets and runtime configuration
+.env
+.env.*
+!.env.example
+.inspoly_runtime.env
+*.secret.env
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local application state, caches, and generated reports
+.inspoly*/
+outputs/
+archive_outputs/
+event_forensic_outputs/
+*_outputs/
+review_packets/
+known_case_benchmarks/
+strategic_backlog/
+rfcs/
+validation_corpus/
+donor_repo/
+analyst_review_bundles/
+analyst_sidecars/
+artifact_manifests/
+false_positive_library/
+implementation_boundaries/
+side_outcome_audits/
+polymarket_profile_*_report/
+polymarket_wallet_*_report/
+*.sqlite
+*.sqlite3
+*.db
+*.db-*
+*.log
+*.zip
+
+# Python/runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+
+# OS/editor artifacts
+.DS_Store
+.idea/
+.vscode/
+
+# Local agent/operator memory that may contain private workflow notes.
+AGENTS.md
+PROJECT_MEMORY.md
+CODEX_SETUP.md
+AI_DESIGN_SCROLL_HANDOFF.md
+SELF_IMPROVEMENT_WORKFLOW.md
+QA_SINGLE_MARKET_SMOKE.md
+
+# Existing private/internal notes are kept locally. Public docs are explicitly
+# unignored below.
+docs/*
+!docs/ARCHITECTURE.md
+!docs/PROGRAMS.md
+!docs/DETECTION_MODEL.md
+!docs/OPERATIONS.md
+!docs/DATA_SAFETY.md

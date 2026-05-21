@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsPoly Event Forensic Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --card: #11233a;
+      --card-hover: #152840;
+      --border: #23395d;
+      --border-strong: #35507c;
+      --text: #eaf1ff;
+      --text-sec: #a9b9d6;
+      --text-muted: #7f91b3;
+      --accent: #6f86ff;
+      --accent-soft: rgba(111, 134, 255, 0.16);
+      --red: #d95b74;
+      --amber: #d6a446;
+      --green: #59b48a;
+      --cyan: #66c6d9;
+      --font-size: 13px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body, #root {
+      height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, rgba(111, 134, 255, 0.12), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(102, 198, 217, 0.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Inter", sans-serif;
+      font-size: var(--font-size);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #23395d; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #35507c; }
+    * { scrollbar-width: thin; scrollbar-color: #23395d transparent; }
+
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .panel {
+      background: rgba(13, 26, 43, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+    }
+    .card {
+      background: rgba(17, 35, 58, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: 0.16s ease;
+    }
+    .card:hover { border-color: var(--border-strong); background: var(--card-hover); }
+    .btn {
+      border: 1px solid var(--border);
+      background: rgba(17, 35, 58, 0.96);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .btn:hover { border-color: var(--border-strong); background: var(--card-hover); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn.secondary { color: var(--text-sec); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid transparent;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .tile {
+      background: rgba(8, 17, 31, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .muted { color: var(--text-muted); }
+    .secondary { color: var(--text-sec); }
+    .selectable {
+      user-select: text;
+      -webkit-user-select: text;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      cursor: text;
+    }
+    .link {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .link:hover { color: var(--accent); text-decoration: underline; }
+    .entity-link {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .entity-link.wallet {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--cyan);
+    }
+    .entity-link.group {
+      color: var(--amber);
+      font-weight: 700;
+    }
+    .entity-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .mini-action {
+      border: 1px solid var(--border);
+      background: rgba(8, 17, 31, 0.76);
+      color: var(--text-sec);
+      border-radius: 8px;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .mini-action:hover { color: var(--text); border-color: var(--border-strong); }
+    .story {
+      display: grid;
+      gap: 14px;
+    }
+    .story-section {
+      background: rgba(8, 17, 31, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .story-section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    details.story-section summary {
+      cursor: pointer;
+      color: var(--text-sec);
+      font-weight: 700;
+    }
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px;
+      height: 100%;
+    }
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+    .title {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .hero {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.05;
+      margin-top: 6px;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 320px 390px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+    .column {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(8, 17, 31, 0.75);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      transition: width 0.2s ease;
+    }
+    .tab {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .tab.active {
+      color: var(--text);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(8, 17, 31, 0.7);
+    }
+    .toggle input { accent-color: var(--accent); }
+    @media (max-width: 1480px) {
+      .content-grid { grid-template-columns: 300px 360px minmax(0, 1fr); }
+    }
+    @media (max-width: 980px) {
+      html, body, #root { overflow: auto; }
+      .app-shell {
+        min-height: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      .header { grid-template-columns: 1fr; }
+      .content-grid {
+        grid-template-columns: 1fr;
+        overflow: visible;
+      }
+      .column {
+        min-height: 520px;
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      return await response.json();
+    }
+
+    async function postJson(url, payload = {}) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      return await response.json();
+    }
+
+    function Badge({ label, tone = "default" }) {
+      const meta = {
+        default: { color: "var(--accent)", bg: "var(--accent-soft)", border: "rgba(111, 134, 255, 0.35)" },
+        red: { color: "var(--red)", bg: "rgba(217, 91, 116, 0.14)", border: "rgba(217, 91, 116, 0.36)" },
+        amber: { color: "var(--amber)", bg: "rgba(214, 164, 70, 0.14)", border: "rgba(214, 164, 70, 0.36)" },
+        green: { color: "var(--green)", bg: "rgba(89, 180, 138, 0.14)", border: "rgba(89, 180, 138, 0.36)" },
+        cyan: { color: "var(--cyan)", bg: "rgba(102, 198, 217, 0.14)", border: "rgba(102, 198, 217, 0.36)" },
+      }[tone] || meta.default;
+      return <span className="badge" style={{color: meta.color, background: meta.bg, borderColor: meta.border}}>{label}</span>;
+    }
+
+    function StatTile({ label, value, tone = "default" }) {
+      const color = tone === "red" ? "var(--red)" : tone === "amber" ? "var(--amber)" : tone === "green" ? "var(--green)" : tone === "cyan" ? "var(--cyan)" : "var(--text)";
+      return (
+        <div className="tile">
+          <div className="section-label" style={{marginBottom: 4}}>{label}</div>
+          <div className="mono" style={{fontSize: "clamp(16px, 1.2vw, 20px)", fontWeight: 700, color}}>{value}</div>
+        </div>
+      );
+    }
+
+    function shortWallet(value) {
+      const text = String(value || "");
+      if (text.length < 12) return text;
+      return `${text.slice(0, 6)}...${text.slice(-4)}`;
+    }
+
+    function truncateLabel(value, limit = 40) {
+      const text = String(value || "");
+      if (text.length <= limit) return text;
+      return `${text.slice(0, Math.max(0, limit - 1))}…`;
+    }
+
+    function defaultSortMode(tab) {
+      if (tab === "wallets") return "insiderStyleWalletScore-desc";
+      if (tab === "clusters") return "clusterScore-desc";
+      return "forensic-desc";
+    }
+
+    function isHardEvidenceReview(row) {
+      return row?.hardEvidenceReviewTier === "Hard Evidence Review";
+    }
+
+    function hardEvidenceRank(row) {
+      return isHardEvidenceReview(row) ? 1 : 0;
+    }
+
+    function numericValue(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function numericValueAvailable(value) {
+      if (value === null || value === undefined || value === "") return false;
+      return Number.isFinite(Number(value));
+    }
+
+    function parseProbabilityFilter(value) {
+      const raw = String(value || "").trim().replace("%", "");
+      if (!raw) return null;
+      const numeric = parseFloat(raw);
+      if (!Number.isFinite(numeric) || numeric < 0) return null;
+      const percent = numeric <= 1 ? numeric * 100 : numeric;
+      return Math.max(0, Math.min(percent, 100));
+    }
+
+    function tradeEntryProbabilityPercent(trade) {
+      const price = Number(trade?.price);
+      if (!Number.isFinite(price)) return null;
+      return price <= 1 ? price * 100 : price;
+    }
+
+    function tradeEntryProbabilityLabel(trade) {
+      const percent = tradeEntryProbabilityPercent(trade);
+      if (percent === null) return "entry unavailable";
+      return `entry ${percent.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+    }
+
+    function tradeEntryProbabilitySortValue(trade) {
+      const percent = tradeEntryProbabilityPercent(trade);
+      return percent === null ? Number.POSITIVE_INFINITY : percent;
+    }
+
+    function filterRowsForTab(tab, rows, filters) {
+      const list = Array.isArray(rows) ? rows : [];
+      if (tab !== "trades") return list;
+      const maxEntryProbability = parseProbabilityFilter(filters?.maxEntryProbability);
+      if (maxEntryProbability === null) return list;
+      return list.filter(row => {
+        const entryProbability = tradeEntryProbabilityPercent(row);
+        return entryProbability === null || entryProbability <= maxEntryProbability;
+      });
+    }
+
+    function dateTimeDatePart(value) {
+      const text = String(value || "");
+      return text.includes("T") ? text.split("T")[0] : "";
+    }
+
+    function dateTimeTimePart(value) {
+      const text = String(value || "");
+      if (!text.includes("T")) return "";
+      return (text.split("T")[1] || "").slice(0, 5);
+    }
+
+    function combinedDateTimeValue(date, time) {
+      if (!date) return "";
+      return `${date}T${time || "00:00"}`;
+    }
+
+    function dateTimeFilterDate(filters, prefix) {
+      return filters?.[`${prefix}Date`] || dateTimeDatePart(filters?.[`${prefix}DateTime`]);
+    }
+
+    function dateTimeFilterTime(filters, prefix) {
+      return filters?.[`${prefix}Time`] || dateTimeTimePart(filters?.[`${prefix}DateTime`]);
+    }
+
+    function updateDateTimeFilter(current, prefix, part, nextValue) {
+      const dateKey = `${prefix}Date`;
+      const timeKey = `${prefix}Time`;
+      const dateTimeKey = `${prefix}DateTime`;
+      const date = part === "date"
+        ? nextValue
+        : current[dateKey] || dateTimeDatePart(current[dateTimeKey]);
+      const time = part === "time"
+        ? nextValue
+        : current[timeKey] || dateTimeTimePart(current[dateTimeKey]);
+      return {
+        ...current,
+        [dateKey]: date,
+        [timeKey]: time,
+        [dateTimeKey]: combinedDateTimeValue(date, time),
+      };
+    }
+
+    function firstNumericValue(...values) {
+      for (const value of values) {
+        if (value === null || value === undefined || value === "") continue;
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+      return 0;
+    }
+
+    function sortOptionsForTab(tab) {
+      if (tab === "wallets") {
+        return [
+          { value: "insiderStyleWalletScore-desc", label: "Highest insider-style concern" },
+          { value: "walletScore-desc", label: "Highest wallet concern" },
+          { value: "suspiciousTradeCount-desc", label: "Most suspicious trades" },
+          { value: "eventTradeCount-desc", label: "Most event trades" },
+          { value: "relatedMarketTradeCount-desc", label: "Most related-market trades" },
+          { value: "wallet-asc", label: "Wallet A-Z" },
+        ];
+      }
+      if (tab === "clusters") {
+        return [
+          { value: "clusterScore-desc", label: "Strongest linked group" },
+          { value: "walletCount-desc", label: "Most wallets" },
+          { value: "relatedMarketOverlap-desc", label: "Most related overlap" },
+          { value: "connectionType-asc", label: "Link type A-Z" },
+        ];
+      }
+      return [
+        { value: "forensic-desc", label: "Event forensic priority (recommended)" },
+        { value: "entryProbability-asc", label: "Lowest entry price / implied probability" },
+        { value: "positionSize-desc", label: "Largest position" },
+        { value: "timestamp-desc", label: "Newest first" },
+        { value: "timestamp-asc", label: "Oldest first" },
+        { value: "existingModelScore-desc", label: "Base scanner score (diagnostic)" },
+        { value: "relatedMarketTrades-desc", label: "Most related-market repeats" },
+      ];
+    }
+
+    function sortRowsForTab(tab, rows, sortMode) {
+      const list = Array.isArray(rows) ? [...rows] : [];
+      const mode = sortMode || defaultSortMode(tab);
+      const compareText = (left, right) => String(left || "").localeCompare(String(right || ""));
+      const compareTradeConcern = (left, right) =>
+        numericValue(right.eventForensicScore) - numericValue(left.eventForensicScore)
+        || hardEvidenceRank(right) - hardEvidenceRank(left)
+        || numericValue(right.existingModelScore) - numericValue(left.existingModelScore)
+        || numericValue(right.positionSize) - numericValue(left.positionSize);
+      list.sort((left, right) => {
+        if (tab === "wallets") {
+          if (mode === "insiderStyleWalletScore-desc") return hardEvidenceRank(right) - hardEvidenceRank(left) || firstNumericValue(right.insiderStyleWalletScore, right.walletScore) - firstNumericValue(left.insiderStyleWalletScore, left.walletScore) || numericValue(right.walletScore) - numericValue(left.walletScore);
+          if (mode === "suspiciousTradeCount-desc") return numericValue(right.suspiciousTradeCount) - numericValue(left.suspiciousTradeCount) || numericValue(right.walletScore) - numericValue(left.walletScore);
+          if (mode === "eventTradeCount-desc") return numericValue(right.eventTradeCount) - numericValue(left.eventTradeCount) || numericValue(right.walletScore) - numericValue(left.walletScore);
+          if (mode === "relatedMarketTradeCount-desc") return numericValue(right.relatedMarketTradeCount) - numericValue(left.relatedMarketTradeCount) || numericValue(right.walletScore) - numericValue(left.walletScore);
+          if (mode === "wallet-asc") return compareText(left.wallet, right.wallet);
+          return hardEvidenceRank(right) - hardEvidenceRank(left) || numericValue(right.walletScore) - numericValue(left.walletScore) || numericValue(right.suspiciousTradeCount) - numericValue(left.suspiciousTradeCount);
+        }
+        if (tab === "clusters") {
+          if (mode === "walletCount-desc") return numericValue(right.walletCount) - numericValue(left.walletCount) || numericValue(right.clusterScore) - numericValue(left.clusterScore);
+          if (mode === "relatedMarketOverlap-desc") return numericValue(right.relatedMarketOverlap) - numericValue(left.relatedMarketOverlap) || numericValue(right.clusterScore) - numericValue(left.clusterScore);
+          if (mode === "connectionType-asc") return compareText(left.connectionType, right.connectionType);
+          return hardEvidenceRank(right) - hardEvidenceRank(left) || numericValue(right.clusterScore) - numericValue(left.clusterScore) || numericValue(right.walletCount) - numericValue(left.walletCount);
+        }
+        if (mode === "forensic-desc") return compareTradeConcern(left, right);
+        if (mode === "entryProbability-asc") return tradeEntryProbabilitySortValue(left) - tradeEntryProbabilitySortValue(right) || compareTradeConcern(left, right);
+        if (mode === "positionSize-desc") return numericValue(right.positionSize) - numericValue(left.positionSize) || compareTradeConcern(left, right);
+        if (mode === "timestamp-desc") return compareText(right.timestamp, left.timestamp);
+        if (mode === "timestamp-asc") return compareText(left.timestamp, right.timestamp);
+        if (mode === "existingModelScore-desc") return numericValue(right.existingModelScore) - numericValue(left.existingModelScore) || compareTradeConcern(left, right);
+        if (mode === "relatedMarketTrades-desc") return numericValue(right.relatedMarketTrades) - numericValue(left.relatedMarketTrades) || compareTradeConcern(left, right);
+        return compareTradeConcern(left, right);
+      });
+      return list;
+    }
+
+    function stripMarkdownMarkers(text) {
+      return String(text || "")
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/__(.*?)__/g, "$1")
+        .replace(/`([^`]*)`/g, "$1");
+    }
+
+    function plainTextFromMarkdown(text) {
+      return stripMarkdownMarkers(text)
+        .split("\n")
+        .map(line => {
+          if (/^#{1,3}\s+/.test(line)) return line.replace(/^#{1,3}\s+/, "");
+          if (/^\s*-\s+/.test(line)) return line.replace(/^\s*-\s+/, "• ");
+          return line;
+        })
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function ReadableReport({ text }) {
+      const lines = useMemo(() => stripMarkdownMarkers(text).split("\n"), [text]);
+      return (
+        <div className="secondary selectable" style={{lineHeight: 1.75}}>
+          {lines.map((rawLine, index) => {
+            const line = String(rawLine || "");
+            if (!line.trim()) {
+              return <div key={index} style={{height: 10}} />;
+            }
+            if (/^###\s+/.test(line)) {
+              return <div key={index} style={{fontSize: 16, fontWeight: 700, marginTop: 10}}>{line.replace(/^###\s+/, "")}</div>;
+            }
+            if (/^##\s+/.test(line)) {
+              return <div key={index} style={{fontSize: 20, fontWeight: 700, marginTop: 14}}>{line.replace(/^##\s+/, "")}</div>;
+            }
+            if (/^#\s+/.test(line)) {
+              return <div key={index} style={{fontSize: 24, fontWeight: 700, marginTop: 2}}>{line.replace(/^#\s+/, "")}</div>;
+            }
+            if (/^\d+\.\s+/.test(line)) {
+              return <div key={index} style={{fontSize: 15, fontWeight: 700, marginTop: 10}}>{line}</div>;
+            }
+            if (/^\s*-\s+/.test(line)) {
+              return <div key={index} style={{paddingLeft: 14}}>• {line.replace(/^\s*-\s+/, "")}</div>;
+            }
+            return <div key={index}>{line}</div>;
+          })}
+        </div>
+      );
+    }
+
+    function entityMatchesForReport(report) {
+      const rows = [
+        ...(report?.display_wallets || report?.suspicious_wallets || []),
+        ...(report?.display_trades || report?.suspicious_trades || []),
+      ];
+      const markets = report?.display_trades || report?.suspicious_trades || [];
+      const matches = [];
+      const seen = new Set();
+      for (const row of rows) {
+        if (!row?.wallet || seen.has(`wallet:${row.wallet}`)) continue;
+        seen.add(`wallet:${row.wallet}`);
+        matches.push({ needle: row.walletShort || shortWallet(row.wallet), entity: walletEntity(row, row.walletShort || shortWallet(row.wallet)) });
+        if (row.username && row.username !== "Not available" && !isLikelySyntheticAlias(row.username, row.wallet)) {
+          matches.push({ needle: row.username, entity: walletEntity(row, row.username) });
+        }
+      }
+      for (const row of markets) {
+        if (!row?.market || seen.has(`market:${row.conditionId || row.market}`)) continue;
+        seen.add(`market:${row.conditionId || row.market}`);
+        matches.push({ needle: row.market, entity: marketEntity(row) });
+      }
+      return matches.sort((left, right) => String(right.needle).length - String(left.needle).length);
+    }
+
+    function EntityText({ text, report, onNavigate }) {
+      const source = String(text || "");
+      const matches = entityMatchesForReport(report).filter(item => item.needle && source.includes(item.needle));
+      if (!matches.length) return <>{source}</>;
+      const pieces = [];
+      let cursor = 0;
+      while (cursor < source.length) {
+        let found = null;
+        let foundIndex = -1;
+        for (const item of matches) {
+          const index = source.indexOf(item.needle, cursor);
+          if (index >= 0 && (foundIndex < 0 || index < foundIndex)) {
+            found = item;
+            foundIndex = index;
+          }
+        }
+        if (!found) {
+          pieces.push(source.slice(cursor));
+          break;
+        }
+        if (foundIndex > cursor) pieces.push(source.slice(cursor, foundIndex));
+        pieces.push(<EntityLink key={`${found.needle}-${foundIndex}`} entity={found.entity} onNavigate={onNavigate}>{found.needle}</EntityLink>);
+        cursor = foundIndex + found.needle.length;
+      }
+      return <>{pieces}</>;
+    }
+
+    function InteractiveReport({ text, report, onNavigate }) {
+      const lines = useMemo(() => stripMarkdownMarkers(text).split("\n"), [text]);
+      return (
+        <div className="secondary selectable" style={{lineHeight: 1.75}}>
+          {lines.map((rawLine, index) => {
+            const line = String(rawLine || "");
+            if (!line.trim()) return <div key={index} style={{height: 10}} />;
+            if (/^###\s+/.test(line)) return <div key={index} style={{fontSize: 16, fontWeight: 700, marginTop: 10}}><EntityText text={line.replace(/^###\s+/, "")} report={report} onNavigate={onNavigate} /></div>;
+            if (/^##\s+/.test(line)) return <div key={index} style={{fontSize: 20, fontWeight: 700, marginTop: 14}}><EntityText text={line.replace(/^##\s+/, "")} report={report} onNavigate={onNavigate} /></div>;
+            if (/^#\s+/.test(line)) return <div key={index} style={{fontSize: 24, fontWeight: 700, marginTop: 2}}><EntityText text={line.replace(/^#\s+/, "")} report={report} onNavigate={onNavigate} /></div>;
+            if (/^\d+\.\s+/.test(line)) return <div key={index} style={{fontSize: 15, fontWeight: 700, marginTop: 10}}><EntityText text={line} report={report} onNavigate={onNavigate} /></div>;
+            if (/^\s*-\s+/.test(line)) return <div key={index} style={{paddingLeft: 14}}>• <EntityText text={line.replace(/^\s*-\s+/, "")} report={report} onNavigate={onNavigate} /></div>;
+            return <div key={index}><EntityText text={line} report={report} onNavigate={onNavigate} /></div>;
+          })}
+        </div>
+      );
+    }
+
+    function clusterMeaning(cluster) {
+      const parts = [];
+      if (cluster?.sameFunder) parts.push("they share a direct funding route");
+      if (cluster?.sameSideTimingPattern) parts.push("they entered the same side in a tight time window");
+      if ((cluster?.relatedMarketOverlap || 0) > 0) parts.push("some of them also repeated the thesis in related markets");
+      if (!parts.length) return "The analyzer grouped these wallets because their event behavior overlaps enough to review together.";
+      return `The analyzer grouped these wallets because ${parts.join(", ")}.`;
+    }
+
+    function concernLabel(score) {
+      const value = Number(score || 0);
+      if (value >= 70) return "High concern";
+      if (value >= 55) return "Worth review";
+      if (value >= 40) return "Context lead";
+      return "Low concern";
+    }
+
+    function isContextOnlyHighVolumeWallet(wallet) {
+      if (!wallet) return false;
+      return wallet.walletPrimaryReviewStatus === "context_only_high_volume_public_user" ||
+        (wallet.caseInterpretationClass === "high_volume_public_power_user" && !wallet.independentHardEvidenceFlag);
+    }
+
+    function walletConcernBadgeLabel(wallet) {
+      if (isContextOnlyHighVolumeWallet(wallet)) return "Context only: high-volume public user";
+      return concernLabel(wallet?.walletScore);
+    }
+
+    function walletConcernBadgeTone(wallet) {
+      if (isContextOnlyHighVolumeWallet(wallet)) return "default";
+      return wallet?.walletScore >= 70 ? "red" : wallet?.walletScore >= 55 ? "amber" : "green";
+    }
+
+    function walletEvidenceLabel(value) {
+      const text = String(value || "");
+      if (text === "Independent evidence") return "Supporting evidence present";
+      if (text === "Timing-only or weak evidence") return "Timing-led signal";
+      return text || "Evidence not evaluated";
+    }
+
+    function walletQualityLabel(value) {
+      const text = String(value || "");
+      if (text === "No weak-history gate") return "No weak-history concern";
+      if (text === "Weak economic history") return "Weak-history caveat";
+      return text || "History not evaluated";
+    }
+
+    function connectionLabel(value) {
+      const text = String(value || "");
+      if (text === "Shared direct funder") return "Shared funding";
+      if (text === "Synchronized same-side entry") return "Tight same-side timing";
+      return text || "Linked behavior";
+    }
+
+    function displayNoteText(value) {
+      return String(value || "")
+        .replace(/The app is showing the top (\d+) of (\d+) visible trade rows/g, "Trade review list is capped at $1 of $2 threshold-cleared trade rows")
+        .replace(/the top (\d+) of (\d+) wallet rows/g, "wallet review list is capped at $1 of $2 wallet rows")
+        .replace(/and the top (\d+) of (\d+) linked-wallet groups/g, "linked-wallet review list is capped at $1 of $2 groups")
+        .replace("Full exports remain in the CSV files on disk.", "Use Open exports for the complete row set.")
+        .replace("The visible panel already includes every row that cleared the configured event-forensic threshold.", "The on-screen review lists include every row that cleared the configured event-forensic threshold.");
+    }
+
+    function walletSummaryText(row) {
+      const score = Number(row?.walletScore || 0);
+      let text = String(row?.summary || "");
+      if (text.startsWith("Wallet score")) {
+        text = text.replace(/^Wallet score \d+\/100 with /, "");
+        if (text) text = text.charAt(0).toUpperCase() + text.slice(1);
+        text = text.replace("winning opening entry/entries", "winning opening entries");
+        if (score && !text.includes("Wallet concern score")) {
+          text = `${text} Wallet concern score: ${score}/100.`;
+        }
+      }
+      text = text
+        .replace(/sibling-event trade\(s\)/g, "sibling-market context trade(s)")
+        .replace(/but those trades are excluded from the primary wallet score\./g, "Sibling-market activity is context only and does not change the single-market score.");
+      return text;
+    }
+
+    function analysisScopeLabel(scope) {
+      return scope === "market" ? "Single market" : "Whole event";
+    }
+
+    function reportAnalysisScope(report) {
+      return report?.analysis_scope || report?.analysis_settings?.analysis_scope || "event";
+    }
+
+    function reportSelectedMarketTitle(report) {
+      return report?.selected_market_title || report?.target_resolution?.selectedMarketTitle || "";
+    }
+
+    function reportSelectedConditionId(report) {
+      return report?.selected_condition_id || report?.analysis_settings?.selected_condition_id || "";
+    }
+
+    function reportSelectedMarketSlug(report) {
+      return report?.selected_market_slug || report?.analysis_settings?.selected_market_slug || report?.target_resolution?.selectedMarketSlug || "";
+    }
+
+    function reportParentEventSlug(report) {
+      return report?.parent_event_slug || report?.event?.slug || report?.target_resolution?.parentEventSlug || "";
+    }
+
+    function syncFiltersWithResolvedTarget(current, resolvedTarget) {
+      const availableMarkets = Array.isArray(resolvedTarget?.availableMarkets) ? resolvedTarget.availableMarkets : [];
+      const currentSelection =
+        availableMarkets.find(item => item.conditionId === current.selectedConditionId) ||
+        availableMarkets.find(item => item.marketSlug === current.selectedMarketSlug) ||
+        null;
+      const keepCurrentMarketScope = current.analysisScope === "market" && !!currentSelection;
+      const nextScope = resolvedTarget?.directMarketInputDetected || keepCurrentMarketScope
+        ? "market"
+        : resolvedTarget?.analysisScope || current.analysisScope || "event";
+      if (nextScope !== "market") {
+        return {
+          ...current,
+          analysisScope: nextScope,
+          selectedConditionId: "",
+          selectedMarketSlug: "",
+        };
+      }
+      const resolvedSelection =
+        availableMarkets.find(item => item.conditionId === resolvedTarget?.selectedConditionId) ||
+        availableMarkets.find(item => item.marketSlug === resolvedTarget?.selectedMarketSlug) ||
+        null;
+      if (resolvedSelection) {
+        return {
+          ...current,
+          analysisScope: nextScope,
+          selectedConditionId: resolvedSelection.conditionId || "",
+          selectedMarketSlug: resolvedSelection.marketSlug || "",
+        };
+      }
+      return {
+        ...current,
+        analysisScope: nextScope,
+        selectedConditionId: currentSelection?.conditionId || "",
+        selectedMarketSlug: currentSelection?.marketSlug || "",
+      };
+    }
+
+    function walletListText(wallets, limit = 4) {
+      const items = Array.isArray(wallets) ? wallets : [];
+      const visible = items.slice(0, limit).map(shortWallet);
+      const hidden = Math.max(0, items.length - visible.length);
+      return hidden ? `${visible.join(", ")} + ${hidden} more` : visible.join(", ");
+    }
+
+    function clusterLeadText(cluster) {
+      const count = cluster?.walletCount || (cluster?.wallets || []).length || 0;
+      const score = cluster?.clusterScore || 0;
+      return `${count} wallet${count === 1 ? "" : "s"} linked by ${connectionLabel(cluster?.connectionType).toLowerCase()}; link strength ${score}/100. ${clusterMeaning(cluster)}`;
+    }
+
+    function plural(value, singular, pluralWord = `${singular}s`) {
+      return `${value} ${value === 1 ? singular : pluralWord}`;
+    }
+
+    function money(value) {
+      return `$${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+
+    function progressMetricRows(status) {
+      const metrics = status?.progressMetrics || status?.progress_metrics || {};
+      const rows = [
+        ["Markets", metrics.analysisMarketCompleted != null && metrics.analysisMarketTotal != null ? `${metrics.analysisMarketCompleted}/${metrics.analysisMarketTotal}` : ""],
+        ["Trades", metrics.rawTradeRowsCollectedSoFar != null ? Number(metrics.rawTradeRowsCollectedSoFar || 0).toLocaleString() : ""],
+        ["Truncated", metrics.truncatedMarketCountSoFar != null ? metrics.truncatedMarketCountSoFar : ""],
+        ["Elapsed", metrics.collectionElapsedSeconds != null ? `${Number(metrics.collectionElapsedSeconds || 0).toFixed(1)}s` : ""],
+        ["Last market", metrics.lastCollectedMarketSlug || ""],
+        ["Sibling context", metrics.singleMarketSiblingContextCount != null ? metrics.singleMarketSiblingContextCount : ""],
+        ["Risk", metrics.collectionRiskClass || ""],
+      ];
+      return rows.filter(([, value]) => value !== "" && value !== null && value !== undefined);
+    }
+
+    function walletExplorerUrl(address) {
+      const text = String(address || "");
+      return /^0x[a-fA-F0-9]{40}$/.test(text) ? `https://polygonscan.com/address/${text}` : "";
+    }
+
+    function txExplorerUrl(hash) {
+      const text = String(hash || "");
+      return /^0x[a-fA-F0-9]{64}$/.test(text) ? `https://polygonscan.com/tx/${text}` : "";
+    }
+
+    function isLikelySyntheticAlias(username, wallet) {
+      const text = String(username || "");
+      const address = String(wallet || "").toLowerCase();
+      return text === "Not available" || text.toLowerCase().startsWith("0x") || (address && text.toLowerCase().includes(address.slice(0, 10)));
+    }
+
+    function walletAliasLabel(row) {
+      const username = String(row?.username || "Not available");
+      if (!username || username === "Not available") return shortWallet(row?.wallet || "");
+      if (isLikelySyntheticAlias(username, row?.wallet)) {
+        return `${username} (local alias; wallet ${shortWallet(row?.wallet || "")})`;
+      }
+      return username;
+    }
+
+    function walletEntity(rowOrAddress, label) {
+      const isObject = rowOrAddress && typeof rowOrAddress === "object";
+      const address = String(isObject ? rowOrAddress.wallet : rowOrAddress || "");
+      const displayLabel = label || (isObject ? (rowOrAddress.walletShort || shortWallet(address)) : shortWallet(address));
+      const profileUrl = isObject ? rowOrAddress.profileUrl : "";
+      return {
+        type: "wallet",
+        label: displayLabel,
+        address: shortWallet(address),
+        full_address: address,
+        internal_target: "wallet_story",
+        external_targets: {
+          polymarket: profileUrl || (address ? `https://polymarket.com/profile/${address}` : ""),
+          blockchain_explorer: walletExplorerUrl(address),
+        },
+      };
+    }
+
+    function marketEntity(rowOrReport, label) {
+      const isReport = rowOrReport?.event && !rowOrReport?.market;
+      const conditionId = isReport ? reportSelectedConditionId(rowOrReport) : rowOrReport?.conditionId;
+      const slug = isReport ? reportSelectedMarketSlug(rowOrReport) : rowOrReport?.marketSlug;
+      const marketLabel = label || (isReport ? reportSelectedMarketTitle(rowOrReport) || rowOrReport?.event?.title : rowOrReport?.market);
+      const url = isReport ? rowOrReport?.event?.canonicalUrl : rowOrReport?.marketUrl;
+      return {
+        type: "market",
+        label: marketLabel || "Unknown market",
+        condition_id: conditionId || "",
+        market_slug: slug || "",
+        internal_target: "market_context",
+        external_targets: { polymarket: url || "" },
+      };
+    }
+
+    function conditionEntity(conditionId, row) {
+      return {
+        type: "condition",
+        label: String(conditionId || ""),
+        condition_id: String(conditionId || ""),
+        market_slug: row?.marketSlug || "",
+        internal_target: "market_context",
+        external_targets: {},
+      };
+    }
+
+    function tradeEntity(row) {
+      return {
+        type: "trade",
+        label: `${row?.walletShort || shortWallet(row?.wallet || "")} in ${truncateLabel(row?.market || "market", 44)}`,
+        trade_id: row?.id || "",
+        wallet: row?.wallet || "",
+        condition_id: row?.conditionId || "",
+        internal_target: "trade_story",
+        external_targets: { polymarket: row?.marketUrl || "" },
+      };
+    }
+
+    function groupNumber(clusters, cluster) {
+      const index = (clusters || []).findIndex(item => item.id === cluster?.id);
+      return index >= 0 ? index + 1 : 1;
+    }
+
+    function groupEntity(cluster, clusters) {
+      const number = groupNumber(clusters, cluster);
+      return {
+        type: "group",
+        label: `Group ${number}`,
+        group_id: cluster?.id || "",
+        internal_target: "group_story",
+        external_targets: {},
+      };
+    }
+
+    function hashEntity(hash) {
+      return {
+        type: "hash",
+        label: shortWallet(String(hash || "")),
+        hash: String(hash || ""),
+        internal_target: "",
+        external_targets: { blockchain_explorer: txExplorerUrl(hash) },
+      };
+    }
+
+    function EntityLink({ entity, onNavigate, children }) {
+      if (!entity) return <span>{children}</span>;
+      const hasInternal = !!entity.internal_target;
+      const external = entity.external_targets || {};
+      const firstExternal = external.polymarket || external.blockchain_explorer || "";
+      const label = children || entity.label || entity.address || entity.condition_id || entity.hash;
+      if (!hasInternal && !firstExternal) {
+        return <span className={entity.type === "wallet" ? "mono" : ""}>{label}</span>;
+      }
+      const className = `entity-link ${entity.type === "wallet" ? "wallet" : entity.type === "group" ? "group" : ""}`;
+      return (
+        <button
+          type="button"
+          className={className}
+          onClick={event => {
+            event.stopPropagation();
+            if (hasInternal) onNavigate(entity);
+            else if (firstExternal) window.open(firstExternal, "_blank", "noopener,noreferrer");
+          }}
+        >
+          {label}
+        </button>
+      );
+    }
+
+    function EntityActions({ entity, summary }) {
+      if (!entity) return null;
+      const external = entity.external_targets || {};
+      const copyValue = entity.full_address || entity.condition_id || entity.hash || entity.label || "";
+      const summaryText = summary || entity.label || copyValue;
+      return (
+        <div className="entity-actions">
+          {external.polymarket ? (
+            <button type="button" className="mini-action" onClick={event => { event.stopPropagation(); window.open(external.polymarket, "_blank", "noopener,noreferrer"); }}>
+              Open on Polymarket ↗
+            </button>
+          ) : null}
+          {external.blockchain_explorer ? (
+            <button type="button" className="mini-action" onClick={event => { event.stopPropagation(); window.open(external.blockchain_explorer, "_blank", "noopener,noreferrer"); }}>
+              Open on Polygonscan ↗
+            </button>
+          ) : null}
+          {copyValue ? (
+            <button type="button" className="mini-action" onClick={event => { event.stopPropagation(); navigator.clipboard.writeText(copyValue); }}>
+              Copy ID
+            </button>
+          ) : null}
+          {summaryText ? (
+            <button type="button" className="mini-action" onClick={event => { event.stopPropagation(); navigator.clipboard.writeText(summaryText); }}>
+              Copy summary
+            </button>
+          ) : null}
+        </div>
+      );
+    }
+
+    function WalletInlineList({ wallets, onNavigate, limit = 4 }) {
+      const items = Array.isArray(wallets) ? wallets : [];
+      const visible = items.slice(0, limit);
+      const hidden = Math.max(0, items.length - visible.length);
+      return (
+        <>
+          {visible.map((wallet, index) => (
+            <React.Fragment key={wallet}>
+              {index ? ", " : ""}
+              <EntityLink entity={walletEntity(wallet)} onNavigate={onNavigate} />
+            </React.Fragment>
+          ))}
+          {hidden ? ` + ${hidden} more` : null}
+        </>
+      );
+    }
+
+    function StorySection({ title, children }) {
+      return (
+        <div className="story-section">
+          <div className="story-section-title">{title}</div>
+          <div className="secondary selectable" style={{lineHeight: 1.75}}>{children}</div>
+        </div>
+      );
+    }
+
+    function TechnicalDetails({ children }) {
+      return (
+        <details className="story-section">
+          <summary>Technical details</summary>
+          <div className="secondary selectable" style={{lineHeight: 1.75, marginTop: 10}}>{children}</div>
+        </details>
+      );
+    }
+
+    function storyConcern(score) {
+      const value = Number(score || 0);
+      if (value >= 70) return "High";
+      if (value >= 55) return "Medium";
+      return "Low";
+    }
+
+    function tradesForWallet(trades, walletAddress) {
+      return (trades || []).filter(item => item.wallet === walletAddress);
+    }
+
+    function tradesForMarket(trades, entity) {
+      const conditionId = entity?.condition_id || entity?.conditionId || "";
+      const slug = entity?.market_slug || entity?.marketSlug || "";
+      return (trades || []).filter(item =>
+        (conditionId && item.conditionId === conditionId) ||
+        (slug && item.marketSlug === slug) ||
+        (!conditionId && !slug && item.market === entity?.label)
+      );
+    }
+
+    function walletSidePhrase(trades) {
+      const counts = {};
+      for (const trade of trades || []) {
+        const key = `${trade.orderSide || "Trade"} ${trade.side || ""}`.trim();
+        counts[key] = (counts[key] || 0) + 1;
+      }
+      const ordered = Object.entries(counts).sort((left, right) => right[1] - left[1]);
+      if (!ordered.length) return "the saved display rows do not include the side breakdown";
+      return ordered.slice(0, 2).map(([label, count]) => `${plural(count, "trade")} as ${label}`).join("; ");
+    }
+
+    function totalExposure(trades) {
+      return (trades || []).reduce((total, trade) => total + Number(trade.positionSize || 0), 0);
+    }
+
+    function reportHasOutcomeContext(report) {
+      const summary = report?.summary || {};
+      const event = report?.event || {};
+      const eligibility = report?.eligibility || {};
+      if ("outcome_context_available" in summary) return !!summary.outcome_context_available;
+      if ("outcomeContextAvailable" in event) return !!event.outcomeContextAvailable;
+      if ("outcome_context_available" in eligibility) return !!eligibility.outcome_context_available;
+      return ["eligible", "partial"].includes(eligibility.status || event.resolutionStatus || "");
+    }
+
+    function tradeOutcomeLabel(trade) {
+      const hasExplicitOutcomeStatus = !!trade && ("outcomeKnown" in trade || "outcomeStatus" in trade);
+      if (!hasExplicitOutcomeStatus || trade?.outcomeKnown || trade?.outcomeStatus === "resolved") {
+        return trade.laterWon ? "Resolved on traded side: Yes" : "Resolved on traded side: No";
+      }
+      return "Final outcome: Not known yet";
+    }
+
+    function tradeOutcomeSentence(trade) {
+      const hasExplicitOutcomeStatus = !!trade && ("outcomeKnown" in trade || "outcomeStatus" in trade);
+      if (!hasExplicitOutcomeStatus || trade?.outcomeKnown || trade?.outcomeStatus === "resolved") {
+        return trade.laterWon
+          ? "That position later resolved on the traded side."
+          : "That position did not resolve on the traded side in the saved outcome context.";
+      }
+      return "The final outcome for this market is not known in the saved report yet.";
+    }
+
+    function openingResolutionSentence(wallet, trades, report) {
+      const notable = Number(wallet?.suspiciousTradeCount || trades.length || 0);
+      const result = String(wallet?.eventResult || "");
+      const match = result.match(/(\d+)\s+winning opening entries out of\s+(\d+)/i);
+      const scope = reportAnalysisScope(report) === "market" ? "the selected market" : "the loaded event scope";
+      if (!reportHasOutcomeContext(report) || result.includes("final outcomes not known")) {
+        return `The wallet made ${plural(notable, "notable trade")} in ${scope}; final outcomes are not available yet.`;
+      }
+      if (notable === 1 && match && Number(match[1]) === 1) {
+        return `The wallet made one notable opening trade in ${scope}, and that position later resolved on the traded side.`;
+      }
+      if (match) {
+        return `The wallet made ${plural(notable, "notable trade")} in ${scope}; ${match[1]} of ${match[2]} opening entries later resolved on the traded side.`;
+      }
+      return `The wallet made ${plural(notable, "notable trade")} in ${scope}.`;
+    }
+
+    function walletConcernDrivers(wallet, trades) {
+      const drivers = [];
+      if ((wallet?.suspiciousTradeCount || 0) > 0) drivers.push(`${plural(wallet.suspiciousTradeCount, "notable trade")}`);
+      const eventResult = String(wallet?.eventResult || "");
+      if (!eventResult.includes("final outcomes not known") && eventResult.match(/^[1-9].*winning opening entries/i)) {
+        drivers.push("opening entries that later resolved on the traded side");
+      }
+      if ((wallet?.relatedMarketTradeCount || 0) > 0) drivers.push("related-market repetition");
+      if ((wallet?.otherEventMarketTrades || 0) > 0) drivers.push("sibling-market context");
+      if (String(wallet?.fundingFlags || "").startsWith("Shared")) drivers.push("shared-funding evidence");
+      if (trades?.some(trade => (trade.eventForensicFlags || []).includes("related_market_repeat"))) drivers.push("repeated event-family behavior");
+      if (trades?.some(trade => (trade.eventForensicFlags || []).includes("dormant_reactivation"))) drivers.push("reactivation after quiet wallet history");
+      return drivers.length ? drivers.slice(0, 4).join(", ") : "timing, outcome, and wallet-history signals";
+    }
+
+    function walletWeakeningLines(report, wallet, trades) {
+      const lines = [];
+      const truncated = Number(report?.summary?.truncated_market_count || 0);
+      if ((wallet?.walletPublicPowerUserFlag || wallet?.walletHighVolumeEventUserFlag || wallet?.walletEventSaturationFlag) && !wallet?.independentHardEvidenceFlag) {
+        lines.push("The account has more than 100 predictions / high-volume public activity, so repeated winning entries are much less probative without independent evidence.");
+        lines.push("The account appears to be a public high-volume bettor/power user, so volume alone can explain many winning entries.");
+      }
+      if (truncated > 0) lines.push(`${plural(truncated, "market")} hit the public trade pagination cap, so the loaded sample may miss some context.`);
+      if (!reportHasOutcomeContext(report)) {
+        lines.push("Final outcomes are not available yet, so this is a live lead rather than a retrospective correctness case.");
+      } else if ((wallet?.suspiciousTradeCount || 0) <= 1) {
+        lines.push("This is a small selected-scope sample; a single correctly resolved entry is weaker than repeated behavior.");
+      }
+      if (!(wallet?.relatedMarketTradeCount || 0)) lines.push("No external related-market repetition is saved for this wallet in the current display rows.");
+      if (!String(wallet?.fundingFlags || "").startsWith("Shared")) {
+        const setting = report?.analysis_settings?.include_blockchain;
+        lines.push(setting ? "No shared blockchain funding link is saved for this wallet." : "Blockchain linkage was not included in this run.");
+      }
+      if (trades?.some(trade => (trade.eventForensicReducers || []).length || (trade.reducesConcern || []).length)) {
+        lines.push("One or more trade rows include reducer notes; inspect them before treating this as a strong case.");
+      }
+      lines.push("Copy-trading, public-news timing, and market-wide repricing can still explain some well-timed entries.");
+      return lines;
+    }
+
+    function tradeWeakeningLines(report, trade) {
+      const lines = [];
+      const truncated = Number(report?.summary?.truncated_market_count || 0);
+      if (truncated > 0) lines.push(`${plural(truncated, "market")} had partial trade samples because of pagination limits.`);
+      if ((trade?.eventForensicReducers || []).length) lines.push(...trade.eventForensicReducers);
+      if ((trade?.reducesConcern || []).length) lines.push(...trade.reducesConcern.slice(0, 3));
+      if (!trade?.fundingKey) lines.push("No direct funding-link key is attached to this trade row.");
+      lines.push(
+        reportHasOutcomeContext(report)
+          ? "A later-correct trade is not proof by itself; compare it against public timing and the wallet's broader behavior."
+          : "Later-correctness is not available yet; compare timing, repricing, funding, and wallet behavior before escalating."
+      );
+      return lines;
+    }
+
+    function groupWeakeningLines(report, cluster) {
+      const lines = [];
+      if (!cluster?.sameFunder) lines.push("This group is not linked by a saved shared direct funder.");
+      if (cluster?.sameSideTimingPattern) lines.push("Same-side timing can reflect public momentum or copy-trading unless funding or repeated behavior supports it.");
+      if (Number(report?.summary?.truncated_market_count || 0) > 0) lines.push("Pagination limits mean group membership may be incomplete.");
+      lines.push("Treat this as a review queue, not proof of common ownership.");
+      return lines;
+    }
+
+    function rankCaveat(wallet, wallets, trades) {
+      if (!wallets?.length || wallet?.wallet !== wallets[0]?.wallet) return "";
+      const maxNotable = Math.max(...wallets.map(item => Number(item.suspiciousTradeCount || 0)));
+      if (Number(wallet.suspiciousTradeCount || 0) >= maxNotable) return "";
+      return `This wallet is ranked first despite having fewer selected-scope trades because its concern score is driven by ${walletConcernDrivers(wallet, trades)}. Other wallets may show more repeated activity and should be reviewed separately.`;
+    }
+
+    function WalletStory({ report, wallet, trades, wallets, clusters, onNavigate }) {
+      const walletTrades = tradesForWallet(trades, wallet.wallet);
+      const exposure = totalExposure(walletTrades);
+      const entity = walletEntity(wallet, wallet.walletShort);
+      const aliasEntity = walletEntity(wallet, walletAliasLabel(wallet));
+      const groupMatches = (clusters || []).filter(cluster => (cluster.wallets || []).includes(wallet.wallet));
+      const caveat = rankCaveat(wallet, wallets, walletTrades);
+      return (
+        <div className="story">
+          <StorySection title="Bottom line">
+            {isContextOnlyHighVolumeWallet(wallet) ? (
+              <>
+                This wallet is a high-volume public-user context case, not a primary insider-style lead. The concern is driven mainly by repeated winning entries and broad activity, while independent hard evidence is absent.
+              </>
+            ) : (
+              <>
+                <EntityLink entity={aliasEntity} onNavigate={onNavigate} /> is a {storyConcern(wallet.walletScore)} concern lead because {walletConcernDrivers(wallet, walletTrades)}.
+              </>
+            )}
+            {caveat ? <><br />{caveat}</> : null}
+            <EntityActions entity={entity} summary={`${wallet.walletShort}: ${walletSummaryText(wallet)}`} />
+          </StorySection>
+          <StorySection title="What happened">
+            {openingResolutionSentence(wallet, walletTrades, report)}
+            {walletTrades.length ? <> The saved display rows show {walletSidePhrase(walletTrades)} with about {money(exposure)} in displayed exposure.</> : <> The wallet's detailed trade rows are not all present in the capped on-screen display.</>}
+            {wallet.otherEventMarketTrades ? <> Sibling-market activity is context only and does not change the single-market score.</> : null}
+          </StorySection>
+          {walletTrades.length ? (
+            <StorySection title="Relevant saved trades">
+              <ul style={{margin: 0, paddingLeft: 18}}>
+                {walletTrades.slice(0, 4).map(trade => (
+                  <li key={trade.id}>
+                    <EntityLink entity={tradeEntity(trade)} onNavigate={onNavigate} />: {trade.orderSide} {trade.side} for {money(trade.positionSize)} at {trade.displayTime}.
+                  </li>
+                ))}
+              </ul>
+            </StorySection>
+          ) : null}
+          <StorySection title="Why this is concerning">
+            {walletSummaryText(wallet)}
+            {groupMatches.length ? <> It also appears in <EntityLink entity={groupEntity(groupMatches[0], clusters)} onNavigate={onNavigate} />, so review linkage before treating the wallet as independent.</> : null}
+          </StorySection>
+          <StorySection title="What weakens the case">
+            <ul style={{margin: 0, paddingLeft: 18}}>
+              {walletWeakeningLines(report, wallet, walletTrades).map((line, index) => <li key={index}>{line}</li>)}
+            </ul>
+          </StorySection>
+          <StorySection title="What to inspect next">
+            <ol style={{margin: 0, paddingLeft: 18}}>
+              <li>Open this wallet's Polymarket profile and compare the event entries with its broader account history.</li>
+              <li>Review the wallet's trade rows in the Trades tab for timing, side, and size consistency.</li>
+              {groupMatches.length ? <li>Open <EntityLink entity={groupEntity(groupMatches[0], clusters)} onNavigate={onNavigate} /> and compare member entry times.</li> : <li>Check whether any hidden/full-export rows link this wallet to another group.</li>}
+              <li>Check public-news timing around the first large entry before escalating.</li>
+            </ol>
+          </StorySection>
+          <TechnicalDetails>
+            Concern score: {wallet.walletScore}/100{"\n"}
+            Wallet: {wallet.wallet}{"\n"}
+            Polymarket label: {wallet.username}{"\n"}
+            Trade IDs in wallet row: {(wallet.tradeIds || []).join(", ") || "Not saved"}{"\n"}
+            Quality gate: {wallet.walletQualityGate || "Not evaluated"}{"\n"}
+            Wallet history: {walletQualityLabel(wallet.walletQualityStatus)}{"\n"}
+            Evidence status: {walletEvidenceLabel(wallet.primaryEvidenceStatus)}{"\n"}
+            Funding flags: {wallet.fundingFlags}{"\n"}
+            Specialist status: {wallet.specialistStatus}; bot status: {wallet.botStatus}; zombie status: {wallet.zombieStatus}
+            {"\n"}Public-user status: {wallet.walletPublicWhaleOrPowerUserLabel || "Not evaluated"}; primary review status: {wallet.walletPrimaryReviewStatus || "Not evaluated"}
+          </TechnicalDetails>
+        </div>
+      );
+    }
+
+    function TradeStory({ report, trade, trades, wallets, clusters, onNavigate }) {
+      const walletRow = (wallets || []).find(item => item.wallet === trade.wallet);
+      const walletEnt = walletEntity(walletRow || trade, trade.walletShort || shortWallet(trade.wallet));
+      const marketEnt = marketEntity(trade);
+      const conditionEnt = conditionEntity(trade.conditionId, trade);
+      const groupMatch = (clusters || []).find(cluster => (cluster.wallets || []).includes(trade.wallet));
+      const txHash = trade?.rawMetrics?.funding_tx_hash || trade?.rawMetrics?.transaction_hash || trade?.rawMetrics?.tx_hash || "";
+      return (
+        <div className="story">
+          <StorySection title="Bottom line">
+            <EntityLink entity={walletEnt} onNavigate={onNavigate} /> in <EntityLink entity={marketEnt} onNavigate={onNavigate} /> is a {storyConcern(trade.eventForensicScore)} concern trade because {trade.summary}
+            <EntityActions entity={tradeEntity(trade)} summary={`${trade.walletShort} ${trade.orderSide} ${trade.side} in ${trade.market}: ${trade.summary}`} />
+          </StorySection>
+          <StorySection title="What happened">
+            The wallet placed a {trade.orderSide} {trade.side} position for {money(trade.positionSize)} at {trade.displayTime}. {tradeOutcomeSentence(trade)}
+          </StorySection>
+          <StorySection title="Why this is concerning">
+            {(trade.eventForensicNotes || [trade.summary]).slice(0, 4).join(" ")}
+            {groupMatch ? <> The wallet also appears in <EntityLink entity={groupEntity(groupMatch, clusters)} onNavigate={onNavigate} />, which makes linkage part of the review context.</> : null}
+          </StorySection>
+          <StorySection title="What weakens the case">
+            <ul style={{margin: 0, paddingLeft: 18}}>
+              {tradeWeakeningLines(report, trade).map((line, index) => <li key={index}>{line}</li>)}
+            </ul>
+          </StorySection>
+          <StorySection title="What to inspect next">
+            <ol style={{margin: 0, paddingLeft: 18}}>
+              <li>Open the wallet story for <EntityLink entity={walletEnt} onNavigate={onNavigate} /> and compare this trade to its other event entries.</li>
+              <li>Open the market context for <EntityLink entity={marketEnt} onNavigate={onNavigate} /> and compare nearby winners.</li>
+              <li>Copy or filter by condition ID <EntityLink entity={conditionEnt} onNavigate={onNavigate} /> if you need the exact market slice.</li>
+            </ol>
+          </StorySection>
+          <TechnicalDetails>
+            Event concern: {trade.eventForensicScore}/100{"\n"}
+            Base scanner score: {trade.existingModelScore}/100 ({trade.existingModelClass}){"\n"}
+            Trade ID: {trade.id}{"\n"}
+            Condition ID: {trade.conditionId}{"\n"}
+            Market slug: {trade.marketSlug}{"\n"}
+            Flags: {(trade.eventForensicFlags || []).join(", ") || "None saved"}{"\n"}
+            Base scanner rule hits: {(trade.existingModelFlags || []).join(", ") || "None saved"}{"\n"}
+            Funding transaction: {txHash ? <EntityLink entity={hashEntity(txHash)} onNavigate={onNavigate}>{txHash}</EntityLink> : "Not saved"}{"\n"}
+            Sibling-market activity is context only and does not change the single-market score: {trade.otherEventMarketTrades || 0}
+          </TechnicalDetails>
+        </div>
+      );
+    }
+
+    function GroupStory({ report, cluster, clusters, trades, wallets, onNavigate }) {
+      const entity = groupEntity(cluster, clusters);
+      const memberRows = (cluster.wallets || []).map(address => wallets.find(wallet => wallet.wallet === address) || { wallet: address, walletShort: shortWallet(address), username: "Not available" });
+      return (
+        <div className="story">
+          <StorySection title="Bottom line">
+            <EntityLink entity={entity} onNavigate={onNavigate} /> is a {storyConcern(cluster.clusterScore)} concern linked-wallet lead because {clusterLeadText(cluster)}
+          </StorySection>
+          <StorySection title="What happened">
+            {plural(cluster.walletCount || memberRows.length, "wallet")} were grouped by {connectionLabel(cluster.connectionType).toLowerCase()}. Member sample:{" "}
+            {memberRows.slice(0, 8).map((wallet, index) => (
+              <React.Fragment key={wallet.wallet}>
+                {index ? ", " : ""}
+                <EntityLink entity={walletEntity(wallet, wallet.walletShort)} onNavigate={onNavigate} />
+              </React.Fragment>
+            ))}
+            {(cluster.walletCount || memberRows.length) > 8 ? ` + ${(cluster.walletCount || memberRows.length) - 8} more` : ""}.
+          </StorySection>
+          <StorySection title="Why this is concerning">
+            {clusterMeaning(cluster)} {cluster.summary}
+          </StorySection>
+          <StorySection title="What weakens the case">
+            <ul style={{margin: 0, paddingLeft: 18}}>
+              {groupWeakeningLines(report, cluster).map((line, index) => <li key={index}>{line}</li>)}
+            </ul>
+          </StorySection>
+          <StorySection title="What to inspect next">
+            <ol style={{margin: 0, paddingLeft: 18}}>
+              <li>Open the strongest member wallet and compare its trade timing against the group.</li>
+              <li>Check whether the same wallets share funding or only entered the same side at similar times.</li>
+              <li>Review member market rows for common side, price band, and position size.</li>
+            </ol>
+          </StorySection>
+          <TechnicalDetails>
+            Link strength: {cluster.clusterScore}/100{"\n"}
+            Group ID: {cluster.id}{"\n"}
+            Connection type: {cluster.connectionType}{"\n"}
+            Wallets: {(cluster.wallets || []).join(", ")}{"\n"}
+            Same funder: {cluster.sameFunder ? "Yes" : "No"}{"\n"}
+            Same-side timing: {cluster.sameSideTimingPattern ? "Yes" : "No"}{"\n"}
+            Related-market overlap: {cluster.relatedMarketOverlap || 0}{"\n"}
+            Sibling-market activity is context only and does not change the single-market score: {cluster.siblingMarketWalletCount || 0} wallet(s)
+          </TechnicalDetails>
+        </div>
+      );
+    }
+
+    function MarketStory({ report, trades, wallets, clusters, onNavigate }) {
+      const topWallet = wallets[0] || null;
+      const topTrade = trades[0] || null;
+      const topCluster = clusters[0] || null;
+      const summary = report?.summary || {};
+      return (
+        <div className="story">
+          <StorySection title="Bottom line">
+            This market-level report has {plural(summary.forensic_suspicious_trade_count || trades.length, "notable trade")} and {plural(summary.suspicious_wallet_count || wallets.length, "wallet lead")} in the saved review set.
+            {topWallet ? <> Start with <EntityLink entity={walletEntity(topWallet, `${topWallet.walletShort} / ${walletAliasLabel(topWallet)}`)} onNavigate={onNavigate} />.</> : null}
+          </StorySection>
+          <StorySection title="What happened">
+            The run reviewed {summary.analysis_market_count || report?.event?.analysisMarketCount || 0} market(s), {summary.candidate_trade_count || 0} above-threshold candidate trade(s), and {summary.unique_wallet_count || 0} unique wallet(s). {displayNoteText(report?.display_note || "")}
+          </StorySection>
+          <StorySection title="Why this is concerning">
+            {topTrade ? <>The highest concern trade is <EntityLink entity={tradeEntity(topTrade)} onNavigate={onNavigate} />.</> : "No trade cleared the saved review threshold."}
+            {topCluster ? <> The strongest linked-wallet lead is <EntityLink entity={groupEntity(topCluster, clusters)} onNavigate={onNavigate} />.</> : null}
+          </StorySection>
+          <StorySection title="Other candidates worth a look">
+            {wallets.slice(1, 5).length ? (
+              <ul style={{margin: 0, paddingLeft: 18}}>
+                {wallets.slice(1, 5).map(candidate => (
+                  <li key={candidate.wallet}>
+                    <EntityLink entity={walletEntity(candidate, `${candidate.walletShort} / ${walletAliasLabel(candidate)}`)} onNavigate={onNavigate} />: {plural(candidate.suspiciousTradeCount || 0, "notable trade")}; {candidate.eventResult || "event result not saved"}.
+                  </li>
+                ))}
+              </ul>
+            ) : "No secondary wallet lead cleared the saved review threshold."}
+          </StorySection>
+          <StorySection title="What weakens the case">
+            <ul style={{margin: 0, paddingLeft: 18}}>
+              {Number(summary.truncated_market_count || 0) ? <li>{plural(summary.truncated_market_count, "market")} hit the public trade pagination cap.</li> : <li>No pagination warning is saved in this report.</li>}
+              <li>Market-level aggregation can mix independent wallets, trades, and linked groups; open a row-specific story before drawing conclusions.</li>
+              <li>Internal model details are kept under technical details / Model QA, not in this default narrative.</li>
+            </ul>
+          </StorySection>
+          <StorySection title="What to inspect next">
+            <ol style={{margin: 0, paddingLeft: 18}}>
+              {topWallet ? <li>Open the wallet story for <EntityLink entity={walletEntity(topWallet, topWallet.walletShort)} onNavigate={onNavigate} />.</li> : null}
+              {topTrade ? <li>Open the trade story for <EntityLink entity={tradeEntity(topTrade)} onNavigate={onNavigate} />.</li> : null}
+              {topCluster ? <li>Open <EntityLink entity={groupEntity(topCluster, clusters)} onNavigate={onNavigate} /> and compare member wallets.</li> : null}
+              <li>Use Model QA only after reviewing the concrete lead.</li>
+            </ol>
+          </StorySection>
+          <TechnicalDetails>
+            Analysis scope: {analysisScopeLabel(reportAnalysisScope(report))}{"\n"}
+            Selected market: {reportSelectedMarketTitle(report) || "All child markets"}{"\n"}
+            Condition ID: {reportSelectedConditionId(report) ? <EntityLink entity={conditionEntity(reportSelectedConditionId(report), { marketSlug: reportSelectedMarketSlug(report) })} onNavigate={onNavigate}>{reportSelectedConditionId(report)}</EntityLink> : "All child markets"}{"\n"}
+            Parent event slug: {reportParentEventSlug(report) || "Unknown"}{"\n"}
+            Report markdown remains available through Open report for export compatibility.
+          </TechnicalDetails>
+        </div>
+      );
+    }
+
+    function AnalystNarrative({ report, trade, wallet, cluster, trades, wallets, clusters, onNavigate }) {
+      if (!report) return <div className="secondary">No event report loaded.</div>;
+      if (wallet) return <WalletStory report={report} wallet={wallet} trades={trades} wallets={wallets} clusters={clusters} onNavigate={onNavigate} />;
+      if (trade) return <TradeStory report={report} trade={trade} trades={trades} wallets={wallets} clusters={clusters} onNavigate={onNavigate} />;
+      if (cluster) return <GroupStory report={report} cluster={cluster} clusters={clusters} trades={trades} wallets={wallets} onNavigate={onNavigate} />;
+      return <MarketStory report={report} trades={trades} wallets={wallets} clusters={clusters} onNavigate={onNavigate} />;
+    }
+
+    function selectionCopyText(type, row) {
+      if (!row) return "";
+      if (type === "wallets") {
+        return [
+          "Wallet review",
+          `Analysis scope: ${analysisScopeLabel(row.analysisScope)}`,
+          `Selected market: ${row.selectedMarketTitle || ""}`,
+          `Wallet: ${row.wallet}`,
+          `Polymarket label: ${row.username}`,
+          `Concern score: ${row.walletScore}`,
+          `Notable trades: ${row.suspiciousTradeCount}`,
+          `Event trades: ${row.eventTradeCount}`,
+          `Related-market trades: ${row.relatedMarketTradeCount}`,
+          `Sibling-market context trades: ${row.otherEventMarketTrades || 0}`,
+          `Wallet history: ${walletQualityLabel(row.walletQualityStatus)}`,
+          `Evidence status: ${walletEvidenceLabel(row.primaryEvidenceStatus)}`,
+          `Funding flags: ${row.fundingFlags}`,
+          `Specialist status: ${row.specialistStatus}`,
+          `Bot status: ${row.botStatus}`,
+          `Summary: ${walletSummaryText(row)}`,
+        ].join("\n");
+      }
+      if (type === "clusters") {
+        return [
+          "Linked-wallet group",
+          `Analysis scope: ${analysisScopeLabel(row.analysisScope)}`,
+          `Selected market: ${row.selectedMarketTitle || ""}`,
+          `Link type: ${connectionLabel(row.connectionType)}`,
+          `Link strength: ${row.clusterScore}`,
+          `Wallet count: ${row.walletCount}`,
+          `Wallets: ${(row.wallets || []).join(", ")}`,
+          `Shared funder: ${row.sameFunder ? "Yes" : "No"}`,
+          `Tight same-side timing: ${row.sameSideTimingPattern ? "Yes" : "No"}`,
+          `Related overlap: ${row.relatedMarketOverlap}`,
+          `Sibling-market context wallets: ${row.siblingMarketWalletCount || 0}`,
+          `Meaning: ${clusterMeaning(row)}`,
+          `Summary: ${row.summary}`,
+        ].join("\n");
+      }
+      return [
+        "Trade review",
+        `Analysis scope: ${analysisScopeLabel(row.analysisScope)}`,
+        `Selected market: ${row.selectedMarketTitle || ""}`,
+        `Market: ${row.market}`,
+        `Wallet: ${row.wallet}`,
+        `Polymarket label: ${row.username}`,
+        `Time: ${row.displayTime}`,
+        `Position: ${row.orderSide} ${row.side}`,
+        `Notional: $${Number(row.positionSize || 0).toLocaleString()}`,
+        `Event concern: ${row.eventForensicScore}`,
+        `Base scanner score: ${row.existingModelScore}`,
+        tradeOutcomeLabel(row),
+        `Related-market trades: ${row.relatedMarketTrades}`,
+        `Sibling-market context trades: ${row.otherEventMarketTrades || 0}`,
+        `Summary: ${row.summary}`,
+      ].join("\n");
+    }
+
+    function graphNoteLines(graph, limit = 20) {
+      const nodesById = Object.fromEntries((graph?.nodes || []).map(node => [node.id, node]));
+      return (graph?.edges || []).slice(0, limit).map(edge => {
+        const source = nodesById[edge.source]?.label || edge.source;
+        const target = nodesById[edge.target]?.label || edge.target;
+        return `${source} -> ${target} (${edge.label})`;
+      });
+    }
+
+    function graphNodeEntity(node, report) {
+      if (!node) return null;
+      const trades = report?.display_trades || report?.suspicious_trades || [];
+      const wallets = report?.display_wallets || report?.suspicious_wallets || [];
+      if (node.type === "wallet") {
+        const row = wallets.find(item => item.wallet === node.id) || trades.find(item => item.wallet === node.id) || node.id;
+        return walletEntity(row, node.label || shortWallet(node.id));
+      }
+      if (node.type === "market") {
+        const slug = String(node.id || "").replace(/^market:/, "");
+        const row = trades.find(item => item.marketSlug === slug || item.market === node.label);
+        return row ? marketEntity(row, node.label) : null;
+      }
+      if (node.type === "funder") {
+        const address = String(node.id || "").replace(/^funder:/, "");
+        return walletEntity(address, node.label || shortWallet(address));
+      }
+      return null;
+    }
+
+    function GraphLinkLines({ report, limit = 8, onNavigate }) {
+      const graph = report?.wallet_graph || {};
+      const nodesById = Object.fromEntries((graph.nodes || []).map(node => [node.id, node]));
+      const edges = (graph.edges || []).slice(0, limit);
+      if (!edges.length) return null;
+      return (
+        <div style={{display: "grid", gap: 6}}>
+          {edges.map((edge, index) => {
+            const sourceNode = nodesById[edge.source];
+            const targetNode = nodesById[edge.target];
+            const sourceEntity = graphNodeEntity(sourceNode, report);
+            const targetEntity = graphNodeEntity(targetNode, report);
+            return (
+              <div key={`${edge.source}-${edge.target}-${index}`}>
+                <EntityLink entity={sourceEntity} onNavigate={onNavigate}>{sourceNode?.label || edge.source}</EntityLink>
+                {" -> "}
+                <EntityLink entity={targetEntity} onNavigate={onNavigate}>{targetNode?.label || edge.target}</EntityLink>
+                {` (${edge.label})`}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function graphSummaryLines(report) {
+      const graph = report?.wallet_graph || {};
+      const clusters = report?.display_clusters || report?.wallet_clusters || [];
+      const nodes = graph.nodes || [];
+      const edges = graph.edges || [];
+      const lines = [
+        `Connection map scope: ${analysisScopeLabel(reportAnalysisScope(report))}.`,
+        `Map contains ${nodes.length} node${nodes.length === 1 ? "" : "s"} and ${edges.length} link${edges.length === 1 ? "" : "s"}.`,
+      ];
+      if (clusters.length) {
+        const top = clusters[0];
+        lines.push(`Strongest linked lead: ${clusterLeadText(top)}`);
+        lines.push(`Wallet sample: ${walletListText(top.wallets, 6)}.`);
+      } else {
+        lines.push("No linked-wallet group cleared the saved review threshold.");
+      }
+      return lines;
+    }
+
+    function graphCopyText(report) {
+      const graph = report?.wallet_graph || {};
+      return [
+        `Connection map for ${report?.event?.title || "event"}`,
+        `Analysis scope: ${analysisScopeLabel(reportAnalysisScope(report))}`,
+        `Selected market: ${reportSelectedMarketTitle(report) || ""}`,
+        report?.scope_note || "This is an event-wide report.",
+        ...graphSummaryLines(report),
+        `Linked-wallet groups: ${(report?.wallet_clusters || []).length}`,
+        "",
+        "Sample links:",
+        ...graphNoteLines(graph, 12),
+      ].join("\n").trim();
+    }
+
+    function GraphCanvas({ graph }) {
+      const nodes = graph?.nodes || [];
+      const edges = graph?.edges || [];
+      const layout = useMemo(() => {
+        const typeOrder = ["funder", "wallet", "market"];
+        const groups = { funder: [], wallet: [], market: [], other: [] };
+        for (const node of nodes) {
+          const type = groups[node.type] ? node.type : "other";
+          groups[type].push(node);
+        }
+        for (const key of Object.keys(groups)) {
+          groups[key].sort((left, right) => (right.score || 0) - (left.score || 0) || String(left.label || "").localeCompare(String(right.label || "")));
+        }
+        const width = 1120;
+        const columnX = { funder: 150, wallet: 560, market: 970, other: 560 };
+        const spacing = 32;
+        const top = 40;
+        const maxCount = Math.max(1, ...Object.values(groups).map(items => items.length));
+        const height = Math.max(360, top * 2 + (maxCount - 1) * spacing + 40);
+        const positions = {};
+        for (const key of [...typeOrder, "other"]) {
+          groups[key].forEach((node, index) => {
+            positions[node.id] = { x: columnX[key], y: top + index * spacing };
+          });
+        }
+        return { groups, positions, width, height };
+      }, [graph, nodes]);
+
+      if (!nodes.length) return null;
+
+      const nodeColors = {
+        funder: "var(--amber)",
+        wallet: "var(--cyan)",
+        market: "var(--accent)",
+        other: "var(--green)",
+      };
+
+      return (
+        <div className="tile" style={{padding: 12}}>
+          <div className="section-label">Connection Map</div>
+          <div className="secondary" style={{marginBottom: 10, lineHeight: 1.6}}>
+            This is a simplified map of the strongest saved links only. Wallets sit in the middle, markets on the right, and funders on the left.
+          </div>
+          <div style={{display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 12}}>
+            <Badge label="Funders" tone="amber" />
+            <Badge label="Wallets" tone="cyan" />
+            <Badge label="Markets" tone="default" />
+            {graph?.simplified ? <Badge label="Top slice only" tone="green" /> : null}
+          </div>
+          <div style={{overflow: "auto", border: "1px solid var(--border)", borderRadius: 12, background: "rgba(8, 17, 31, 0.75)"}}>
+            <svg width={layout.width} height={layout.height} role="img" aria-label="Connection map">
+              {edges.map((edge, index) => {
+                const source = layout.positions[edge.source];
+                const target = layout.positions[edge.target];
+                if (!source || !target) return null;
+                return (
+                  <line
+                    key={`edge-${index}`}
+                    x1={source.x}
+                    y1={source.y}
+                    x2={target.x}
+                    y2={target.y}
+                    stroke="rgba(169, 185, 214, 0.38)"
+                    strokeWidth={Math.max(1.2, Math.min(3.6, (edge.score || 0) / 28))}
+                  />
+                );
+              })}
+              {nodes.map(node => {
+                const position = layout.positions[node.id];
+                if (!position) return null;
+                const fill = nodeColors[node.type] || nodeColors.other;
+                const label = truncateLabel(node.label, node.type === "market" ? 34 : 18);
+                return (
+                  <g key={node.id}>
+                    <circle cx={position.x} cy={position.y} r={8} fill={fill} />
+                    <text
+                      x={position.x + 14}
+                      y={position.y + 4}
+                      fill="var(--text)"
+                      fontFamily="Inter, sans-serif"
+                      fontSize="12"
+                    >
+                      {label}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+      );
+    }
+
+    function LeftRail({ filters, setFilters, status, caseReview, reviewArtifacts, report, recentRuns, resolvedTarget, onResolveTarget, onAnalyze, onStop, onOpenRun, onOpenOutput, onOpenExports, onRunCaseReviewer }) {
+      const summary = report?.summary;
+      const event = report?.event;
+      const reviewSummary = caseReview?.summary || {};
+      const reviewOutputs = caseReview?.outputs || {};
+      const reviewFixes = Array.isArray(reviewSummary.topSuggestedFixes) ? reviewSummary.topSuggestedFixes : [];
+      const previewOnly = report?.status === "preview_only";
+      const eligibilityStatus = report?.eligibility?.status || report?.event?.resolutionStatus || "";
+      const partialEvent = eligibilityStatus === "partial";
+      const liveEvent = eligibilityStatus === "live";
+      const unresolvedEvent = eligibilityStatus === "unresolved";
+      const analysisScope = filters.analysisScope || "event";
+      const availableMarkets = resolvedTarget?.availableMarkets || report?.target_resolution?.availableMarkets || [];
+      const resolvedEvent = resolvedTarget?.event || null;
+      const selectedMarket = availableMarkets.find(item => item.conditionId === filters.selectedConditionId) || null;
+      const showChildMarketPicker = analysisScope === "market" || availableMarkets.length > 0;
+      return (
+        <div className="column">
+          <div style={{overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 12, paddingRight: 2}}>
+            <div className="panel" style={{padding: 14}}>
+              <div style={{fontSize: 15, fontWeight: 700, marginBottom: 14}}>Target event</div>
+              <div className="section-label">Polymarket link</div>
+              <textarea
+                value={filters.url}
+                onChange={event => setFilters(current => ({ ...current, url: event.target.value }))}
+                className="btn selectable"
+                placeholder="https://polymarket.com/event/..."
+                style={{width: "100%", minHeight: 104, resize: "vertical", marginBottom: 12, textAlign: "left"}}
+              />
+              <div style={{display: "flex", gap: 8, marginBottom: 12}}>
+                <button className="btn secondary" onClick={onResolveTarget} style={{flex: 1}}>
+                  Resolve child markets
+                </button>
+              </div>
+              {resolvedEvent ? (
+                <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 12}}>
+                  Resolved event: {resolvedEvent.title}{"\n"}
+                  Child markets: {resolvedEvent.marketCount || 0}
+                </div>
+              ) : null}
+              <div className="section-label">Analysis scope</div>
+              <select
+                value={analysisScope}
+                onChange={event => setFilters(current => {
+                  const nextScope = event.target.value;
+                  if (nextScope === "market" && !current.selectedConditionId) {
+                    const fallbackMarket =
+                      availableMarkets.find(item => item.conditionId === resolvedTarget?.selectedConditionId) ||
+                      availableMarkets.find(item => item.selected) ||
+                      null;
+                    if (fallbackMarket) {
+                      return {
+                        ...current,
+                        analysisScope: nextScope,
+                        selectedConditionId: fallbackMarket.conditionId,
+                        selectedMarketSlug: fallbackMarket.marketSlug || current.selectedMarketSlug,
+                      };
+                    }
+                  }
+                  if (nextScope === "market" && !current.selectedConditionId && resolvedTarget?.selectedConditionId) {
+                    return {
+                      ...current,
+                      analysisScope: nextScope,
+                      selectedConditionId: resolvedTarget.selectedConditionId,
+                      selectedMarketSlug: resolvedTarget.selectedMarketSlug || current.selectedMarketSlug,
+                    };
+                  }
+                  if (nextScope !== "market") {
+                    return {
+                      ...current,
+                      analysisScope: nextScope,
+                      selectedConditionId: "",
+                      selectedMarketSlug: "",
+                    };
+                  }
+                  return { ...current, analysisScope: nextScope };
+                })}
+                className="btn secondary"
+                style={{width: "100%", marginBottom: 12}}
+              >
+                <option value="event">Whole event</option>
+                <option value="market">Single market</option>
+              </select>
+              {showChildMarketPicker ? (
+                <>
+                  <div className="section-label">Target child market</div>
+                  {availableMarkets.length ? (
+                    <select
+                      value={analysisScope === "market" ? filters.selectedConditionId || "" : ""}
+                      onChange={event => {
+                        const nextConditionId = event.target.value;
+                        const nextMarket = availableMarkets.find(item => item.conditionId === nextConditionId);
+                        setFilters(current => ({
+                          ...current,
+                          analysisScope: nextConditionId ? "market" : "event",
+                          selectedConditionId: nextConditionId,
+                          selectedMarketSlug: nextConditionId ? nextMarket?.marketSlug || current.selectedMarketSlug : "",
+                        }));
+                      }}
+                      className="btn secondary"
+                      style={{width: "100%", marginBottom: 12}}
+                    >
+                      <option value="">Whole event / no child market selected</option>
+                      {availableMarkets.map(item => (
+                        <option key={item.conditionId} value={item.conditionId}>
+                          {`${item.marketTitle} · ${item.statusLabel} · ${item.conditionId}`}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 12}}>
+                      Resolve the event first to load the canonical child-market list, or enter an exact condition ID / slug below.
+                    </div>
+                  )}
+                  {availableMarkets.length ? (
+                    <div className="muted" style={{fontSize: 12, lineHeight: 1.55, marginTop: -6, marginBottom: 12}}>
+                      Selecting a child market switches scope to Single market. Leaving this blank keeps Whole event.
+                    </div>
+                  ) : null}
+                  {selectedMarket ? (
+                    <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 12}}>
+                      Selected market: {selectedMarket.marketTitle}{"\n"}
+                      Condition ID: {selectedMarket.conditionId}{"\n"}
+                      Slug: {selectedMarket.marketSlug}
+                    </div>
+                  ) : null}
+                  <div className="section-label">Condition ID (advanced)</div>
+                  <input
+                    value={filters.selectedConditionId}
+                    onChange={event => setFilters(current => ({
+                      ...current,
+                      analysisScope: event.target.value ? "market" : current.analysisScope,
+                      selectedConditionId: event.target.value,
+                      selectedMarketSlug: "",
+                    }))}
+                    className="btn mono"
+                    style={{width: "100%", marginBottom: 12}}
+                  />
+                  <div className="section-label">Child market slug (advanced)</div>
+                  <input
+                    value={filters.selectedMarketSlug}
+                    onChange={event => setFilters(current => ({
+                      ...current,
+                      analysisScope: event.target.value ? "market" : current.analysisScope,
+                      selectedConditionId: "",
+                      selectedMarketSlug: event.target.value,
+                    }))}
+                    className="btn mono"
+                    style={{width: "100%", marginBottom: 12}}
+                  />
+                </>
+              ) : null}
+              <div className="section-label">Minimum trade size</div>
+              <input
+                value={filters.minSize}
+                onChange={event => setFilters(current => ({ ...current, minSize: event.target.value }))}
+                onFocus={event => event.target.select()}
+                inputMode="decimal"
+                placeholder="1000"
+                aria-label="Minimum trade size"
+                className="btn mono"
+                style={{width: "100%", marginBottom: 12}}
+              />
+              <div className="section-label">Max entry probability %</div>
+              <input
+                value={filters.maxEntryProbability || ""}
+                onChange={event => setFilters(current => ({ ...current, maxEntryProbability: event.target.value }))}
+                onFocus={event => event.target.select()}
+                inputMode="decimal"
+                placeholder="Optional, e.g. 80"
+                aria-label="Maximum entry probability percent"
+                className="btn mono"
+                style={{width: "100%", marginBottom: 12}}
+              />
+              <div className="section-label">Analysis time window</div>
+              <div style={{display: "grid", gap: 10, marginBottom: 12}}>
+                <div style={{border: "1px solid var(--border)", borderRadius: 12, padding: 10, background: "rgba(8, 17, 31, 0.42)"}}>
+                  <div className="muted" style={{fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 7}}>Start</div>
+                  <div style={{display: "grid", gridTemplateColumns: "minmax(0, 1fr) 112px", gap: 8}}>
+                    <input
+                      type="date"
+                      value={dateTimeFilterDate(filters, "start")}
+                      onChange={event => setFilters(current => updateDateTimeFilter(current, "start", "date", event.target.value))}
+                      className="btn mono"
+                      style={{width: "100%", minWidth: 0, paddingLeft: 10, paddingRight: 8}}
+                      aria-label="Analysis start date"
+                    />
+                    <input
+                      type="time"
+                      step="60"
+                      value={dateTimeFilterTime(filters, "start")}
+                      onChange={event => setFilters(current => updateDateTimeFilter(current, "start", "time", event.target.value))}
+                      className="btn mono"
+                      style={{width: "100%", minWidth: 0, paddingLeft: 10, paddingRight: 8}}
+                      aria-label="Analysis start time"
+                    />
+                  </div>
+                </div>
+                <div style={{border: "1px solid var(--border)", borderRadius: 12, padding: 10, background: "rgba(8, 17, 31, 0.42)"}}>
+                  <div className="muted" style={{fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 7}}>End</div>
+                  <div style={{display: "grid", gridTemplateColumns: "minmax(0, 1fr) 112px", gap: 8}}>
+                    <input
+                      type="date"
+                      value={dateTimeFilterDate(filters, "end")}
+                      onChange={event => setFilters(current => updateDateTimeFilter(current, "end", "date", event.target.value))}
+                      className="btn mono"
+                      style={{width: "100%", minWidth: 0, paddingLeft: 10, paddingRight: 8}}
+                      aria-label="Analysis end date"
+                    />
+                    <input
+                      type="time"
+                      step="60"
+                      value={dateTimeFilterTime(filters, "end")}
+                      onChange={event => setFilters(current => updateDateTimeFilter(current, "end", "time", event.target.value))}
+                      className="btn mono"
+                      style={{width: "100%", minWidth: 0, paddingLeft: 10, paddingRight: 8}}
+                      aria-label="Analysis end time"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div style={{display: "grid", gap: 8}}>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Include related case-family markets</div>
+                    <div className="muted" style={{fontSize: 12}}>Whole event mode adds title-similar sibling events to primary rankings; Single market keeps them as enrichment only.</div>
+                  </span>
+                  <input type="checkbox" checked={!!filters.includeRelatedMarkets} onChange={event => setFilters(current => ({ ...current, includeRelatedMarkets: event.target.checked }))} />
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Include blockchain linkage</div>
+                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields when available; mode below controls live tracing.</div>
+                  </span>
+                  <input type="checkbox" checked={!!filters.includeBlockchain} onChange={event => setFilters(current => ({ ...current, includeBlockchain: event.target.checked }))} />
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Funding trace mode</div>
+                    <div className="muted" style={{fontSize: 12}}>Disabled keeps funding evidence unknown and does not call RPC.</div>
+                  </span>
+                  <select
+                    value={filters.fundingTraceMode || "disabled"}
+                    onChange={event => setFilters(current => ({
+                      ...current,
+                      fundingTraceMode: event.target.value,
+                      includeBlockchain: event.target.value === "disabled" ? true : current.includeBlockchain,
+                    }))}
+                    className="btn"
+                    style={{minWidth: 150}}
+                  >
+                    <option value="live_rpc">Live RPC</option>
+                    <option value="cache_only">Cache only</option>
+                    <option value="disabled">Disabled / no RPC</option>
+                  </select>
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Run reviewer automatically after analysis</div>
+                    <div className="muted" style={{fontSize: 12}}>Run a second-pass logic audit after the saved forensic bundle is written.</div>
+                  </span>
+                  <input type="checkbox" checked={!!filters.autoRunReviewer} onChange={event => setFilters(current => ({ ...current, autoRunReviewer: event.target.checked }))} />
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Use LLM reasoning if configured</div>
+                    <div className="muted" style={{fontSize: 12}}>Advisory only; deterministic review still runs first.</div>
+                  </span>
+                  <input type="checkbox" checked={!!filters.useLLMReviewer} onChange={event => setFilters(current => ({ ...current, useLLMReviewer: event.target.checked }))} />
+                </label>
+              </div>
+            </div>
+
+            <button
+              className="btn primary"
+              onClick={status.running ? onStop : onAnalyze}
+              style={{position: "sticky", bottom: 0, zIndex: 4, boxShadow: "0 -8px 18px rgba(8, 17, 31, 0.42)"}}
+            >
+              {status.running ? "Stop forensic run" : "Analyze event"}
+            </button>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10}}>
+                <div style={{fontSize: 15, fontWeight: 700}}>Run status</div>
+                <Badge label={status.stage || "Ready"} tone={status.error ? "red" : status.running ? "cyan" : "default"} />
+              </div>
+              <div className="progress-track" style={{marginBottom: 10}}>
+                <div className="progress-fill" style={{width: `${status.percent || 0}%`}} />
+              </div>
+              <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                {status.detail || "Ready"}
+              </div>
+              <div style={{marginTop: 10}}>
+                <Badge
+                  label={`Funding: ${report?.performance?.fundingTraceMode || report?.analysis_settings?.funding_trace_mode || filters.fundingTraceMode || "live_rpc"}`}
+                  tone={(report?.performance?.fundingTraceMode || filters.fundingTraceMode) === "live_rpc" ? "cyan" : "amber"}
+                />
+              </div>
+              {progressMetricRows(status).length > 0 && (
+                <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8, marginTop: 12}}>
+                  {progressMetricRows(status).map(([label, value]) => (
+                    <div key={label} style={{border: "1px solid var(--border)", borderRadius: 8, padding: "8px 9px", background: "rgba(255, 255, 255, 0.03)", minWidth: 0}}>
+                      <div className="muted" style={{fontSize: 11, marginBottom: 3}}>{label}</div>
+                      <div className="selectable" style={{fontSize: 12, fontWeight: 700, overflowWrap: "anywhere"}}>{value}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {status.error && <div style={{marginTop: 10}}><Badge label={status.error} tone="red" /></div>}
+            </div>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 12}}>
+                <div style={{fontSize: 15, fontWeight: 700}}>Event summary</div>
+                {previewOnly
+                  ? <Badge label="Preview only" tone="amber" />
+                  : partialEvent
+                  ? <Badge label="Partial event" tone="amber" />
+                  : liveEvent
+                  ? <Badge label="Live event" tone="amber" />
+                  : unresolvedEvent
+                  ? <Badge label="Outcome pending" tone="amber" />
+                  : event
+                  ? <Badge label={event.familyId || "event"} tone="cyan" />
+                  : null}
+              </div>
+              {event ? (
+                <>
+                  <div className="selectable" style={{fontSize: 14, fontWeight: 600, lineHeight: 1.45, marginBottom: 10}}>{event.title}</div>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10}}>
+                    <StatTile label="Markets" value={summary?.analysis_market_count || event.analysisMarketCount || event.marketCount || 0} />
+                    <StatTile label="Candidate trades" value={summary?.candidate_trade_count || 0} tone="cyan" />
+                  </div>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10}}>
+                    <StatTile label="Notable trades" value={summary?.forensic_suspicious_trade_count || 0} tone="red" />
+                    <StatTile label="Notable wallets" value={summary?.suspicious_wallet_count || 0} tone="amber" />
+                  </div>
+                  <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                    Analysis scope: {analysisScopeLabel(reportAnalysisScope(report))}{"\n"}
+                    Selected market: {reportSelectedMarketTitle(report) || "All child markets"}{"\n"}
+                    Condition ID: {reportSelectedConditionId(report) || "All child markets"}{"\n"}
+                    Market slug: {reportSelectedMarketSlug(report) || "All child markets"}{"\n"}
+                    Parent event slug: {reportParentEventSlug(report) || "Unknown"}{"\n"}
+                    Unique wallets: {summary?.unique_wallet_count || 0}{"\n"}
+                    Existing model flagged: {summary?.existing_flagged_count || 0}{"\n"}
+                    Clusters: {summary?.wallet_cluster_count || 0}
+                  </div>
+                  {report?.scope_note ? (
+                    <div className="secondary selectable" style={{lineHeight: 1.65, marginTop: 10}}>
+                      {report.scope_note}
+                    </div>
+                  ) : null}
+                  {Array.isArray(report?.evidence_warnings) && report.evidence_warnings.length ? (
+                    <div className="secondary selectable" style={{lineHeight: 1.65, marginTop: 10}}>
+                      Evidence warning: {report.evidence_warnings.join("\n")}
+                    </div>
+                  ) : null}
+                  {(partialEvent || liveEvent || unresolvedEvent) && report?.eligibility?.reason ? (
+                    <div className="secondary selectable" style={{lineHeight: 1.65, marginTop: 10}}>
+                      {report.eligibility.reason}
+                    </div>
+                  ) : null}
+                  <div style={{display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12}}>
+                    <button className="btn secondary" onClick={() => onOpenOutput("event_report_md_path")}>Open report</button>
+                    <button className="btn secondary" onClick={() => onOpenOutput("model_gap_report_md_path")}>Open model QA</button>
+                    {report?.export_files?.candidate_audit_md_path ? (
+                      <button className="btn secondary" onClick={() => onOpenOutput("candidate_audit_md_path")}>Open candidate audit</button>
+                    ) : null}
+                    <button className="btn secondary" onClick={onOpenExports}>Open exports</button>
+                  </div>
+                </>
+              ) : (
+                <div className="muted" style={{lineHeight: 1.7}}>
+                  Paste any Polymarket event or market link. The analyzer can run on the whole event or on one exact child market after you resolve the event and pick a condition ID.
+                </div>
+              )}
+            </div>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10}}>
+                <div style={{fontSize: 15, fontWeight: 700}}>Case Reviewer: second-pass logic audit</div>
+                <Badge label={caseReview?.stage || "Idle"} tone={caseReview?.error ? "red" : caseReview?.running ? "cyan" : "default"} />
+              </div>
+              <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 12}}>
+                Reviews the saved forensic output for likely false positives, missing evidence, and model-improvement recommendations. It does not change scoring rules automatically.
+              </div>
+              <button className="btn primary" onClick={onRunCaseReviewer} disabled={!!caseReview?.running || !!status.running} style={{width: "100%", marginBottom: 12}}>
+                {caseReview?.running ? "Reviewer running..." : "Run Case Reviewer"}
+              </button>
+              <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 12}}>
+                {caseReview?.detail || "No case review has run yet."}
+              </div>
+              <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10}}>
+                <StatTile label="Cases reviewed" value={reviewSummary.casesReviewed || 0} tone="cyan" />
+                <StatTile label="Likely false positives" value={reviewSummary.likelyFalsePositives || 0} tone="amber" />
+              </div>
+              <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10}}>
+                <StatTile label="Plausible insider-style cases" value={reviewSummary.plausibleInsiderStyleCases || 0} tone="red" />
+                <StatTile label="Ambiguous cases" value={reviewSummary.ambiguousCases || 0} tone="default" />
+              </div>
+              <div className="tile" style={{marginBottom: 10}}>
+                <div className="section-label">Top suggested fixes</div>
+                <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                  {reviewFixes.length ? reviewFixes.slice(0, 3).join("\n") : "No reviewer recommendations yet."}
+                </div>
+              </div>
+              <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 10}}>
+                LLM review is advisory. It does not modify scoring rules.
+              </div>
+              <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+                {reviewOutputs.review_report_md_path ? <button className="btn secondary" onClick={() => onOpenOutput("review_report_md_path")}>Open Review Report</button> : null}
+                {reviewOutputs.model_changes_md_path ? <button className="btn secondary" onClick={() => onOpenOutput("model_changes_md_path")}>Open Model Change Recommendations</button> : null}
+                {reviewOutputs.cases_json_path ? <button className="btn secondary" onClick={() => onOpenOutput("cases_json_path")}>Open Case Packets JSON</button> : null}
+                {reviewOutputs.llm_review_report_md_path ? <button className="btn secondary" onClick={() => onOpenOutput("llm_review_report_md_path")}>Open LLM Review</button> : null}
+              </div>
+            </div>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{fontSize: 15, fontWeight: 700, marginBottom: 10}}>Recent analyses</div>
+              <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                {recentRuns.length ? recentRuns.map(run => (
+                  <button
+                    key={run.name}
+                    className="card"
+                    onClick={() => onOpenRun(run.name)}
+                    style={{
+                      padding: 12,
+                      textAlign: "left",
+                      cursor: "pointer",
+                      background: run.selected ? "var(--card-hover)" : "rgba(8, 17, 31, 0.6)",
+                      borderColor: run.selected ? "var(--accent)" : "var(--border)",
+                      color: "var(--text)",
+                    }}
+                  >
+                    <div style={{fontSize: 13, fontWeight: 700, marginBottom: 6}}>{run.displayTime}</div>
+                    <div className="secondary pretty" style={{lineHeight: 1.55}}>
+                      {run.eventTitle}<br />
+                      {run.tradeCount} candidate trades, {run.suspiciousTradeCount} suspicious trades<br />
+                      {run.walletCount} suspicious wallets
+                    </div>
+                  </button>
+                )) : <div className="muted">No previous forensic runs found.</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function MiddleColumn({ activeTab, setActiveTab, sortMode, onSortChange, report, status, filters, setFilters, selectedId, onSelect, onNavigateEntity }) {
+      const trades = report?.display_trades || report?.suspicious_trades || [];
+      const wallets = report?.display_wallets || report?.suspicious_wallets || [];
+      const clusters = report?.display_clusters || report?.wallet_clusters || [];
+      const compatibilityNote = report?.compatibility_note || "";
+      const emptyStateNote = report?.empty_state_note || "";
+      const baseRows = activeTab === "wallets" ? wallets : activeTab === "clusters" ? clusters : trades;
+      const rows = filterRowsForTab(activeTab, baseRows, filters);
+      const sortedRows = useMemo(() => sortRowsForTab(activeTab, rows, sortMode), [activeTab, rows, sortMode]);
+      const sortOptions = sortOptionsForTab(activeTab);
+      const runningWithoutReport = !!status?.running && !report;
+      const hiddenByTradeFilters = activeTab === "trades" ? Math.max(0, baseRows.length - rows.length) : 0;
+      return (
+        <div className="column panel" style={{padding: 0, overflow: "hidden"}}>
+          <div style={{padding: 16, borderBottom: "1px solid var(--border)"}}>
+            <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 10}}>
+              <div>
+                <div style={{fontSize: 17, fontWeight: 700}}>Ranked evidence</div>
+                <div className="muted" style={{marginTop: 4}}>
+                  {reportAnalysisScope(report) === "market"
+                    ? `Primary rankings are limited to ${reportSelectedMarketTitle(report) || "the selected child market"}.`
+                    : "Event-wide trade, wallet, and linked-group rankings across all wallets active in the target event."}
+                </div>
+              </div>
+              <Badge label={`${sortedRows.length} in review list`} tone="cyan" />
+            </div>
+            {hiddenByTradeFilters > 0 ? (
+              <div style={{display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10}}>
+                <Badge label={`${hiddenByTradeFilters} hidden by entry filter`} tone="amber" />
+                <button
+                  className="mini-action"
+                  onClick={() => setFilters(current => ({ ...current, maxEntryProbability: "" }))}
+                >
+                  Show all trade rows
+                </button>
+              </div>
+            ) : null}
+            <div style={{display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center"}}>
+              <button className={`tab ${activeTab === "trades" ? "active" : ""}`} onClick={() => setActiveTab("trades")}>Trades</button>
+              <button className={`tab ${activeTab === "wallets" ? "active" : ""}`} onClick={() => setActiveTab("wallets")}>Wallets</button>
+              <button className={`tab ${activeTab === "clusters" ? "active" : ""}`} onClick={() => setActiveTab("clusters")}>Linked wallets</button>
+              <select
+                value={sortMode}
+                onChange={event => onSortChange(event.target.value)}
+                className="btn secondary"
+                style={{marginLeft: "auto", minWidth: 200}}
+              >
+                {sortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </div>
+            {activeTab === "trades" ? (
+              <div className="secondary" style={{marginTop: 8, fontSize: 12, lineHeight: 1.45}}>
+                Event forensic priority = Event Forensic overlay (eventForensicScore) built from base scanner score plus event outcome, timing, repeat, linkage, and false-positive reducers. Base scanner score = shared _score_trade() score (existingModelScore). Sorting changes only loaded visible rows; it does not rerun analysis or rewrite exports.
+              </div>
+            ) : null}
+            {report?.display_note ? (
+              <div className="secondary selectable" style={{marginTop: 10, lineHeight: 1.6}}>
+                {displayNoteText(report.display_note)}
+              </div>
+            ) : null}
+            {compatibilityNote ? (
+              <div className="secondary selectable" style={{marginTop: 10, lineHeight: 1.6}}>
+                {compatibilityNote}
+              </div>
+            ) : null}
+          </div>
+          <div style={{overflowY: "auto", flex: 1, padding: 12}}>
+            {runningWithoutReport && (
+              <div className="secondary" style={{lineHeight: 1.7}}>
+                Analysis is running. Ranked evidence will appear here after the event replay finishes loading wallet context and scoring the candidate trades.
+              </div>
+            )}
+            {!runningWithoutReport && !rows.length && (
+              <div className="secondary" style={{lineHeight: 1.7}}>
+                {compatibilityNote || emptyStateNote || "No rows are available for this tab in the current event bundle."}
+              </div>
+            )}
+            {activeTab === "trades" && sortedRows.map(item => (
+              <div
+                key={item.id}
+                className="card"
+                onClick={() => onSelect(item.id)}
+                style={{
+                  padding: 14,
+                  marginBottom: 10,
+                  cursor: "pointer",
+                  background: selectedId === item.id ? "var(--card-hover)" : "var(--card)",
+                  borderColor: selectedId === item.id ? "var(--accent)" : "var(--border)",
+                }}
+              >
+                <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 8}}>
+                  <div style={{fontSize: 14, fontWeight: 700, lineHeight: 1.45}}>
+                    <EntityLink entity={marketEntity(item)} onNavigate={onNavigateEntity}>{item.market}</EntityLink>
+                  </div>
+                  <Badge label={concernLabel(item.eventForensicScore)} tone={item.eventForensicScore >= 70 ? "red" : item.eventForensicScore >= 55 ? "amber" : "green"} />
+                </div>
+                <div style={{display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10}}>
+                  <Badge label={`Event concern ${item.eventForensicScore}/100`} tone="cyan" />
+                  {numericValueAvailable(item.existingModelScore) ? <Badge label={`Base scanner: ${numericValue(item.existingModelScore)}/100`} /> : null}
+                  {isHardEvidenceReview(item) ? <Badge label="Hard Evidence Review" tone="amber" /> : null}
+                  {item.laterWon ? <Badge label="Resolved on traded side" tone="green" /> : null}
+                  {(item.outcomeKnown === false || item.outcomeStatus === "unknown") ? <Badge label="Outcome pending" tone="amber" /> : null}
+                  {item.relatedMarketTrades ? <Badge label={`${item.relatedMarketTrades} related`} tone="amber" /> : null}
+                  {item.otherEventMarketTrades ? <Badge label={`${item.otherEventMarketTrades} sibling-market context`} tone="default" /> : null}
+                </div>
+                <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                  <EntityLink entity={walletEntity(item, item.walletShort)} onNavigate={onNavigateEntity} /> · <EntityLink entity={walletEntity(item, walletAliasLabel(item))} onNavigate={onNavigateEntity} />{"\n"}
+                  {item.orderSide} {item.side} · ${item.positionSize.toLocaleString()} · {tradeEntryProbabilityLabel(item)} · {item.displayTime}{"\n"}
+                  {item.summary}
+                </div>
+              </div>
+            ))}
+            {activeTab === "wallets" && sortedRows.map(item => (
+              <div
+                key={item.wallet}
+                className="card"
+                onClick={() => onSelect(item.wallet)}
+                style={{
+                  padding: 14,
+                  marginBottom: 10,
+                  cursor: "pointer",
+                  background: selectedId === item.wallet ? "var(--card-hover)" : "var(--card)",
+                  borderColor: selectedId === item.wallet ? "var(--accent)" : "var(--border)",
+                }}
+              >
+                <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 8}}>
+                  <div style={{fontSize: 14, fontWeight: 700}}>
+                    <EntityLink entity={walletEntity(item, item.walletShort)} onNavigate={onNavigateEntity} />
+                  </div>
+                  <Badge label={walletConcernBadgeLabel(item)} tone={walletConcernBadgeTone(item)} />
+                </div>
+                {isHardEvidenceReview(item) ? (
+                  <div style={{display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10}}>
+                    <Badge label="Hard Evidence Review" tone="amber" />
+                    {item.hardEvidenceStrength ? <Badge label={`Evidence ${item.hardEvidenceStrength}`} tone="cyan" /> : null}
+                  </div>
+                ) : null}
+                <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                  <EntityLink entity={walletEntity(item, walletAliasLabel(item))} onNavigate={onNavigateEntity} />{"\n"}
+                  {item.suspiciousTradeCount} notable trades · {item.eventTradeCount} loaded event trades · {item.eventResult}{"\n"}
+                  {item.relatedMarketTradeCount} related-market trades · {item.otherEventMarketTrades || 0} sibling-market context trades{"\n"}
+                  {walletQualityLabel(item.walletQualityStatus)} · {walletEvidenceLabel(item.primaryEvidenceStatus)} · {item.walletPublicWhaleOrPowerUserLabel || "Public-user status not evaluated"}{"\n"}
+                  {walletSummaryText(item)}
+                </div>
+              </div>
+            ))}
+            {activeTab === "clusters" && sortedRows.map(item => (
+              <div
+                key={item.id}
+                className="card"
+                onClick={() => onSelect(item.id)}
+                style={{
+                  padding: 14,
+                  marginBottom: 10,
+                  cursor: "pointer",
+                  background: selectedId === item.id ? "var(--card-hover)" : "var(--card)",
+                  borderColor: selectedId === item.id ? "var(--accent)" : "var(--border)",
+                }}
+              >
+                <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 8}}>
+                  <div style={{fontSize: 14, fontWeight: 700}}>
+                    <EntityLink entity={groupEntity(item, clusters)} onNavigate={onNavigateEntity} />
+                  </div>
+                  <Badge label={`${item.clusterScore} link strength`} tone={item.clusterScore >= 65 ? "red" : item.clusterScore >= 50 ? "amber" : "green"} />
+                </div>
+                <div style={{display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10}}>
+                  <Badge label={connectionLabel(item.connectionType)} tone="default" />
+                  {isHardEvidenceReview(item) ? <Badge label="Hard Evidence Review" tone="amber" /> : null}
+                  <Badge label={`${item.walletCount} wallets`} tone="cyan" />
+                  {item.sameFunder ? <Badge label="Shared funder" tone="amber" /> : null}
+                  {item.sameSideTimingPattern ? <Badge label="Tight same-side timing" tone="red" /> : null}
+                  {item.relatedMarketOverlap ? <Badge label={`${item.relatedMarketOverlap} related overlaps`} tone="green" /> : null}
+                  {item.siblingMarketWalletCount ? <Badge label={`${item.siblingMarketWalletCount} sibling-market context wallets`} tone="default" /> : null}
+                </div>
+                <div className="secondary selectable" style={{lineHeight: 1.65}}>
+                  {clusterLeadText(item)}{"\n"}
+                  Wallet sample: <WalletInlineList wallets={item.wallets} onNavigate={onNavigateEntity} />{"\n"}
+                  {item.summary}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function RightPanel({ report, status, activeTab, setActiveTab, activeListTab, selectedId, onCopy, onNavigateEntity, onClearSelection }) {
+      const trades = report?.display_trades || report?.suspicious_trades || [];
+      const wallets = report?.display_wallets || report?.suspicious_wallets || [];
+      const clusters = report?.display_clusters || report?.wallet_clusters || [];
+      const trade = activeListTab === "trades" ? trades.find(item => item.id === selectedId) : null;
+      const wallet = activeListTab === "wallets" ? wallets.find(item => item.wallet === selectedId) : null;
+      const cluster = activeListTab === "clusters" ? clusters.find(item => item.id === selectedId) : null;
+      const selected = trade || wallet || cluster || null;
+      const runningWithoutReport = !!status?.running && !report;
+      const panelTitle = wallet
+        ? `Wallet story: ${wallet.walletShort} / ${walletAliasLabel(wallet)}`
+        : trade
+        ? `Trade story: ${trade.walletShort} in ${truncateLabel(trade.market, 54)}`
+        : cluster
+        ? `Linked-wallet group story: Group ${groupNumber(clusters, cluster)}`
+        : "Market-level report";
+      return (
+        <div className="column panel" style={{padding: 0, overflow: "hidden"}}>
+          <div style={{padding: 18, borderBottom: "1px solid var(--border)"}}>
+            <div style={{display: "flex", justifyContent: "space-between", gap: 12, alignItems: "start", marginBottom: 12}}>
+              <div>
+                <div style={{fontSize: 22, fontWeight: 700, lineHeight: 1.1}}>
+                  {panelTitle}
+                </div>
+                <div className="secondary" style={{marginTop: 6}}>
+                  {reportAnalysisScope(report) === "market"
+                    ? "Single-market context is shown as context; selected-row stories are generated from the selected object."
+                    : "Whole-event context is shown as context; selected-row stories are generated from the selected object."}
+                </div>
+              </div>
+              <button className="btn secondary" onClick={onCopy}>Copy current tab</button>
+            </div>
+            <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+              <button className={`tab ${activeTab === "report" && selected ? "active" : ""}`} onClick={() => setActiveTab("report")}>Analyst story</button>
+              <button className={`tab ${activeTab === "report" && !selected ? "active" : ""}`} onClick={() => { onClearSelection(); setActiveTab("report"); }}>Market report</button>
+              <button className={`tab ${activeTab === "selection" ? "active" : ""}`} onClick={() => setActiveTab("selection")}>Selection</button>
+              <button className={`tab ${activeTab === "model-gap" ? "active" : ""}`} onClick={() => setActiveTab("model-gap")}>Model QA</button>
+              <button className={`tab ${activeTab === "graph" ? "active" : ""}`} onClick={() => setActiveTab("graph")}>Connections</button>
+            </div>
+          </div>
+          <div style={{overflowY: "auto", flex: 1, padding: 18}}>
+            {runningWithoutReport && (
+              <div className="secondary" style={{lineHeight: 1.75}}>
+                Event forensic analysis is still running. The previous report was cleared so the screen does not keep showing stale results for a different event.
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "report" && (
+              <AnalystNarrative
+                report={report}
+                trade={trade}
+                wallet={wallet}
+                cluster={cluster}
+                trades={trades}
+                wallets={wallets}
+                clusters={clusters}
+                onNavigate={onNavigateEntity}
+              />
+            )}
+            {!runningWithoutReport && activeTab === "selection" && !selected && (
+              <div className="secondary" style={{lineHeight: 1.7}}>
+                Pick a trade, wallet, or cluster from the current ranking to inspect it here.
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "selection" && trade && (
+              <div style={{display: "grid", gap: 14}}>
+                <div>
+                  <div className="section-label">Trade detail</div>
+                  <div style={{fontSize: 22, fontWeight: 700, lineHeight: 1.2}}>
+                    <EntityLink entity={marketEntity(trade)} onNavigate={onNavigateEntity}>{trade.market}</EntityLink>
+                  </div>
+                  <EntityActions entity={marketEntity(trade)} summary={`${trade.market} (${trade.conditionId})`} />
+	                  <div style={{display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10}}>
+	                    <Badge label={concernLabel(trade.eventForensicScore)} tone={trade.eventForensicScore >= 70 ? "red" : trade.eventForensicScore >= 55 ? "amber" : "green"} />
+	                    {isHardEvidenceReview(trade) ? <Badge label="Hard Evidence Review" tone="amber" /> : null}
+	                    {trade.laterWon ? <Badge label="Resolved on traded side" tone="green" /> : null}
+	                    {(trade.outcomeKnown === false || trade.outcomeStatus === "unknown") ? <Badge label="Outcome pending" tone="amber" /> : null}
+	                  </div>
+                </div>
+                <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8}}>
+                  <StatTile label="Event concern" value={trade.eventForensicScore} tone="red" />
+                  <StatTile label="Notional" value={money(trade.positionSize)} tone="cyan" />
+                </div>
+                <div className="tile">
+                  <div className="section-label">Context</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.7}}>
+                    Scope: {analysisScopeLabel(reportAnalysisScope(report))}{"\n"}
+                    Selected market: {reportSelectedMarketTitle(report) || "All child markets"}{"\n"}
+                    Condition ID: <EntityLink entity={conditionEntity(trade.conditionId, trade)} onNavigate={onNavigateEntity}>{trade.conditionId}</EntityLink>{"\n"}
+                    Wallet: <EntityLink entity={walletEntity(trade, trade.wallet)} onNavigate={onNavigateEntity} />{"\n"}
+                    Polymarket label: <EntityLink entity={walletEntity(trade, walletAliasLabel(trade))} onNavigate={onNavigateEntity} />{"\n"}
+                    Time: {trade.displayTime}{"\n"}
+                    Position: {trade.orderSide} {trade.side}{"\n"}
+                    Notional: ${trade.positionSize.toLocaleString()}{"\n"}
+                    Base scanner score: {numericValueAvailable(trade.existingModelScore) ? `${numericValue(trade.existingModelScore)}/100` : "Unavailable"}{"\n"}
+                    Opening exposure: {trade.openingExposure ? "Yes" : "No"}{"\n"}
+	                    {tradeOutcomeLabel(trade)}{"\n"}
+                    Related-market trades: {trade.relatedMarketTrades}{"\n"}
+                    Sibling-market context kept out of primary ranking: {trade.otherEventMarketTrades || 0}
+                  </div>
+                </div>
+                <div className="tile">
+                  <div className="section-label">Why it stands out</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    {[trade.summary, ...(trade.eventForensicNotes || []), ...(trade.existingWhy || [])].join("\n\n")}
+                  </div>
+                </div>
+                <div className="tile">
+                  <div className="section-label">What reduces concern</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    {[...(trade.eventForensicReducers || []), ...(trade.reducesConcern || ["No strong benign reducer was recorded."])].join("\n\n")}
+                  </div>
+                </div>
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "selection" && wallet && (
+              <div style={{display: "grid", gap: 14}}>
+                <div>
+                  <div className="section-label">Wallet detail</div>
+                  <div style={{fontSize: 22, fontWeight: 700}}>
+                    <EntityLink entity={walletEntity(wallet, wallet.wallet)} onNavigate={onNavigateEntity} />
+                  </div>
+                  <EntityActions entity={walletEntity(wallet, wallet.walletShort)} summary={`${wallet.walletShort}: ${walletSummaryText(wallet)}`} />
+                </div>
+                <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8}}>
+                  <StatTile label="Concern score" value={wallet.walletScore} tone="amber" />
+                  <StatTile label="Notable trades" value={wallet.suspiciousTradeCount} tone="red" />
+                </div>
+                <div className="tile">
+                  <div className="section-label">Assessment</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    Scope: {analysisScopeLabel(reportAnalysisScope(report))}{"\n"}
+                    Selected market: {reportSelectedMarketTitle(report) || "All child markets"}{"\n"}
+                    Polymarket label: <EntityLink entity={walletEntity(wallet, walletAliasLabel(wallet))} onNavigate={onNavigateEntity} />{"\n"}
+                    Event result: {wallet.eventResult}{"\n"}
+                    Related-market trade count: {wallet.relatedMarketTradeCount}{"\n"}
+                    Sibling-market context kept out of primary ranking: {wallet.otherEventMarketTrades || 0}{"\n"}
+                    Wallet history: {walletQualityLabel(wallet.walletQualityStatus)}{"\n"}
+                    Evidence status: {walletEvidenceLabel(wallet.primaryEvidenceStatus)}{"\n"}
+                    Funding flags: {wallet.fundingFlags}{"\n"}
+                    Specialist status: {wallet.specialistStatus}{"\n"}
+                    Bot status: {wallet.botStatus}{"\n"}
+                    Zombie status: {wallet.zombieStatus}{"\n"}
+                    Public-user status: {wallet.walletPublicWhaleOrPowerUserLabel || "Not evaluated"}{"\n"}
+                    Primary review status: {wallet.walletPrimaryReviewStatus || "Not evaluated"}{"\n\n"}
+                    {walletSummaryText(wallet)}
+                  </div>
+                </div>
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "selection" && cluster && (
+              <div style={{display: "grid", gap: 14}}>
+                <div>
+                  <div className="section-label">Linked-wallet group</div>
+                  <div style={{fontSize: 22, fontWeight: 700}}>
+                    <EntityLink entity={groupEntity(cluster, clusters)} onNavigate={onNavigateEntity} /> linked by {connectionLabel(cluster.connectionType).toLowerCase()}
+                  </div>
+                </div>
+                <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8}}>
+                  <StatTile label="Link strength" value={cluster.clusterScore} tone="red" />
+                  <StatTile label="Wallets" value={cluster.walletCount} tone="cyan" />
+                </div>
+                <div className="tile">
+                  <div className="section-label">What this means</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    Scope: {analysisScopeLabel(reportAnalysisScope(report))}{"\n"}
+                    Selected market: {reportSelectedMarketTitle(report) || "All child markets"}{"\n"}
+                    Wallet sample: <WalletInlineList wallets={cluster.wallets} onNavigate={onNavigateEntity} limit={8} />{"\n"}
+                    Full group size: {cluster.walletCount || (cluster.wallets || []).length} wallet(s){"\n"}
+                    Same funder: {cluster.sameFunder ? "Yes" : "No"}{"\n"}
+                    Same-side timing pattern: {cluster.sameSideTimingPattern ? "Yes" : "No"}{"\n"}
+                    Related-market overlap: {cluster.relatedMarketOverlap}{"\n"}
+                    Sibling-market context wallets kept out of primary ranking: {cluster.siblingMarketWalletCount || 0}{"\n\n"}
+                    {clusterMeaning(cluster)}{"\n\n"}
+                    {cluster.summary}
+                  </div>
+                </div>
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "model-gap" && (
+              <div style={{display: "grid", gap: 14}}>
+                <div className="tile">
+                  <div className="section-label">QA appendix</div>
+                  <InteractiveReport text={report?.model_gap_markdown || "No model-gap analysis loaded."} report={report} onNavigate={onNavigateEntity} />
+                </div>
+              </div>
+            )}
+            {!runningWithoutReport && activeTab === "graph" && (
+              <div style={{display: "grid", gap: 14}}>
+                <GraphCanvas graph={report?.wallet_graph} />
+                <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8}}>
+                  <StatTile label="Nodes" value={report?.wallet_graph?.nodes?.length || 0} tone="cyan" />
+                  <StatTile label="Edges" value={report?.wallet_graph?.edges?.length || 0} tone="amber" />
+                  <StatTile label="Linked groups" value={report?.wallet_clusters?.length || 0} tone="red" />
+                </div>
+                <div className="tile">
+                  <div className="section-label">Connection summary</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    {graphSummaryLines(report).join("\n")}
+                  </div>
+                </div>
+                <div className="tile">
+                  <div className="section-label">Sample links</div>
+                  <div className="selectable secondary" style={{lineHeight: 1.75}}>
+                    {((report?.wallet_graph?.edges || []).length ? <GraphLinkLines report={report} limit={8} onNavigate={onNavigateEntity} /> : null) || (
+                      trades.length
+                        ? `No graph edges were saved for this ${reportAnalysisScope(report) === "market" ? "single-market" : "event-wide"} run. This run still produced ${trades.length} on-screen trade rows and ${wallets.length} on-screen wallet rows; the graph only fills when suspicious funding or clustering links were saved.`
+                        : `No graph edges were saved for this ${reportAnalysisScope(report) === "market" ? "single-market" : "event-wide"} run.`
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [boot, setBoot] = useState(null);
+      const [filters, setFilters] = useState({
+        url: "",
+        minSize: "1000",
+        maxEntryProbability: "",
+        startDateTime: "",
+        endDateTime: "",
+        includeRelatedMarkets: true,
+        includeBlockchain: true,
+        fundingTraceMode: "",
+        analysisScope: "event",
+        selectedConditionId: "",
+        selectedMarketSlug: "",
+        autoRunReviewer: false,
+        useLLMReviewer: false,
+      });
+      const [activeListTab, setActiveListTab] = useState("trades");
+      const [selectedId, setSelectedId] = useState(null);
+      const [activeRightTab, setActiveRightTab] = useState("report");
+      const [sortModes, setSortModes] = useState({
+        trades: defaultSortMode("trades"),
+        wallets: defaultSortMode("wallets"),
+        clusters: defaultSortMode("clusters"),
+      });
+
+      async function refreshBootstrap() {
+        const payload = await fetchJson("/api/bootstrap");
+        if (payload.ok) {
+          setBoot(payload);
+          if (!filters.url && payload.filters) {
+            setFilters(payload.filters);
+          }
+        }
+      }
+
+      useEffect(() => { refreshBootstrap(); }, []);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          if (!boot?.status?.running && !boot?.caseReview?.running) return;
+          refreshBootstrap();
+        }, 1600);
+        return () => clearInterval(timer);
+      }, [boot]);
+
+      useEffect(() => {
+        const report = boot?.currentReport;
+        if (!report) return;
+        const baseRows = activeListTab === "wallets"
+          ? report.display_wallets || report.suspicious_wallets || []
+          : activeListTab === "clusters"
+          ? report.display_clusters || report.wallet_clusters || []
+          : report.display_trades || report.suspicious_trades || [];
+        const rows = sortRowsForTab(
+          activeListTab,
+          filterRowsForTab(activeListTab, baseRows, filters),
+          sortModes[activeListTab]
+        ).map(item =>
+          activeListTab === "wallets" ? item.wallet : item.id
+        );
+        if (selectedId && !rows.includes(selectedId)) {
+          setSelectedId(null);
+        }
+      }, [boot, activeListTab, selectedId, sortModes, filters]);
+
+      function clearSelection() {
+        setSelectedId(null);
+        setActiveRightTab("report");
+      }
+
+      function selectRow(id) {
+        setSelectedId(id);
+        setActiveRightTab("report");
+      }
+
+      function changeListTab(tab) {
+        setActiveListTab(tab);
+        setSelectedId(null);
+        setActiveRightTab("report");
+      }
+
+      function handleNavigateEntity(entity) {
+        const report = boot?.currentReport;
+        if (!report || !entity) return;
+        const trades = report.display_trades || report.suspicious_trades || [];
+        const wallets = report.display_wallets || report.suspicious_wallets || [];
+        const clusters = report.display_clusters || report.wallet_clusters || [];
+        if (entity.type === "wallet") {
+          const address = entity.full_address || entity.wallet || "";
+          const walletRow = wallets.find(item => item.wallet === address);
+          if (walletRow) {
+            setActiveListTab("wallets");
+            setSelectedId(walletRow.wallet);
+            setActiveRightTab("report");
+            return;
+          }
+          const tradeRow = trades.find(item => item.wallet === address);
+          if (tradeRow) {
+            setActiveListTab("trades");
+            setSelectedId(tradeRow.id);
+            setActiveRightTab("report");
+            return;
+          }
+          const clusterRow = clusters.find(item => (item.wallets || []).includes(address));
+          if (clusterRow) {
+            setActiveListTab("clusters");
+            setSelectedId(clusterRow.id);
+            setActiveRightTab("report");
+          }
+          return;
+        }
+        if (entity.type === "group") {
+          const clusterRow = clusters.find(item => item.id === entity.group_id);
+          if (clusterRow) {
+            setActiveListTab("clusters");
+            setSelectedId(clusterRow.id);
+            setActiveRightTab("report");
+          }
+          return;
+        }
+        if (entity.type === "trade") {
+          const tradeRow = trades.find(item => item.id === entity.trade_id);
+          if (tradeRow) {
+            setActiveListTab("trades");
+            setSelectedId(tradeRow.id);
+            setActiveRightTab("report");
+          }
+          return;
+        }
+        if (entity.type === "market" || entity.type === "condition") {
+          const conditionId = entity.condition_id || "";
+          const marketSlug = entity.market_slug || "";
+          const tradeRow = trades.find(item =>
+            (conditionId && item.conditionId === conditionId) ||
+            (marketSlug && item.marketSlug === marketSlug) ||
+            (!conditionId && !marketSlug && item.market === entity.label)
+          );
+          if (tradeRow) {
+            setActiveListTab("trades");
+            setSelectedId(tradeRow.id);
+            setActiveRightTab("report");
+          }
+        }
+      }
+
+      async function handleAnalyze() {
+        const payloadFilters = filters.analysisScope === "market"
+          ? filters
+          : { ...filters, selectedConditionId: "", selectedMarketSlug: "" };
+        const payload = await postJson("/api/analyze", payloadFilters);
+        if (!payload.ok) {
+          alert(payload.error || "Could not start the event analysis.");
+          return;
+        }
+        clearSelection();
+        await refreshBootstrap();
+      }
+
+      async function handleResolveTarget() {
+        const payload = await postJson("/api/resolve-target", {
+          ...filters,
+          analysisScope: "event",
+          selectedConditionId: "",
+          selectedMarketSlug: "",
+        });
+        if (!payload.ok) {
+          alert(payload.error || "Could not resolve the target event.");
+          return;
+        }
+        const resolvedTarget = payload.resolvedTarget || null;
+        setBoot(current => current ? { ...current, resolvedTarget } : current);
+        setFilters(current => syncFiltersWithResolvedTarget(current, resolvedTarget));
+      }
+
+      async function handleStop() {
+        await postJson("/api/stop", {});
+        await refreshBootstrap();
+      }
+
+      async function handleOpenRun(name) {
+        const payload = await fetchJson(`/api/run?name=${encodeURIComponent(name)}`);
+        if (!payload.ok) {
+          alert(payload.error || "Could not load the saved run.");
+          return;
+        }
+        setBoot(payload);
+        if (payload.filters) setFilters(payload.filters);
+        clearSelection();
+      }
+
+      async function handleOpenOutput(key) {
+        const payload = await postJson("/api/open-output", { key });
+        if (!payload.ok) {
+          alert(payload.error || "Could not open the selected file.");
+        }
+      }
+
+      async function handleOpenExports() {
+        const payload = await postJson("/api/open-exports-dir", {});
+        if (!payload.ok) {
+          alert(payload.error || "Could not open the exports directory.");
+        }
+      }
+
+      async function handleRunCaseReviewer() {
+        const payload = await postJson("/api/run-case-reviewer", { useLlm: !!filters.useLLMReviewer });
+        if (!payload.ok) {
+          alert(payload.error || "Could not run the case reviewer.");
+        }
+        if (payload.caseReview) {
+          setBoot(current => current ? { ...current, caseReview: payload.caseReview } : current);
+        } else {
+          await refreshBootstrap();
+        }
+      }
+
+      async function handleCopy() {
+        const report = boot?.currentReport;
+        if (!report) return;
+        let text = "";
+        if (activeRightTab === "report") {
+          const list = activeListTab === "wallets"
+            ? report.display_wallets || report.suspicious_wallets || []
+            : activeListTab === "clusters"
+            ? report.display_clusters || report.wallet_clusters || []
+            : report.display_trades || report.suspicious_trades || [];
+          const row = activeListTab === "wallets" ? list.find(item => item.wallet === selectedId) : list.find(item => item.id === selectedId);
+          text = row ? selectionCopyText(activeListTab, row) : plainTextFromMarkdown(report.event_report_markdown || "");
+        }
+        if (activeRightTab === "model-gap") text = plainTextFromMarkdown(report.model_gap_markdown || "");
+        if (activeRightTab === "graph") text = graphCopyText(report);
+        if (activeRightTab === "selection") {
+          const list = activeListTab === "wallets"
+            ? report.display_wallets || report.suspicious_wallets || []
+            : activeListTab === "clusters"
+            ? report.display_clusters || report.wallet_clusters || []
+            : report.display_trades || report.suspicious_trades || [];
+          const row = activeListTab === "wallets" ? list.find(item => item.wallet === selectedId) : list.find(item => item.id === selectedId);
+          text = selectionCopyText(activeListTab, row);
+        }
+        if (!text) return;
+        await navigator.clipboard.writeText(text);
+      }
+
+      const report = boot?.currentReport || null;
+
+      return (
+        <div className="app-shell">
+          <div className="header">
+            <div>
+              <div className="title">{boot?.appMeta?.title || "InsPoly Event Forensic Analyzer"}</div>
+              <div className="hero">{boot?.appMeta?.hero || "Completed Event Forensic Laboratory"}</div>
+            </div>
+          </div>
+
+          <div className="content-grid">
+            <LeftRail
+              filters={filters}
+              setFilters={setFilters}
+              status={boot?.status || { running: false, stage: "Ready", detail: "Ready", percent: 0 }}
+              caseReview={boot?.caseReview || null}
+              reviewArtifacts={boot?.reviewArtifacts || null}
+              report={report}
+              recentRuns={boot?.recentRuns || []}
+              resolvedTarget={boot?.resolvedTarget || null}
+              onResolveTarget={handleResolveTarget}
+              onAnalyze={handleAnalyze}
+              onStop={handleStop}
+              onOpenRun={handleOpenRun}
+              onOpenOutput={handleOpenOutput}
+              onOpenExports={handleOpenExports}
+              onRunCaseReviewer={handleRunCaseReviewer}
+            />
+            <MiddleColumn
+              activeTab={activeListTab}
+              setActiveTab={changeListTab}
+              sortMode={sortModes[activeListTab]}
+              onSortChange={value => setSortModes(current => ({ ...current, [activeListTab]: value }))}
+              report={report}
+              status={boot?.status || { running: false }}
+              filters={filters}
+              setFilters={setFilters}
+              selectedId={selectedId}
+              onSelect={selectRow}
+              onNavigateEntity={handleNavigateEntity}
+            />
+            <RightPanel
+              report={report}
+              status={boot?.status || { running: false }}
+              activeTab={activeRightTab}
+              setActiveTab={setActiveRightTab}
+              activeListTab={activeListTab}
+              selectedId={selectedId}
+              onCopy={handleCopy}
+              onNavigateEntity={handleNavigateEntity}
+              onClearSelection={clearSelection}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

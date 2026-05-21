@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsPoly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0d1a2b;
+      --card: #11233a;
+      --card-hover: #152840;
+      --border: #23395d;
+      --border-strong: #2e4a78;
+      --text: #eaf1ff;
+      --text-sec: #a9b9d6;
+      --text-muted: #7f91b3;
+      --accent: #6f86ff;
+      --accent-soft: rgba(111, 134, 255, 0.15);
+      --red: #d95b74;
+      --amber: #d6a446;
+      --green: #59b48a;
+      --font-size: 13px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body, #root {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", sans-serif;
+      font-size: var(--font-size);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #23395d; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #36547f; }
+    * { scrollbar-width: thin; scrollbar-color: #23395d transparent; }
+
+    .selectable {
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .pretty { text-wrap: pretty; word-break: break-word; overflow-wrap: anywhere; }
+    .link {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .link.subtle { color: var(--text-sec); }
+    .link.mono-link { font-family: "JetBrains Mono", monospace; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    .btn:hover { border-color: var(--border-strong); background: var(--card-hover); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn.disabled, .btn:disabled { background: #18263e; border-color: #23395d; color: var(--text-muted); cursor: not-allowed; }
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-sec);
+      border-radius: 999px;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+
+    .tile {
+      background: rgba(8, 17, 31, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .toggle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(8, 17, 31, 0.55);
+      color: var(--text);
+    }
+    .toggle input { accent-color: var(--accent); }
+    .muted { color: var(--text-sec); }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 18px;
+      gap: 16px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .title {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .hero {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-top: 6px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 300px 380px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .column {
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(13, 26, 43, 0.8);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 75%, white));
+      transition: width .25s ease;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      color: var(--text);
+    }
+
+    @media (max-width: 1440px) {
+      .content-grid { grid-template-columns: 280px 340px minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+
+    const RISK_META = {
+      strong: { label: "Strong Risk", color: "var(--red)", bg: "rgba(217, 91, 116, 0.12)" },
+      amber: { label: "Worth a Look", color: "var(--amber)", bg: "rgba(214, 164, 70, 0.12)" },
+      low: { label: "Low Risk", color: "var(--green)", bg: "rgba(89, 180, 138, 0.12)" },
+    };
+
+    const CASE_TYPE_META = {
+      "Resolution Gap": { label: "Resolution Gap", color: "#7ec8ff", bg: "rgba(126, 200, 255, 0.14)" },
+    };
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      return await response.json();
+    }
+
+    async function postJson(url, payload = {}) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      return await response.json();
+    }
+
+    function Pill({ label, active, color, activeBg, onClick }) {
+      return (
+        <button
+          onClick={onClick}
+          className="ghost-btn"
+          style={{
+            borderColor: active ? color || "var(--accent)" : "var(--border)",
+            background: active ? activeBg || "var(--accent-soft)" : "transparent",
+            color: active ? color || "var(--accent)" : "var(--text-sec)",
+          }}
+        >
+          {label}
+        </button>
+      );
+    }
+
+    function StatTile({ label, value, color }) {
+      return (
+        <div className="tile">
+          <div className="section-label" style={{marginBottom: 4}}>{label}</div>
+          <div className="mono pretty" style={{fontSize: "clamp(16px, 1.35vw, 20px)", lineHeight: 1.15, fontWeight: 700, color: color || "var(--text)"}}>{value}</div>
+        </div>
+      );
+    }
+
+    function RiskBadge({ riskKey, label }) {
+      const meta = RISK_META[riskKey] || RISK_META.low;
+      return (
+        <span className="badge" style={{color: meta.color, background: meta.bg, borderColor: `${meta.color}55`}}>
+          {label || meta.label}
+        </span>
+      );
+    }
+
+    function CaseTypeBadge({ caseType }) {
+      if (!caseType) return null;
+      const meta = CASE_TYPE_META[caseType];
+      if (!meta) return null;
+      return (
+        <span className="badge" style={{color: meta.color, background: meta.bg, borderColor: `${meta.color}55`}}>
+          {meta.label}
+        </span>
+      );
+    }
+
+    function moneyFilterLabel(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      const numeric = parseFloat(raw.replace(/[$,]/g, ""));
+      if (!Number.isFinite(numeric) || numeric <= 0) return raw;
+      return `$${numeric.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+
+    function parseProbabilityFilter(value) {
+      const raw = String(value || "").trim().replace("%", "");
+      if (!raw) return null;
+      const numeric = parseFloat(raw);
+      if (!Number.isFinite(numeric) || numeric < 0) return null;
+      const percent = numeric <= 1 ? numeric * 100 : numeric;
+      return Math.max(0, Math.min(percent, 100));
+    }
+
+    function probabilityFilterLabel(value) {
+      const percent = parseProbabilityFilter(value);
+      if (percent === null) return String(value || "").trim();
+      return `${percent.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+    }
+
+    function activeCardFilterLabels(filters) {
+      const labels = [];
+      if (filters.risk && filters.risk !== "All risks") labels.push(`Risk: ${filters.risk}`);
+      if (filters.minSize) labels.push(`Min size: ${moneyFilterLabel(filters.minSize)}`);
+      if (filters.maxSize) labels.push(`Max size: ${moneyFilterLabel(filters.maxSize)}`);
+      if (filters.maxEntryProbability) labels.push(`Entry <= ${probabilityFilterLabel(filters.maxEntryProbability)}`);
+      if (filters.includeRelatedMarkets) labels.push("Related case-family: on");
+      if (filters.includeBlockchain === false) labels.push("Blockchain linkage: off");
+      else if (filters.fundingTraceMode) labels.push(`Funding: ${filters.fundingTraceMode}`);
+      if (filters.topics?.length) labels.push(`Topics: ${filters.topics.join(", ")}`);
+      if (filters.resolutionGapOnly) labels.push("Resolution gap only");
+      if (filters.openingOnly) labels.push("Opening only");
+      if (filters.excludeLikelyCloses) labels.push("Exclude closes");
+      if (filters.hideYieldLike) labels.push("Hide yield-like");
+      if (filters.strongRepricingOnly) labels.push("Strong repricing only");
+      if (filters.offHoursOnly) labels.push("Off-hours only");
+      if (filters.deadlineOnly) labels.push("Deadline only");
+      if (filters.hideBotLike) labels.push("Hide bot-like");
+      if (filters.specialistOnly) labels.push("Specialists only");
+      if (filters.zombieOnly) labels.push("Zombie only");
+      return labels;
+    }
+
+    const LOOKBACK_PRESETS = [["1h", "1 hour"], ["4h", "4 hours"], ["8h", "8 hours"], ["24h", "24 hours"], ["48h", "48 hours"], ["7d", "7 days"]];
+
+    function lookbackHoursFromValue(value) {
+      const match = String(value || "").trim().match(/^(\d+)([hdm])$/i);
+      if (!match) return "";
+      const amount = Number(match[1]);
+      const unit = match[2].toLowerCase();
+      if (!Number.isFinite(amount) || amount <= 0) return "";
+      if (unit === "h") return String(amount);
+      if (unit === "d") return String(amount * 24);
+      if (unit === "m" && amount % 60 === 0) return String(amount / 60);
+      return "";
+    }
+
+    function lookbackFromHoursInput(value) {
+      const digits = String(value || "").replace(/[^\d]/g, "");
+      if (!digits) return "";
+      const hours = Math.max(1, parseInt(digits, 10) || 0);
+      return hours ? `${hours}h` : "";
+    }
+
+    function LeftRail({ appMeta, filters, setFilters, categories, report, recentRuns, scanning, onScan, onStop, onOpenRun }) {
+      const toggleTopic = label => {
+        setFilters(current => {
+          const topics = current.topics.includes(label)
+            ? current.topics.filter(item => item !== label)
+            : [...current.topics, label];
+          return { ...current, topics };
+        });
+      };
+      const selectAllTopics = () => {
+        setFilters(current => ({ ...current, topics: [...categories] }));
+      };
+      const clearTopics = () => {
+        setFilters(current => ({ ...current, topics: [] }));
+      };
+      const toggleFilter = key => {
+        setFilters(current => ({ ...current, [key]: !current[key] }));
+      };
+
+      const archiveMode = appMeta?.mode === "archive";
+      const presetValues = LOOKBACK_PRESETS.map(([value]) => value);
+      const selectedLookbackPreset = presetValues.includes(filters.lookback) ? filters.lookback : "__custom__";
+
+      return (
+        <div className="column">
+          <div style={{overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 12, paddingRight: 2}}>
+            <div className="panel" style={{padding: 14}}>
+              <div style={{fontSize: 15, fontWeight: 600, marginBottom: 14}}>
+                {archiveMode ? "Archive filters" : "Scan filters"}
+              </div>
+
+              {archiveMode ? (
+                <div style={{display: "grid", gap: 8, marginBottom: 12}}>
+                  <div>
+                    <div className="section-label">Start datetime</div>
+                    <input
+                      type="datetime-local"
+                      value={filters.startDateTime || ""}
+                      onChange={event => setFilters(current => ({ ...current, startDateTime: event.target.value }))}
+                      className="btn mono"
+                      style={{width: "100%"}}
+                    />
+                  </div>
+                  <div>
+                    <div className="section-label">End datetime</div>
+                    <input
+                      type="datetime-local"
+                      value={filters.endDateTime || ""}
+                      onChange={event => setFilters(current => ({ ...current, endDateTime: event.target.value }))}
+                      className="btn mono"
+                      style={{width: "100%"}}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="section-label">Lookback</div>
+                  <select
+                    value={selectedLookbackPreset}
+                    onChange={event => {
+                      if (event.target.value === "__custom__") return;
+                      setFilters(current => ({ ...current, lookback: event.target.value }));
+                    }}
+                    className="btn"
+                    style={{width: "100%", textAlign: "left", marginBottom: 8}}
+                  >
+                    {LOOKBACK_PRESETS.map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                    <option value="__custom__">Custom hours</option>
+                  </select>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "center", marginBottom: 12}}>
+                    <input
+                      type="text"
+                      value={lookbackHoursFromValue(filters.lookback)}
+                      onFocus={event => event.target.select()}
+                      onChange={event => {
+                        const lookback = lookbackFromHoursInput(event.target.value);
+                        if (!lookback) return;
+                        setFilters(current => ({ ...current, lookback }));
+                      }}
+                      className="btn mono"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      style={{width: "100%"}}
+                      aria-label="Custom lookback hours"
+                    />
+                    <span className="muted" style={{fontSize: 12}}>hours</span>
+                  </div>
+                </>
+              )}
+
+              <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12}}>
+                <div>
+                  <div className="section-label">Min size</div>
+                  <input
+                    value={filters.minSize}
+                    onChange={event => setFilters(current => ({ ...current, minSize: event.target.value }))}
+                    className="btn mono"
+                    style={{width: "100%"}}
+                  />
+                </div>
+                <div>
+                  <div className="section-label">Max size</div>
+                  <input
+                    value={filters.maxSize}
+                    onChange={event => setFilters(current => ({ ...current, maxSize: event.target.value }))}
+                    className="btn mono"
+                    style={{width: "100%", color: "var(--text-sec)"}}
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+
+              <div style={{marginBottom: 12}}>
+                <div className="section-label">Max entry probability %</div>
+                <input
+                  value={filters.maxEntryProbability || ""}
+                  onChange={event => setFilters(current => ({ ...current, maxEntryProbability: event.target.value }))}
+                  className="btn mono"
+                  inputMode="decimal"
+                  style={{width: "100%"}}
+                  placeholder="Optional, e.g. 90"
+                  aria-label="Maximum entry probability percent"
+                />
+              </div>
+
+              <div style={{display: "grid", gap: 8, marginBottom: 12}}>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Include related case-family markets</div>
+                    <div className="muted" style={{fontSize: 12}}>
+                      Event Forensic expands title-similar sibling events. Scanner/archive runs are category-wide, so this is recorded but does not broaden candidate admission.
+                    </div>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!filters.includeRelatedMarkets}
+                    onChange={event => setFilters(current => ({ ...current, includeRelatedMarkets: event.target.checked }))}
+                  />
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Include blockchain linkage</div>
+                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields when available; mode below controls live tracing.</div>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!filters.includeBlockchain}
+                    onChange={event => setFilters(current => ({ ...current, includeBlockchain: event.target.checked }))}
+                  />
+                </label>
+                <label className="toggle">
+                  <span>
+                    <div style={{fontWeight: 600}}>Funding trace mode</div>
+                    <div className="muted" style={{fontSize: 12}}>Disabled keeps funding evidence unknown and does not call RPC.</div>
+                  </span>
+                  <select
+                    value={filters.fundingTraceMode || "disabled"}
+                    onChange={event => setFilters(current => ({
+                      ...current,
+                      fundingTraceMode: event.target.value,
+                      includeBlockchain: event.target.value === "disabled" ? true : current.includeBlockchain,
+                    }))}
+                    className="btn"
+                    style={{minWidth: 150}}
+                  >
+                    <option value="live_rpc">Live RPC</option>
+                    <option value="cache_only">Cache only</option>
+                    <option value="disabled">Disabled / no RPC</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="section-label">Risk level</div>
+              <div style={{display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12}}>
+                <Pill label="All risks" active={filters.risk === "All risks"} onClick={() => setFilters(current => ({ ...current, risk: "All risks" }))} />
+                <Pill label="Strong Risk" active={filters.risk === "Strong Risk"} color="var(--red)" activeBg="rgba(217, 91, 116, 0.12)" onClick={() => setFilters(current => ({ ...current, risk: "Strong Risk" }))} />
+                <Pill label="Worth a Look" active={filters.risk === "Worth a Look"} color="var(--amber)" activeBg="rgba(214, 164, 70, 0.12)" onClick={() => setFilters(current => ({ ...current, risk: "Worth a Look" }))} />
+                <Pill label="Low Risk" active={filters.risk === "Low Risk"} color="var(--green)" activeBg="rgba(89, 180, 138, 0.12)" onClick={() => setFilters(current => ({ ...current, risk: "Low Risk" }))} />
+              </div>
+
+              <div className="section-label">Pattern filters</div>
+              <div style={{display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12}}>
+                <Pill label="Resolution gap" active={!!filters.resolutionGapOnly} color="#7ec8ff" activeBg="rgba(126, 200, 255, 0.14)" onClick={() => toggleFilter("resolutionGapOnly")} />
+                <Pill label="Opening only" active={!!filters.openingOnly} onClick={() => toggleFilter("openingOnly")} />
+                <Pill label="Exclude closes" active={!!filters.excludeLikelyCloses} onClick={() => toggleFilter("excludeLikelyCloses")} />
+                <Pill label="Hide yield-like" active={!!filters.hideYieldLike} color="var(--amber)" activeBg="rgba(214, 164, 70, 0.12)" onClick={() => toggleFilter("hideYieldLike")} />
+                <Pill label="Strong repricing" active={!!filters.strongRepricingOnly} onClick={() => toggleFilter("strongRepricingOnly")} />
+                <Pill label="Off-hours only" active={!!filters.offHoursOnly} onClick={() => toggleFilter("offHoursOnly")} />
+                <Pill label="Deadline only" active={!!filters.deadlineOnly} onClick={() => toggleFilter("deadlineOnly")} />
+                <Pill label="Hide bot-like" active={!!filters.hideBotLike} color="var(--red)" activeBg="rgba(217, 91, 116, 0.12)" onClick={() => toggleFilter("hideBotLike")} />
+                <Pill label="Specialists only" active={!!filters.specialistOnly} onClick={() => toggleFilter("specialistOnly")} />
+                <Pill label="Zombie only" active={!!filters.zombieOnly} onClick={() => toggleFilter("zombieOnly")} />
+              </div>
+
+              <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8}}>
+                <div className="section-label" style={{marginBottom: 8}}>Topics</div>
+                <div style={{display: "flex", gap: 6, marginBottom: 8}}>
+                  <button className="ghost-btn" style={{padding: "3px 10px", fontSize: 12}} onClick={selectAllTopics}>Select all</button>
+                  <button className="ghost-btn" style={{padding: "3px 10px", fontSize: 12}} onClick={clearTopics}>Select none</button>
+                </div>
+              </div>
+              <div style={{display: "flex", flexWrap: "wrap", gap: 6}}>
+                {categories.map(label => (
+                  <Pill key={label} label={label} active={filters.topics.includes(label)} onClick={() => toggleTopic(label)} />
+                ))}
+              </div>
+            </div>
+
+            <button className={`btn primary ${scanning ? "disabled" : ""}`} onClick={scanning ? onStop : onScan} disabled={false}>
+              {scanning ? (archiveMode ? "Stop export" : "Stop scan") : (archiveMode ? "Start archive export" : "Start scan")}
+            </button>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12}}>
+                <div style={{fontSize: 15, fontWeight: 600}}>{archiveMode ? "Archive summary" : "Run summary"}</div>
+                {report && (
+                  <span className="badge" style={{color: "var(--accent)", background: "var(--accent-soft)", borderColor: "rgba(111, 134, 255, 0.35)"}}>
+                    {archiveMode ? report.rangeLabel : `Last ${report.lookback}`}
+                  </span>
+                )}
+              </div>
+              {report ? (
+                <>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8}}>
+                    <StatTile label="Visible cards" value={report.counts.flagged} />
+                    <StatTile label="Strong risk" value={report.counts.strong} color="var(--red)" />
+                  </div>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12}}>
+                    <StatTile label={archiveMode ? "Unique wallets" : "Worth a Look"} value={archiveMode ? report.uniqueWalletCount : report.counts.worth} color={archiveMode ? "var(--accent)" : "var(--amber)"} />
+                    <StatTile label={archiveMode ? "Unique markets" : "Low risk"} value={archiveMode ? report.uniqueMarketCount : report.counts.low} color={archiveMode ? "var(--green)" : "var(--green)"} />
+                  </div>
+                  <div className="selectable" style={{color: "var(--text-sec)", lineHeight: 1.7}}>
+                    {archiveMode ? `Range: ${report.rangeLabel}` : `Lookback: ${report.lookback}`}{"\n"}
+                    Topics: {report.topics}{"\n"}
+                    {archiveMode
+                      ? `Trades loaded: ${report.rawTradeCount} total, ${report.candidateTradeCount} after filters.`
+                      : `Loaded trade rows: ${report.rawTradeCount} API rows, ${report.candidateTradeCount} after filters.`}{"\n"}
+                    {!archiveMode && report.tradeCollectionDiagnostics?.focusMarketCount
+                      ? `Focus markets: ${report.tradeCollectionDiagnostics.focusMarketCount}; fetch mode: ${report.tradeCollectionDiagnostics.marketFetchMode || "unknown"}.`
+                      : ""}{!archiveMode && report.tradeCollectionDiagnostics?.focusMarketCount ? "\n" : ""}
+                    {!archiveMode && report.tradeCollectionDiagnostics?.possibleTruncatedMarketCount
+                      ? `Possible truncated markets: ${report.tradeCollectionDiagnostics.possibleTruncatedMarketCount}.`
+                      : ""}{!archiveMode && report.tradeCollectionDiagnostics?.possibleTruncatedMarketCount ? "\n" : ""}
+                    {!archiveMode && report.tradeCollectionDiagnostics?.failedMarketFetchCount
+                      ? `Failed market fetches: ${report.tradeCollectionDiagnostics.failedMarketFetchCount}.`
+                      : ""}{!archiveMode && report.tradeCollectionDiagnostics?.failedMarketFetchCount ? "\n" : ""}
+                    {!archiveMode && report.savedFlaggedCaseCount !== undefined
+                      ? `Saved flagged: ${report.savedFlaggedCaseCount}; quality-screened visible: ${report.visibleFlaggedCaseCount}.`
+                      : ""}{!archiveMode && report.savedFlaggedCaseCount !== undefined ? "\n" : ""}
+                    {!archiveMode && report.savedMarketCount !== undefined
+                      ? `Markets: ${report.visibleMarketCount} visible / ${report.savedMarketCount} saved flagged.`
+                      : ""}{!archiveMode && report.savedMarketCount !== undefined ? "\n" : ""}
+                    Resolution-gap tagged cases: {report.counts.resolutionGap || 0}{"\n"}
+                    Funding mode: {report.fundingTraceMode || report.analysisSettings?.funding_trace_mode || "unknown"}{"\n"}
+                    Case-family scope: {report.analysisSettings?.case_family_scope_status || "unknown"}{"\n"}
+                    Generated: {report.generatedAt}
+                  </div>
+                </>
+              ) : (
+                <div style={{color: "var(--text-muted)", lineHeight: 1.7}}>
+                  {archiveMode
+                    ? "No archive run loaded. Choose a date range, export the archive, or open a previous research run below."
+                    : "No run loaded. Configure filters and start a scan, or open a previous run below."}
+                </div>
+              )}
+            </div>
+
+            <div className="panel" style={{padding: 14}}>
+              <div style={{fontSize: 15, fontWeight: 600, marginBottom: 10}}>{archiveMode ? "Recent archive runs" : "Recent runs"}</div>
+              <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                {recentRuns.length ? recentRuns.map(run => (
+                  <button
+                    key={run.name}
+                    onClick={() => onOpenRun(run.name)}
+                    className="card"
+                    style={{
+                      textAlign: "left",
+                      padding: 12,
+                      cursor: "pointer",
+                      background: run.selected ? "var(--card-hover)" : "var(--panel)",
+                      borderColor: run.selected ? "var(--accent)" : "var(--border)",
+                      color: "var(--text)",
+                    }}
+                  >
+                    <div style={{fontSize: 13, fontWeight: 600, marginBottom: 6}}>{run.displayTime}</div>
+                    <div style={{fontSize: 12, color: "var(--text-sec)", lineHeight: 1.55}} className="pretty">
+                      {archiveMode ? `Range: ${run.rangeLabel}` : `Lookback: ${run.lookback}`}<br />
+                      Topics: {run.topics}<br />
+                      Min size: {run.minAmount ? `$${run.minAmount}` : "n/a"}<br />
+                      {archiveMode ? `${run.tradeCount || 0} trades, ${run.flagged} flagged cases` : `${run.flagged} flagged cases`}
+                    </div>
+                  </button>
+                )) : <div style={{color: "var(--text-muted)"}}>No previous runs found.</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function CenterColumn({ allCases, filteredCases, selectedCaseId, onSelect, sort, setSort, activeFilters, onClearFilters, report }) {
+      const [menuOpen, setMenuOpen] = useState(false);
+      const savedFlaggedCount = report?.savedFlaggedCaseCount ?? allCases.length;
+      const hiddenByActiveFilters = Math.max(0, allCases.length - filteredCases.length);
+      const showAllQualityScreenedLabel = `Show all ${allCases.length} quality-screened cards`;
+      return (
+        <div className="column panel" style={{padding: 0, overflow: "hidden"}}>
+          <div style={{padding: 16, borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start"}}>
+            <div>
+              <div style={{fontSize: 17, fontWeight: 700}}>Flagged trade cards</div>
+              <div style={{fontSize: 12, color: "var(--text-muted)", marginTop: 4}}>
+                {filteredCases.length} visible cases from {allCases.length} quality-screened cards; {savedFlaggedCount} saved flagged total.
+              </div>
+              <div style={{fontSize: 12, color: "var(--text-muted)", marginTop: 6, lineHeight: 1.45}}>
+                Base scanner score is the shared InsPoly suspicion score from _score_trade(). Visible cards may be quality-screened by this mode.
+              </div>
+              {hiddenByActiveFilters > 0 && activeFilters?.length ? (
+                <button className="btn" style={{marginTop: 10, padding: "7px 10px"}} onClick={onClearFilters}>
+                  {showAllQualityScreenedLabel}
+                </button>
+              ) : null}
+            </div>
+            <div style={{position: "relative"}}>
+              <button className="btn" style={{padding: "8px 12px", display: "flex", alignItems: "center", gap: 8}} onClick={() => setMenuOpen(value => !value)}>
+                <span>{sort}</span>
+                <span style={{fontSize: 10, opacity: .7}}>▼</span>
+              </button>
+              {menuOpen && (
+                <div className="panel" style={{position: "absolute", right: 0, top: "calc(100% + 6px)", minWidth: 220, padding: 6, zIndex: 20, boxShadow: "0 16px 40px rgba(0,0,0,.45)"}}>
+                  {["Risk first", "Largest position first", "Highest liquidity share first", "Newest first", "Strongest timing anomaly first"].map(option => (
+                    <button
+                      key={option}
+                      className="btn"
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        marginBottom: 6,
+                        background: sort === option ? "var(--accent-soft)" : "transparent",
+                        color: sort === option ? "var(--accent)" : "var(--text-sec)",
+                        borderColor: sort === option ? "var(--accent)" : "transparent",
+                      }}
+                      onClick={() => { setSort(option); setMenuOpen(false); }}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div style={{overflowY: "auto", flex: 1, padding: 12}}>
+            {filteredCases.length ? filteredCases.map(card => (
+              <div
+                key={card.id}
+                className="card"
+                onClick={() => onSelect(card.id)}
+                style={{
+                  padding: 14,
+                  marginBottom: 10,
+                  cursor: "pointer",
+                  background: selectedCaseId === card.id ? "var(--card-hover)" : "var(--card)",
+                  borderColor: selectedCaseId === card.id ? "var(--accent)" : "var(--border)",
+                }}
+              >
+                <div style={{display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 8}}>
+                  <a
+                    href={card.marketUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="link pretty"
+                    style={{fontSize: 14, fontWeight: 600, lineHeight: 1.45, flex: 1}}
+                    onClick={event => event.stopPropagation()}
+                  >
+                    {card.market}
+                  </a>
+                  <div style={{display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "end"}}>
+                    <RiskBadge riskKey={card.riskKey} label={card.riskLabel} />
+                    <CaseTypeBadge caseType={card.caseType} />
+                  </div>
+                </div>
+
+                <div style={{display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10, color: "var(--text-sec)", fontSize: 12}}>
+                  <a
+                    href={card.profileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="link subtle mono-link"
+                    onClick={event => event.stopPropagation()}
+                  >
+                    {card.walletShort}
+                  </a>
+                  {card.username !== "Not available" ? (
+                    <a
+                      href={card.profileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="link subtle"
+                      onClick={event => event.stopPropagation()}
+                    >
+                      {card.username}
+                    </a>
+                  ) : null}
+                  <span className="mono" style={{color: card.side === "YES" ? "var(--green)" : "var(--red)"}}>{card.orderSide} {card.side}</span>
+                  <span className="mono">{card.position}</span>
+                  <span className="mono">entry {card.entryProbabilityLabel || "Unavailable"}</span>
+                  <span className="mono">pred {card.walletPredictionsLabel || "Unavailable"}</span>
+                  <span className="mono" style={{color: "var(--amber)"}}>{card.liquidityShare} liq</span>
+                </div>
+
+                <div style={{display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginBottom: 10}}>
+                  <StatTile label="Score" value={card.score} />
+                  <StatTile label="Trade size" value={card.position} />
+                  <StatTile label="Entry chance" value={card.entryProbabilityLabel || "Unavailable"} />
+                </div>
+
+                <div className="selectable" style={{color: "var(--text-sec)", lineHeight: 1.6}}>{card.preview}</div>
+                <div style={{fontSize: 11, color: "var(--text-muted)", marginTop: 8}}>{card.date}</div>
+              </div>
+            )) : allCases.length ? (
+              <div style={{padding: 8, color: "var(--text-sec)", lineHeight: 1.6}}>
+                The selected run has {allCases.length} loaded flagged {allCases.length === 1 ? "card" : "cards"}, but the current filters hide {allCases.length === 1 ? "it" : "them"}.
+                {activeFilters?.length ? (
+                  <div style={{display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12}}>
+                    {activeFilters.map(label => (
+                      <span key={label} className="badge" style={{color: "var(--accent)", background: "var(--accent-soft)", borderColor: "rgba(111, 134, 255, 0.35)"}}>
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <button className="btn" style={{marginTop: 14}} onClick={onClearFilters}>
+                  {showAllQualityScreenedLabel}
+                </button>
+              </div>
+            ) : (
+              <div style={{padding: 8, color: "var(--text-sec)", lineHeight: 1.6}}>
+                No flagged cards were saved for this run.<br />Try another risk level or load a different run.
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function RightPanel({ card, detail, detailTab, setDetailTab, onCopy, onOpenOutput }) {
+      if (!card) {
+        return (
+          <div className="column panel" style={{padding: 24, justifyContent: "center", alignItems: "center"}}>
+            <div style={{fontSize: 20, fontWeight: 700, marginBottom: 10}}>Choose a flagged card to inspect it in detail.</div>
+            <div style={{maxWidth: 460, textAlign: "center", color: "var(--text-sec)", lineHeight: 1.7}}>
+              Click a flagged trade card in the center column to open human summary, key context, detailed analysis, and realized P/L history here.
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="column panel" style={{padding: 0, overflow: "hidden"}}>
+          <div style={{padding: 18, borderBottom: "1px solid var(--border)"}}>
+            <div style={{display: "flex", justifyContent: "space-between", gap: 12, alignItems: "start", marginBottom: 10}}>
+              <a href={card.marketUrl} target="_blank" rel="noreferrer" className="link pretty" style={{fontSize: 26, fontWeight: 700, lineHeight: 1.15, flex: 1}}>
+                {card.market}
+              </a>
+              <div style={{display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "end"}}>
+                <RiskBadge riskKey={card.riskKey} label={card.riskLabel} />
+                <CaseTypeBadge caseType={detail?.caseType || card.caseType} />
+              </div>
+            </div>
+            <div style={{display: "flex", flexWrap: "wrap", gap: 12, color: "var(--text-sec)", marginBottom: 14}}>
+              <a href={card.profileUrl} target="_blank" rel="noreferrer" className="link subtle mono-link">{card.wallet}</a>
+              {detail && detail.username !== "Not available" && (
+                <a href={card.profileUrl} target="_blank" rel="noreferrer" className="link subtle">
+                  {detail.username}
+                </a>
+              )}
+              {detail && <span>Resolves in ~{detail.timeToResolution}</span>}
+              <span>Entry {detail?.entryProbability || card.entryProbabilityLabel || "Unavailable"}</span>
+            </div>
+            <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+              <button className="btn" onClick={onCopy}>Copy analysis</button>
+              <button className="btn" onClick={onOpenOutput}>Open output</button>
+              <button className={`tab ${detailTab === "summary" ? "active" : ""}`} onClick={() => setDetailTab("summary")}>Human summary</button>
+              <button className={`tab ${detailTab === "technical" ? "active" : ""}`} onClick={() => setDetailTab("technical")}>Detailed analysis</button>
+            </div>
+          </div>
+
+          {!detail ? (
+            <div style={{padding: 24, color: "var(--text-sec)"}}>Loading case analysis…</div>
+          ) : (
+            <div style={{overflowY: "auto", flex: 1, padding: 18}}>
+              <div style={{marginBottom: 18}}>
+                <div className="section-label">Key context</div>
+                <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                  {detail.keyContext.map((item, index) => (
+                    <div key={index} style={{display: "flex", gap: 10, alignItems: "start"}}>
+                      <span style={{color: "var(--accent)", marginTop: 1}}>›</span>
+                      <div className="selectable pretty" style={{color: "var(--text-sec)", lineHeight: 1.65}}>{item}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {detailTab === "summary" ? (
+                <>
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16}}>
+                    <div className="card" style={{padding: 14}}>
+                      <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>What stands out</div>
+                      <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                        {detail.whatStandsOut.map((line, index) => <div key={index} className="selectable pretty" style={{color: "var(--text-sec)", lineHeight: 1.6}}>{line}</div>)}
+                      </div>
+                    </div>
+                    <div className="card" style={{padding: 14}}>
+                      <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>What reduces concern</div>
+                      <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                        {detail.whatReducesConcern.map((line, index) => <div key={index} className="selectable pretty" style={{color: "var(--text-sec)", lineHeight: 1.6}}>{line}</div>)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card" style={{padding: 16}}>
+                    <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>Human summary</div>
+                    <div className="selectable pretty" style={{color: "var(--text-sec)", lineHeight: 1.75}}>{detail.humanSummary}</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="card" style={{padding: 16, marginBottom: 16}}>
+                    <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>How the system interpreted this case</div>
+                    <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                      {detail.technicalLines.map((line, index) => <div key={index} className="selectable pretty" style={{color: "var(--text-sec)", lineHeight: 1.6}}>{line}</div>)}
+                    </div>
+                  </div>
+
+                  <div className="card" style={{padding: 16, marginBottom: 16}}>
+                    <div style={{fontSize: 14, fontWeight: 600, marginBottom: 12}}>Recent closed positions</div>
+                    <div style={{overflowX: "auto", paddingBottom: 4}}>
+                      <div style={{minWidth: 1020}}>
+                        <div style={{display: "grid", gridTemplateColumns: "120px minmax(320px, 1.8fr) 70px 110px 130px 140px 110px", gap: 10, padding: "0 2px 6px", color: "var(--text-muted)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".07em"}}>
+                          <div>Date</div>
+                          <div>Market</div>
+                          <div>Side</div>
+                          <div>Result</div>
+                          <div>Stake</div>
+                          <div>Realized P/L</div>
+                          <div>Return</div>
+                        </div>
+                        <div style={{display: "grid", gridTemplateColumns: "1fr", gap: 8}}>
+                          {detail.positions.length ? detail.positions.map((position, index) => (
+                            <div key={index} className="tile" style={{display: "grid", gridTemplateColumns: "120px minmax(320px, 1.8fr) 70px 110px 130px 140px 110px", gap: 10, alignItems: "start"}}>
+                              <div className="mono" style={{color: "var(--text-sec)"}}>{position.date}</div>
+                              <a href={position.marketUrl} target="_blank" rel="noreferrer" className="link pretty" style={{lineHeight: 1.5}}>{position.market}</a>
+                              <div className="mono" style={{color: "var(--text-sec)"}}>{position.direction}</div>
+                              <div style={{color: position.result === "Won" ? "var(--green)" : position.result === "Lost" ? "var(--red)" : "var(--amber)"}}>{position.result}</div>
+                              <div className="mono pretty">{position.stake}</div>
+                              <div className="mono pretty">{position.realizedPnl}</div>
+                              <div className="mono pretty">{position.realizedReturn}</div>
+                            </div>
+                          )) : <div style={{color: "var(--text-muted)"}}>No likely closed positions were identified from the loaded sample.</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12}}>
+                    <div className="card" style={{padding: 16}}>
+                      <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>Lifetime closed stats</div>
+                      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8}}>
+                        <StatTile label="Closed positions" value={detail.lifetime.total} />
+                        <StatTile label="Wins" value={detail.lifetime.wins} color="var(--green)" />
+                        <StatTile label="Losses" value={detail.lifetime.losses} color="var(--red)" />
+                        {detail.lifetime.winRateVisible
+                          ? <StatTile label="Win rate" value={detail.lifetime.winRate} />
+                          : <StatTile label="Win rate" value="Not emphasized" color="var(--text-sec)" />}
+                        <StatTile label="Economic win rate" value={detail.lifetime.economicWinRate || "Unavailable"} />
+                        <StatTile label="Zombie losses" value={detail.lifetime.zombieLossCount} color="var(--amber)" />
+                        <StatTile label="Total realized P/L" value={detail.lifetime.totalPnl} />
+                        <StatTile label="Average return" value={detail.lifetime.avgRet} />
+                      </div>
+                      {!detail.lifetime.winRateVisible && detail.lifetime.winRateNote && (
+                        <div style={{marginTop: 12, color: "var(--text-sec)", lineHeight: 1.6}} className="pretty selectable">
+                          {detail.lifetime.winRateNote}
+                        </div>
+                      )}
+                      {detail.lifetime.economicNote && (
+                        <div style={{marginTop: 12, color: "var(--text-sec)", lineHeight: 1.6}} className="pretty selectable">
+                          {detail.lifetime.economicNote}
+                        </div>
+                      )}
+                    </div>
+                    <div className="card" style={{padding: 16}}>
+                      <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>Open position and activity stats</div>
+                      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8}}>
+                        <StatTile label="Open positions" value={detail.open.count} />
+                        <StatTile label="Open notional" value={detail.open.notional} />
+                        <StatTile label="Unrealized P/L" value={detail.open.unrealizedPnl} />
+                        <StatTile label="Unrealized return" value={detail.open.unrealizedPct} />
+                        <StatTile label="Zombie positions" value={detail.open.zombiePositions} color="var(--amber)" />
+                        <StatTile label="Bot-likeness" value={detail.activitySummary?.botLikenessScore ?? "0"} />
+                        <StatTile label="Review value" value={detail.activitySummary?.manualReviewValueScore ?? "0"} />
+                        <StatTile label="Median trade" value={detail.activitySummary?.medianTradeSize ?? "$0.00"} />
+                      </div>
+                      {detail.activitySummary?.activityNote && (
+                        <div style={{marginTop: 12, color: "var(--text-sec)", lineHeight: 1.6}} className="pretty selectable">
+                          {detail.activitySummary.activityNote}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [boot, setBoot] = useState(null);
+      const [filters, setFilters] = useState({
+        lookback: "4h",
+        startDateTime: "",
+        endDateTime: "",
+        minSize: "10000",
+        maxSize: "",
+        maxEntryProbability: "",
+        includeRelatedMarkets: true,
+        includeBlockchain: true,
+        fundingTraceMode: "",
+        risk: "All risks",
+        topics: [],
+        resolutionGapOnly: false,
+        openingOnly: false,
+        excludeLikelyCloses: false,
+        hideYieldLike: false,
+        strongRepricingOnly: false,
+        offHoursOnly: false,
+        deadlineOnly: false,
+        hideBotLike: false,
+        specialistOnly: false,
+        zombieOnly: false,
+      });
+      const [sort, setSort] = useState("Risk first");
+      const [selectedCaseId, setSelectedCaseId] = useState(null);
+      const [details, setDetails] = useState({});
+      const [detailTab, setDetailTab] = useState("summary");
+      const [filtersHydrated, setFiltersHydrated] = useState(false);
+      const [copyToast, setCopyToast] = useState(false);
+      const [tweaksOpen, setTweaksOpen] = useState(false);
+      const [fontScale, setFontScale] = useState(13);
+      const [accent, setAccent] = useState("#6f86ff");
+
+      const applyVisualTweaks = (nextAccent, nextFont) => {
+        document.documentElement.style.setProperty("--accent", nextAccent);
+        document.documentElement.style.setProperty("--accent-soft", `${nextAccent}22`);
+        document.documentElement.style.setProperty("--font-size", `${nextFont}px`);
+      };
+
+      useEffect(() => {
+        applyVisualTweaks(accent, fontScale);
+      }, [accent, fontScale]);
+
+      useEffect(() => {
+        if (boot?.appMeta?.title) {
+          document.title = boot.appMeta.title;
+        }
+      }, [boot]);
+
+      const loadBootstrap = async (preserveSelection = true) => {
+        const data = await fetchJson("/api/bootstrap");
+        if (!data.ok) return;
+        setBoot(data);
+        if (!filtersHydrated) {
+          setFilters(current => ({ ...current, ...(data.filters || {}) }));
+          setFiltersHydrated(true);
+        }
+        const cases = data.currentCases || [];
+        if (!cases.length) {
+          setSelectedCaseId(null);
+          return;
+        }
+        setSelectedCaseId(current => {
+          if (preserveSelection && current && cases.some(item => item.id === current)) return current;
+          return cases[0].id;
+        });
+      };
+
+      useEffect(() => {
+        loadBootstrap(false);
+        const timer = setInterval(() => loadBootstrap(true), 1500);
+        return () => clearInterval(timer);
+      }, [filtersHydrated]);
+
+      const currentCases = boot?.currentCases || [];
+      const report = boot?.currentReport || null;
+      const status = boot?.status || { running: false, percent: 0, stage: "Ready", detail: "No scan running", label: "Ready" };
+
+      const filteredCases = useMemo(() => {
+        let cases = [...currentCases];
+        if (filters.risk !== "All risks") {
+          cases = cases.filter(card => {
+            if (filters.risk === "Low Risk") {
+              return card.riskLabel === "Low Risk" && !card.resolutionGapCase;
+            }
+            return card.riskLabel === filters.risk;
+          });
+        }
+        if (filters.topics.length) {
+          cases = cases.filter(card => !card.topics?.length || card.topics.some(topic => filters.topics.includes(topic)));
+        }
+        const minValue = parseFloat(String(filters.minSize || "").replace(/[$,]/g, "")) || 0;
+        const maxValue = parseFloat(String(filters.maxSize || "").replace(/[$,]/g, ""));
+        cases = cases.filter(card => {
+          const amount = parseFloat(String(card.position || "").replace(/[$,]/g, "")) || 0;
+          if (amount < minValue) return false;
+          if (!Number.isNaN(maxValue) && maxValue > 0 && amount > maxValue) return false;
+          return true;
+        });
+        const maxEntryProbability = parseProbabilityFilter(filters.maxEntryProbability);
+        if (maxEntryProbability !== null) {
+          cases = cases.filter(card => {
+            const entryProbability = Number(card.entryProbability);
+            return !Number.isFinite(entryProbability) || entryProbability <= maxEntryProbability;
+          });
+        }
+        if (filters.openingOnly) {
+          cases = cases.filter(card => card.openingExposure);
+        }
+        if (filters.resolutionGapOnly) {
+          cases = cases.filter(card => card.resolutionGapCase);
+        }
+        if (filters.excludeLikelyCloses) {
+          cases = cases.filter(card => !["reduce", "close", "roll"].includes(String(card.tradeState || "").toLowerCase()));
+        }
+        if (filters.hideYieldLike) {
+          cases = cases.filter(card => !card.yieldLike);
+        }
+        if (filters.strongRepricingOnly) {
+          cases = cases.filter(card => card.strongRepricing);
+        }
+        if (filters.offHoursOnly) {
+          cases = cases.filter(card => card.offHours);
+        }
+        if (filters.deadlineOnly) {
+          cases = cases.filter(card => card.deadlineMarket);
+        }
+        if (filters.hideBotLike) {
+          cases = cases.filter(card => !card.botLike);
+        }
+        if (filters.specialistOnly) {
+          cases = cases.filter(card => card.specialist);
+        }
+        if (filters.zombieOnly) {
+          cases = cases.filter(card => card.zombieDistorted);
+        }
+        const riskOrder = { strong: 0, amber: 1, low: 2 };
+        cases.sort((a, b) => {
+          if (sort === "Risk first") {
+            const aRank = a.resolutionGapCase ? 3 : (riskOrder[a.riskKey] ?? 3);
+            const bRank = b.resolutionGapCase ? 3 : (riskOrder[b.riskKey] ?? 3);
+            return (aRank - bRank) || (b.score - a.score);
+          }
+          if (sort === "Largest position first") {
+            return (parseFloat(String(b.position).replace(/[$,]/g, "")) || 0) - (parseFloat(String(a.position).replace(/[$,]/g, "")) || 0);
+          }
+          if (sort === "Highest liquidity share first") {
+            return (parseFloat(String(b.liquidityShare).replace("%", "")) || 0) - (parseFloat(String(a.liquidityShare).replace("%", "")) || 0);
+          }
+          if (sort === "Strongest timing anomaly first") {
+            return (a.timingHours || 99999) - (b.timingHours || 99999);
+          }
+          return String(b.date).localeCompare(String(a.date));
+        });
+        return cases;
+      }, [currentCases, filters, sort]);
+
+      const activeFilters = useMemo(() => activeCardFilterLabels(filters), [filters]);
+
+      const clearResultFilters = () => {
+        setFilters(current => ({
+          ...current,
+          minSize: "",
+          maxSize: "",
+          maxEntryProbability: "",
+          risk: "All risks",
+          topics: boot?.siteCategories?.length ? boot.siteCategories : current.topics,
+          resolutionGapOnly: false,
+          openingOnly: false,
+          excludeLikelyCloses: false,
+          hideYieldLike: false,
+          strongRepricingOnly: false,
+          offHoursOnly: false,
+          deadlineOnly: false,
+          hideBotLike: false,
+          specialistOnly: false,
+          zombieOnly: false,
+        }));
+      };
+
+      useEffect(() => {
+        if (!filteredCases.length) {
+          setSelectedCaseId(null);
+          return;
+        }
+        if (!selectedCaseId || !filteredCases.some(card => card.id === selectedCaseId)) {
+          setSelectedCaseId(filteredCases[0].id);
+        }
+      }, [filteredCases, selectedCaseId]);
+
+      useEffect(() => {
+        if (!selectedCaseId || details[selectedCaseId]) return;
+        fetchJson(`/api/case-detail?trade_id=${encodeURIComponent(selectedCaseId)}`).then(data => {
+          if (data.ok) {
+            setDetails(current => ({ ...current, [selectedCaseId]: data.detail }));
+          }
+        });
+      }, [selectedCaseId, details]);
+
+      const selectedCard = filteredCases.find(card => card.id === selectedCaseId) || null;
+      const selectedDetail = selectedCaseId ? details[selectedCaseId] : null;
+
+      const onScan = async () => {
+        const response = await postJson("/api/scan", filters);
+        if (response.ok) loadBootstrap(true);
+        else window.alert(response.error || "Unable to start scan.");
+      };
+
+      const onStop = async () => {
+        await postJson("/api/stop");
+        loadBootstrap(true);
+      };
+
+      const onOpenRun = async name => {
+        const response = await fetchJson(`/api/run?name=${encodeURIComponent(name)}`);
+        if (!response.ok) {
+          window.alert(response.error || "Unable to load run.");
+          return;
+        }
+        setBoot(response);
+        setDetails({});
+        const cases = response.currentCases || [];
+        setSelectedCaseId(cases[0]?.id || null);
+      };
+
+      const onOpenOutput = async () => {
+        const response = await postJson("/api/open-output", { name: report?.fileName || null });
+        if (!response.ok) window.alert(response.error || "Unable to open output.");
+      };
+
+      const copyCards = async () => {
+        const payload = filteredCases.map(card => `${card.riskLabel}${card.caseType ? ` | ${card.caseType}` : ""} | ${card.market}\n${card.wallet} | ${card.position} | entry ${card.entryProbabilityLabel || "Unavailable"} | ${card.liquidityShare}\n${card.preview}`).join("\n\n");
+        await navigator.clipboard.writeText(payload || "No visible cards.");
+        setCopyToast(true);
+        setTimeout(() => setCopyToast(false), 1600);
+      };
+
+      const copySelected = async () => {
+        if (!selectedDetail) return;
+        await navigator.clipboard.writeText(selectedDetail.copyText || selectedDetail.humanSummary || "");
+        setCopyToast(true);
+        setTimeout(() => setCopyToast(false), 1600);
+      };
+
+      return (
+        <div className="app-shell">
+          <div className="header">
+            <div>
+              <div className="title">{boot?.appMeta?.title?.toUpperCase() || "INS POLY"}</div>
+              <div className="hero">{boot?.appMeta?.hero || "Suspicious Trading Review Console"}</div>
+              <div className="status-row">
+                <div>
+                  <div style={{fontSize: 12, color: "var(--text-sec)", marginBottom: 6}}>Selected run: {boot?.selectedRun || "none"}</div>
+                  <div style={{fontSize: 12, fontWeight: 700}}>{status.label}</div>
+                </div>
+                <div className="progress-wrap">
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{width: `${Math.max(0, Math.min(100, status.percent || 0))}%`}} />
+                  </div>
+                  <div style={{fontSize: 12, color: "var(--text-sec)"}}>{status.detail}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "end"}}>
+              <button className="btn" onClick={onOpenOutput}>Open output</button>
+              <button className="btn" onClick={() => postJson("/api/open-exports-dir")}>Open exports folder</button>
+              <button className="btn" onClick={copyCards}>Copy cards</button>
+              <button className="btn" onClick={() => setTweaksOpen(value => !value)}>Tweaks</button>
+            </div>
+          </div>
+
+          <div className="content-grid">
+            <LeftRail
+              appMeta={boot?.appMeta || {}}
+              filters={filters}
+              setFilters={setFilters}
+              categories={boot?.siteCategories || []}
+              report={report}
+              recentRuns={boot?.recentRuns || []}
+              scanning={status.running}
+              onScan={onScan}
+              onStop={onStop}
+              onOpenRun={onOpenRun}
+            />
+            <CenterColumn
+              allCases={currentCases}
+              filteredCases={filteredCases}
+              selectedCaseId={selectedCaseId}
+              onSelect={caseId => { setSelectedCaseId(caseId); setDetailTab("summary"); }}
+              sort={sort}
+              setSort={setSort}
+              activeFilters={activeFilters}
+              onClearFilters={clearResultFilters}
+              report={report}
+            />
+            <RightPanel
+              card={selectedCard}
+              detail={selectedDetail}
+              detailTab={detailTab}
+              setDetailTab={setDetailTab}
+              onCopy={copySelected}
+              onOpenOutput={onOpenOutput}
+            />
+          </div>
+
+          {copyToast && (
+            <div className="panel" style={{position: "fixed", bottom: 18, right: 18, padding: "10px 14px", background: "var(--panel)", boxShadow: "0 16px 36px rgba(0,0,0,.45)"}}>
+              Summary copied
+            </div>
+          )}
+
+          {tweaksOpen && (
+            <div className="panel" style={{position: "fixed", right: 18, bottom: 70, width: 250, padding: 14, boxShadow: "0 16px 36px rgba(0,0,0,.45)"}}>
+              <div className="section-label">Tweaks</div>
+              <div style={{marginBottom: 12}}>
+                <div style={{fontSize: 12, color: "var(--text-sec)", marginBottom: 6}}>Font scale</div>
+                <input type="range" min="11" max="16" step="1" value={fontScale} onChange={event => setFontScale(Number(event.target.value))} style={{width: "100%"}} />
+              </div>
+              <div>
+                <div style={{fontSize: 12, color: "var(--text-sec)", marginBottom: 6}}>Accent color</div>
+                <div style={{display: "flex", gap: 8}}>
+                  {["#6f86ff", "#59b48a", "#d6a446"].map(color => (
+                    <button key={color} className="btn" style={{width: 36, height: 36, padding: 0, background: color, borderColor: accent === color ? "white" : color}} onClick={() => setAccent(color)} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
