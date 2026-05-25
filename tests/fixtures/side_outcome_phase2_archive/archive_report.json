@@ -1,0 +1,248 @@
+{
+  "generated_at": "2026-05-22T00:00:00+00:00",
+  "range_start": "2026-05-21T00:00:00+00:00",
+  "range_end": "2026-05-22T00:00:00+00:00",
+  "mode": "archive_synthetic_fixture",
+  "cases": [
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-buy-yes-low",
+        "condition_id": "cond-archive-a",
+        "asset_id": "asset-yes-a",
+        "wallet": "0xarchive01",
+        "side": "BUY",
+        "outcome": "YES",
+        "price": "0.20",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:00:00+00:00",
+        "title": "Synthetic archive market A",
+        "slug": "synthetic-archive-a"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "economic_direction": "long_yes"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-buy-no-low",
+        "condition_id": "cond-archive-b",
+        "asset_id": "asset-no-b",
+        "wallet": "0xarchive02",
+        "side": "BUY",
+        "outcome": "NO",
+        "price": "0.20",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:05:00+00:00",
+        "title": "Synthetic archive market B",
+        "slug": "synthetic-archive-b"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "economic_direction": "long_no"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-sell-yes-low",
+        "condition_id": "cond-archive-c",
+        "asset_id": "asset-yes-c",
+        "wallet": "0xarchive03",
+        "side": "SELL",
+        "outcome": "YES",
+        "price": "0.20",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:10:00+00:00",
+        "title": "Synthetic archive market C",
+        "slug": "synthetic-archive-c"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "economic_direction": "short_yes"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-sell-no-low",
+        "condition_id": "cond-archive-d",
+        "asset_id": "asset-no-d",
+        "wallet": "0xarchive04",
+        "side": "SELL",
+        "outcome": "NO",
+        "price": "0.20",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:15:00+00:00",
+        "title": "Synthetic archive market D",
+        "slug": "synthetic-archive-d"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "economic_direction": "short_no"
+      }
+    },
+    {
+      "severity": "Low Risk",
+      "trade": {
+        "trade_id": "archive-sell-yes-near",
+        "condition_id": "cond-archive-e",
+        "asset_id": "asset-yes-e",
+        "wallet": "0xarchive05",
+        "side": "SELL",
+        "outcome": "YES",
+        "price": "0.05",
+        "size": "100",
+        "notional": "5",
+        "timestamp": "2026-05-21T01:20:00+00:00",
+        "title": "Synthetic archive market E",
+        "slug": "synthetic-archive-e"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "5.0%",
+        "economic_direction": "short_yes"
+      }
+    },
+    {
+      "severity": "Low Risk",
+      "trade": {
+        "trade_id": "archive-sell-no-near",
+        "condition_id": "cond-archive-f",
+        "asset_id": "asset-no-f",
+        "wallet": "0xarchive06",
+        "side": "SELL",
+        "outcome": "NO",
+        "price": "0.99",
+        "size": "100",
+        "notional": "99",
+        "timestamp": "2026-05-21T01:25:00+00:00",
+        "title": "Synthetic archive market F",
+        "slug": "synthetic-archive-f"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "99.0%",
+        "economic_direction": "short_no"
+      }
+    },
+    {
+      "severity": "Low Risk",
+      "trade": {
+        "trade_id": "archive-missing-price",
+        "condition_id": "cond-archive-g",
+        "asset_id": "asset-yes-g",
+        "wallet": "0xarchive07",
+        "side": "SELL",
+        "outcome": "YES",
+        "timestamp": "2026-05-21T01:30:00+00:00",
+        "title": "Synthetic archive market G",
+        "slug": "synthetic-archive-g"
+      },
+      "raw_metrics": {
+        "trade_state": "increase"
+      }
+    },
+    {
+      "severity": "Low Risk",
+      "trade": {
+        "trade_id": "archive-malformed-price",
+        "condition_id": "cond-archive-h",
+        "asset_id": "asset-yes-h",
+        "wallet": "0xarchive08",
+        "side": "SELL",
+        "outcome": "YES",
+        "price": "bad-price",
+        "timestamp": "2026-05-21T01:35:00+00:00",
+        "title": "Synthetic archive market H",
+        "slug": "synthetic-archive-h"
+      },
+      "raw_metrics": {
+        "trade_state": "increase"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-percent-price",
+        "condition_id": "cond-archive-i",
+        "asset_id": "asset-yes-i",
+        "wallet": "0xarchive09",
+        "side": "SELL",
+        "outcome": "YES",
+        "price": "19.9%",
+        "size": "100",
+        "notional": "19.9",
+        "timestamp": "2026-05-21T01:40:00+00:00",
+        "title": "Synthetic archive market I",
+        "slug": "synthetic-archive-i"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "19.9%",
+        "economic_direction": "short_yes"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-old-fields-only",
+        "condition_id": "cond-archive-j",
+        "asset_id": "asset-yes-j",
+        "wallet": "0xarchive10",
+        "side": "SELL",
+        "outcome": "YES",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:45:00+00:00",
+        "title": "Synthetic archive market J",
+        "slug": "synthetic-archive-j"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "economic_direction": "short_yes"
+      }
+    },
+    {
+      "severity": "Worth a Look",
+      "trade": {
+        "trade_id": "archive-phase1-fields",
+        "condition_id": "cond-archive-k",
+        "asset_id": "asset-yes-k",
+        "wallet": "0xarchive11",
+        "side": "SELL",
+        "outcome": "YES",
+        "price": "0.20",
+        "size": "100",
+        "notional": "20",
+        "timestamp": "2026-05-21T01:50:00+00:00",
+        "title": "Synthetic archive market K",
+        "slug": "synthetic-archive-k"
+      },
+      "raw_metrics": {
+        "trade_state": "increase",
+        "price_implied_probability": "20.0%",
+        "raw_token_outcome": "YES",
+        "raw_order_side": "SELL",
+        "raw_token_price": "0.20",
+        "raw_token_price_label": "Raw token: Yes @ 20.0%",
+        "economic_side": "NO",
+        "economic_side_probability": "0.80",
+        "economic_side_probability_label": "Economic side: No @ 80.0%",
+        "economic_direction_normalized": "long_no",
+        "economic_direction": "short_yes"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+id,artifactFamily,artifactEvidenceType,wallet,condition_id,marketSlug,eventSlug,timestamp,side,outcome,price,economic_direction,model_economic_direction,side_outcome_normalization_status,opening_exposure_flag,severity,hardEvidenceReviewTier
+phase4-csv-buy-yes,phase4_synthetic_csv,synthetic_fixture,0xcsvphase401,cond-csv-phase4-yes,csv-phase4-yes,csv-phase4-event,2026-05-22T12:00:00+00:00,BUY,YES,0.20,long_yes,long_yes,normalized,Yes,Worth a Look,
+phase4-csv-sell-no,phase4_synthetic_csv,synthetic_fixture,0xcsvphase402,cond-csv-phase4-yes,csv-phase4-yes,csv-phase4-event,2026-05-22T12:05:00+00:00,SELL,NO,0.20,short_no,long_yes,normalized,Yes,Worth a Look,Hard Evidence Review
+phase4-csv-buy-no,phase4_synthetic_csv,synthetic_fixture,0xcsvphase403,cond-csv-phase4-no,csv-phase4-no,csv-phase4-event,2026-05-22T13:00:00+00:00,BUY,NO,0.30,long_no,long_no,normalized,Yes,Worth a Look,
+phase4-csv-sell-yes,phase4_synthetic_csv,synthetic_fixture,0xcsvphase404,cond-csv-phase4-no,csv-phase4-no,csv-phase4-event,2026-05-22T13:05:00+00:00,SELL,YES,0.30,short_yes,long_no,normalized,Yes,Strong Risk,
+phase4-csv-malformed,phase4_synthetic_csv,synthetic_fixture,0xcsvphase405,cond-csv-phase4-bad,csv-phase4-bad,csv-phase4-event,2026-05-22T14:00:00+00:00,SELL,MAYBE,0.30,short_yes,,,Yes,Worth a Look,

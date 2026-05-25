@@ -1,0 +1,3 @@
+id,visibility_tier,raw_order_side,raw_token_outcome,raw_token_price,qualityNotes
+csv-visible,Visible,BUY,NO,0.31,
+csv-lossy,Secondary review,SELL,YES,,truncated source row

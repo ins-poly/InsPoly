@@ -1,0 +1,98 @@
+{
+  "reportType": "inspoly_benchmark_registry",
+  "schemaVersion": "inspoly_benchmark_registry_v1",
+  "sidecarOnly": true,
+  "networkAllowed": false,
+  "items": [
+    {
+      "id": "side-outcome-phase2-probability",
+      "title": "Side/Outcome Phase 2 economic probability",
+      "category": "side_outcome_phase2_probability",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Fast local semantic regression corpus; not a scorer tuning benchmark."
+    },
+    {
+      "id": "side-outcome-phase4-cluster",
+      "title": "Side/Outcome Phase 4 normalized cluster grouping",
+      "category": "side_outcome_phase4_cluster",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Confirms BUY YES + SELL NO and BUY NO + SELL YES cluster semantics."
+    },
+    {
+      "id": "event-forensic-later-correctness",
+      "title": "Event Forensic later-correctness affected case",
+      "category": "event_forensic_later_correctness",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Covers one local later-correctness affected case, not live distribution."
+    },
+    {
+      "id": "event-forensic-weak-history-contract",
+      "title": "Event Forensic weak-history saved-report contract",
+      "category": "event_forensic_weak_history_contract",
+      "source_type": "sidecar_audit",
+      "source_path": "validation_outputs/event_forensic_weak_history_saved_report_audit_20260522.json",
+      "expected_gate_or_status": "weak_history_needs_live_rpc_validation",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Operator-ready blocker evidence; synthetic fixtures excluded from production claims."
+    },
+    {
+      "id": "archive-visibility",
+      "title": "Archive visibility and lossy-row monitoring",
+      "category": "archive_visibility",
+      "source_type": "sidecar_audit",
+      "source_path": "validation_outputs/archive_visibility_monitoring_v2_20260522.json",
+      "expected_gate_or_status": "archive_visibility_monitoring_v2_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Read-only completeness/visibility monitoring, not archive behavior change."
+    },
+    {
+      "id": "malformed-fallback",
+      "title": "Malformed side/outcome/price fallback",
+      "category": "malformed_fallback",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "unknown_pass",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Unknown remains unknown, not zero or guessed."
+    },
+    {
+      "id": "old-report-compatibility",
+      "title": "Old report compatibility",
+      "category": "old_report_compatibility",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Old rows can be derived only when raw side/outcome/price are sufficient."
+    },
+    {
+      "id": "sensitive-gate-overlap",
+      "title": "Sensitive gate overlap with no direct mutation",
+      "category": "sensitive_gate_overlap_no_direct_mutation",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Confirms overlap is indirect only; no Strong Risk/HER/funding/candidate gate mutation."
+    },
+    {
+      "id": "phase3-capital-blocked",
+      "title": "Phase 3 capital-at-risk remains blocked",
+      "category": "phase3_capital_blocked",
+      "source_type": "sidecar_audit",
+      "source_path": "side_outcome_audits/side_outcome_phase3_capital_at_risk_audit_20260522.json",
+      "expected_gate_or_status": "keep_phase3_blocked",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "SELL max-loss/source-quality issue is explicitly not runtime implemented."
+    }
+  ]
+}

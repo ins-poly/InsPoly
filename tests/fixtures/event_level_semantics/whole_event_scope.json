@@ -1,0 +1,10 @@
+{
+  "analysis_scope": "event",
+  "scope_note": "Whole-event primary scoring across explicitly loaded child markets.",
+  "related_markets": [],
+  "markets": [{"condition_id": "cond-a"}, {"condition_id": "cond-b"}],
+  "suspicious_trades": [
+    {"id": "event-row-a", "conditionId": "cond-a", "wallet": "0x1"},
+    {"id": "event-row-b", "conditionId": "cond-b", "wallet": "0x2"}
+  ]
+}
