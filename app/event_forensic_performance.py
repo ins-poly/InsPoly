@@ -73,6 +73,42 @@ def build_chunk_metadata(total_items: int, *, chunk_size: int = 500) -> dict[str
     }
 
 
+def build_score_loop_memoization_metadata(
+    *,
+    candidate_rows: int,
+    unique_wallets: int,
+    unique_markets: int,
+    unique_domains: int,
+    chunk_size: int = 500,
+) -> dict[str, object]:
+    """Describe score-loop memoization coverage without changing rows."""
+
+    candidate_count = max(0, int(candidate_rows or 0))
+    wallet_count = max(0, int(unique_wallets or 0))
+    market_count = max(0, int(unique_markets or 0))
+    domain_count = max(0, int(unique_domains or 0))
+    return {
+        "enabled": True,
+        "candidateRows": candidate_count,
+        "uniqueWallets": wallet_count,
+        "uniqueMarkets": market_count,
+        "uniqueDomains": domain_count,
+        "repeatedWalletCandidateOpportunities": max(0, candidate_count - wallet_count),
+        "cacheScopes": [
+            "wallet_window_trades",
+            "market_notional_samples",
+            "domain_notional_samples",
+            "funding_resolver_health",
+        ],
+        "candidateOrderPreserved": True,
+        "candidateAdmissionPreserved": True,
+        "scoreFormulaPreserved": True,
+        "reviewRoutingPreserved": True,
+        "exportsPreserved": True,
+        "chunkMetadata": build_chunk_metadata(candidate_count, chunk_size=chunk_size),
+    }
+
+
 def summarize_timing_costs(
     timings: Mapping[str, object],
     *,

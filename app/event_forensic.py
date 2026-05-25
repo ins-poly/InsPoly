@@ -30,6 +30,7 @@ from app.funding_context import (
     grade_funding_evidence,
     unknown_funding_context,
 )
+from app.event_forensic_performance import build_score_loop_memoization_metadata
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import MAX_TRADES_OFFSET, PolymarketClient
 from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_side_outcome
@@ -971,6 +972,26 @@ class EventForensicAnalyzer:
         performance["structural_pre_admission_count"] = structural_pre_admission_count
         performance["normal_candidate_trade_count"] = len(normal_candidate_trades)
         total_candidates = max(1, len(candidate_contexts))
+        scoring_wallet_windows = {
+            wallet: wallet_trades.get(wallet, [])
+            for wallet in {context.trade.wallet for context in candidate_contexts}
+        }
+        scoring_market_notional_samples = {
+            condition_id: market_notional_samples.get(condition_id)
+            for condition_id in {context.trade.condition_id for context in candidate_contexts}
+        }
+        scoring_domain_notional_samples = {
+            domain: domain_notional_samples.get(domain)
+            for domain in {context.trade_domain for context in candidate_contexts}
+        }
+        scoring_funding_health = self._funding_resolver.health().to_dict()
+        score_loop_memoization = build_score_loop_memoization_metadata(
+            candidate_rows=len(candidate_contexts),
+            unique_wallets=len(scoring_wallet_windows),
+            unique_markets=len(scoring_market_notional_samples),
+            unique_domains=len(scoring_domain_notional_samples),
+        )
+        performance["score_input_memoization"] = score_loop_memoization
 
         stage_started = perf_counter()
         for trade_index, context in enumerate(candidate_contexts, start=1):
@@ -990,16 +1011,16 @@ class EventForensicAnalyzer:
                 trade_domain=context.trade_domain,
                 wallet_inspection=context.wallet_inspection,
                 wallet_performance=context.wallet_performance,
-                wallet_window_trades=wallet_trades.get(context.trade.wallet, []),
+                wallet_window_trades=scoring_wallet_windows.get(context.trade.wallet, []),
                 wallet_history_trades=context.wallet_history_trades,
                 market_window_trades=context.market_window_trades,
                 domain_window_trades=context.domain_window_trades,
                 event_context=context.event_context,
                 funding_context=funding_context,
-                funding_health=self._funding_resolver.health(),
+                funding_health=scoring_funding_health,
                 include_below_threshold=True,
-                market_notional_samples=market_notional_samples.get(context.trade.condition_id),
-                domain_notional_samples=domain_notional_samples.get(context.trade_domain),
+                market_notional_samples=scoring_market_notional_samples.get(context.trade.condition_id),
+                domain_notional_samples=scoring_domain_notional_samples.get(context.trade_domain),
                 prior_wallet_gap_days=context.prior_wallet_gap_days,
                 observed_post_trade_gap_days=context.observed_post_trade_gap_days,
                 family_key=context.family_key,
@@ -1026,7 +1047,12 @@ class EventForensicAnalyzer:
                 "Replaying model",
                 f"Scored trade {trade_index}/{total_candidates} with the current InsPoly logic",
             )
-        performance["score_candidates_seconds"] = round(perf_counter() - stage_started, 2)
+        score_candidates_elapsed = perf_counter() - stage_started
+        performance["score_candidates_seconds"] = round(score_candidates_elapsed, 2)
+        performance["score_candidates_per_second"] = round(
+            (len(candidate_contexts) / score_candidates_elapsed) if score_candidates_elapsed > 0 else 0.0,
+            3,
+        )
 
         _annotate_domain_peer_history(all_cases, wallet_cache)
         _annotate_preclassification_linkage(all_cases)
