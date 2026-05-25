@@ -1,0 +1,10 @@
+{
+  "case_id": "bad-production-action-001",
+  "title": "Invalid production action fixture",
+  "expected": {
+    "risk_level": "Strong Risk"
+  },
+  "observed": {
+    "status": "not_run"
+  }
+}

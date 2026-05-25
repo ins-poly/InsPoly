@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import csv
 import tempfile
-import unittest
 from pathlib import Path
+import unittest
 
+from app.benchmark_cases import load_benchmark_case, validate_benchmark_case
 from tools import benchmark_label_schema as schema
 from tools.benchmark_label_completion_status import build_status
 from tools.benchmark_label_csv_preflight import build_preflight
@@ -13,10 +14,20 @@ from tools.benchmark_label_expectation_report import build_expectation_report
 from tools.benchmark_label_readiness_gate import build_readiness
 
 
+ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / "tests" / "fixtures" / "benchmark_cases"
 CASE_FIELDS = list(schema.CASE_LEVEL_REQUIRED_FIELDS)
 
 
-def _case_row(case_id: str, *, label: str = "", confidence: str = "", notes: str = "", detector: str = "", fresh: str = "") -> dict[str, str]:
+def _case_row(
+    case_id: str,
+    *,
+    label: str = "",
+    confidence: str = "",
+    notes: str = "",
+    detector: str = "",
+    fresh: str = "",
+) -> dict[str, str]:
     row = {field: "" for field in CASE_FIELDS}
     row.update(
         {
@@ -99,7 +110,12 @@ class BenchmarkSchemaCompatibilityTests(unittest.TestCase):
             )
             preflight = build_preflight(template_csv_path=labels, labels_csv_path=labels)
             readiness = build_readiness({}, labels_csv_path=labels, min_usable_labels=1)
-            expectation = build_expectation_report({}, labels_csv_path=labels, preflight_payload=preflight, readiness_payload=readiness)
+            expectation = build_expectation_report(
+                {},
+                labels_csv_path=labels,
+                preflight_payload=preflight,
+                readiness_payload=readiness,
+            )
         self.assertEqual(preflight["summary"]["preflightStatus"], "structure_ok_draft_assisted_only")
         self.assertEqual(preflight["summary"]["usableLabelRows"], 0)
         self.assertEqual(preflight["summary"]["draftAssistedLabelRows"], 1)
@@ -138,13 +154,26 @@ class BenchmarkSchemaCompatibilityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             case_labels = root / "case_invalid.csv"
-            _write_csv(case_labels, CASE_FIELDS, [_case_row("CASE-1", label="bad_value", confidence="high", fresh="maybe")])
+            _write_csv(
+                case_labels,
+                CASE_FIELDS,
+                [_case_row("CASE-1", label="bad_value", confidence="high", fresh="maybe")],
+            )
             case_payload = build_preflight(template_csv_path=case_labels, labels_csv_path=case_labels)
             legacy_template = root / "legacy_template.csv"
             legacy_labels = root / "legacy_labels.csv"
-            legacy_header = "localCaseId,sourceType,eventSlug,market,conditionId,wallet,expectedAnalystDisposition,humanLabelConfidence,freshValidationRequired\n"
-            legacy_template.write_text(legacy_header + "LOCAL-1,packet,event,Market,cond,0xabc,,,yes\n", encoding="utf-8")
-            legacy_labels.write_text(legacy_header + "LOCAL-1,packet,event,Market,cond,0xabc,bad_value,high,maybe\n", encoding="utf-8")
+            legacy_header = (
+                "localCaseId,sourceType,eventSlug,market,conditionId,wallet,"
+                "expectedAnalystDisposition,humanLabelConfidence,freshValidationRequired\n"
+            )
+            legacy_template.write_text(
+                legacy_header + "LOCAL-1,packet,event,Market,cond,0xabc,,,yes\n",
+                encoding="utf-8",
+            )
+            legacy_labels.write_text(
+                legacy_header + "LOCAL-1,packet,event,Market,cond,0xabc,bad_value,high,maybe\n",
+                encoding="utf-8",
+            )
             legacy_payload = build_preflight(template_csv_path=legacy_template, labels_csv_path=legacy_labels)
         self.assertEqual(case_payload["summary"]["preflightStatus"], "structure_or_values_need_fix")
         self.assertEqual(case_payload["summary"]["invalidLabelRows"], 1)
@@ -164,7 +193,10 @@ class BenchmarkSchemaCompatibilityTests(unittest.TestCase):
                 f"LOCAL-{idx},unique_review_packet,event,Market {idx},cond-{idx},0xabc,,,yes"
                 for idx in range(12)
             ]
-            header = "localCaseId,sourceType,eventSlug,market,conditionId,wallet,expectedAnalystDisposition,humanLabelConfidence,freshValidationRequired\n"
+            header = (
+                "localCaseId,sourceType,eventSlug,market,conditionId,wallet,"
+                "expectedAnalystDisposition,humanLabelConfidence,freshValidationRequired\n"
+            )
             template.write_text(header + "\n".join(template_rows) + "\n", encoding="utf-8")
             labels.write_text(header + "\n".join(rows) + "\n", encoding="utf-8")
             payload = build_preflight(template_csv_path=template, labels_csv_path=labels)
@@ -221,7 +253,40 @@ class BenchmarkSchemaCompatibilityTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["draftAssistedLabelRows"], 1)
         self.assertFalse(payload["summary"]["draftAssistedLabelsCountedUsable"])
 
+    def test_schema_validates_minimal_known_case(self) -> None:
+        case = load_benchmark_case(FIXTURES / "minimal_known_case.json")
+
+        self.assertEqual(case.case_id, "known-low-odds-shadow-001")
+        self.assertEqual(case.expected["shadow_metric"], "shadow_low_odds_position_size")
+        self.assertEqual(case.observed["status"], "not_run")
+        self.assertEqual(case.artifact_refs[0].mutable, False)
+
+    def test_schema_rejects_production_action_fields(self) -> None:
+        with self.assertRaisesRegex(ValueError, "production-action"):
+            load_benchmark_case(FIXTURES / "ambiguous_production_action.json")
+
+    def test_expected_and_observed_are_separate_objects(self) -> None:
+        with self.assertRaisesRegex(ValueError, "observed must be an object"):
+            validate_benchmark_case(
+                {
+                    "case_id": "bad-observed",
+                    "title": "Bad observed",
+                    "expected": {"shadow_metric": "shadow_low_odds_position_size"},
+                    "observed": "not-run",
+                }
+            )
+
+    def test_benchmark_helper_is_not_imported_by_runtime_paths(self) -> None:
+        for relative_path in (
+            "app/scanner.py",
+            "app/archive_scanner.py",
+            "app/event_forensic.py",
+            "app/polymarket.py",
+            "app/storage.py",
+        ):
+            source = (ROOT / relative_path).read_text(encoding="utf-8")
+            self.assertNotIn("benchmark_cases", source)
+
 
 if __name__ == "__main__":
     unittest.main()
-
