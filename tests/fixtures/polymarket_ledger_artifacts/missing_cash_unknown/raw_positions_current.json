@@ -1,0 +1,16 @@
+{
+  "base_params": {
+    "sizeThreshold": "0",
+    "user": "wallet-missing-cash"
+  },
+  "rows": [
+    {
+      "asset": "yes-m",
+      "conditionId": "cond-m",
+      "curPrice": 0.40,
+      "outcome": "Yes",
+      "proxyWallet": "wallet-missing-cash",
+      "size": 100
+    }
+  ]
+}

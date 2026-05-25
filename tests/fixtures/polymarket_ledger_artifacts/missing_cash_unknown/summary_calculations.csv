@@ -1,0 +1,7 @@
+metric,value,notes
+total_trade_rows,1,
+total_yes_bought,100,
+total_yes_sold,0,
+remaining_yes_shares,100,
+current_yes_size_api,100,
+total_buy_api_cash,0,Fixture intentionally leaves trade cash missing; audit must report unknown instead of zero.

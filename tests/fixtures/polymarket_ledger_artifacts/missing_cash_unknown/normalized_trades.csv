@@ -1,0 +1,2 @@
+sequence,timestamp_utc,timestamp_unix,side,outcome,market_title,slug,eventSlug,conditionId,asset,shares,price,api_usdc_size,recomputed_size_x_price,api_minus_recomputed
+1,2026-05-01T00:00:00+00:00,1,BUY,Yes,Missing Cash Fixture,missing-cash,missing-cash-event,cond-m,yes-m,100,,,,
