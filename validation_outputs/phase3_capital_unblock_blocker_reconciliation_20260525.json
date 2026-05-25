@@ -1,0 +1,58 @@
+{
+  "blockers": [
+    {
+      "blocker": "SELL max-loss semantics differ from raw notional",
+      "newEvidence": {
+        "ledgerSafeSellMaxLossRows": 1,
+        "sourceInventorySafeSellMaxLossRows": 852
+      },
+      "previousEvidence": {
+        "rowsWithCapitalDelta": 3000,
+        "sellRowsWithCapitalDelta": 2991
+      },
+      "remainingRequirement": "prove runtime sources expose direct side/outcome/price/size or explicit max-loss/collateral before changing scoring capital",
+      "status": "partially_reduced_by_formula_and_ledger_fixtures"
+    },
+    {
+      "blocker": "usdcSize is observed cash/proceeds, not automatically SELL max loss",
+      "newEvidence": {
+        "ledgerRowsWhereUsdcSizeIsObservedCashNotMaxLoss": 1
+      },
+      "previousEvidence": {
+        "sellUsdcSizeRows": 53
+      },
+      "remainingRequirement": "keep observed cash, proceeds, collateral, and max loss as separate fields",
+      "status": "confirmed_not_removed"
+    },
+    {
+      "blocker": "old/lossy notional-only rows cannot be reinterpreted",
+      "newEvidence": {
+        "inventoryOldNotionalOnlyRows": 7134
+      },
+      "previousEvidence": {
+        "oldReportNotionalOnlyRows": 7145
+      },
+      "remainingRequirement": "old reports must remain no-op/unknown for Phase 3 unless full raw trade fields are available",
+      "status": "still_blocks_runtime_reinterpretation"
+    },
+    {
+      "blocker": "sensitive funding/HER/Strong Risk overlap",
+      "newEvidence": {
+        "directGateChangesAllowed": false
+      },
+      "previousEvidence": {
+        "sensitiveOverlapRows": 2177
+      },
+      "remainingRequirement": "any capital-driven gate effects require explicit approval and before/after guard tests",
+      "status": "still_requires_separate_gate_guardrails"
+    }
+  ],
+  "currentGateBeforeAudit": "keep_phase3_blocked",
+  "generatedAt": "2026-05-25T12:27:48.086663+00:00",
+  "networkUsed": false,
+  "productionIntegration": false,
+  "reportType": "phase3_capital_unblock_blocker_reconciliation",
+  "runtimeImplementationAllowed": false,
+  "schemaVersion": "phase3_capital_unblock_blocker_reconciliation_v1",
+  "sidecarOnly": true
+}

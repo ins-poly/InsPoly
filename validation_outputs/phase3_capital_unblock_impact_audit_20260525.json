@@ -1,0 +1,72 @@
+{
+  "decisionRationale": [
+    "ledger/source helpers now prove formula semantics for safe rows",
+    "old/lossy report rows and sensitive contexts still block production migration",
+    "runtime implementation RFC remains premature"
+  ],
+  "explicitBlocks": [
+    "no scanner/archive/Event Forensic runtime capital migration in this campaign",
+    "no _score_trade() or _event_forensic_score() Phase 3 changes",
+    "no scoring weights, thresholds, direct gates, storage schema, live/RPC/network, saved-artifact, or UI sorting/filtering changes"
+  ],
+  "gateDecision": "phase3_ready_for_partial_safe_sidecar_only",
+  "generatedAt": "2026-05-25T12:27:48.086672+00:00",
+  "ledgerSummary": {
+    "artifactDirsEvaluated": 5,
+    "ledgerExposureSourceCounts": {
+      "observed_cash_paid": 6,
+      "size_complement_price_max_loss": 1,
+      "unknown": 1
+    },
+    "qualityNoteCounts": {
+      "economic_exposure_unknown": 1,
+      "missing_cash_field": 1,
+      "sell_max_loss_computed_from_complement_formula": 1,
+      "source_cash_disagreement": 3,
+      "unknown_cash_source": 1,
+      "usdcSize_is_observed_cash_not_sell_max_loss": 1
+    },
+    "rowsEvaluated": 8,
+    "rowsWhereUsdcSizeIsObservedCashNotMaxLoss": 1,
+    "safeSellMaxLossRows": 1,
+    "sellRows": 1,
+    "unknownExposureRows": 1
+  },
+  "networkUsed": false,
+  "oldAuditAffectedCounts": {
+    "buyRowsWithCapitalDelta": 9,
+    "rowsWithCapitalDelta": 3000,
+    "sellRowsWithCapitalDelta": 2991,
+    "sensitiveOverlapRows": 2177,
+    "uniqueTradeKeysWithCapitalDelta": 1179
+  },
+  "productionIntegration": false,
+  "reportType": "phase3_capital_unblock_impact_audit",
+  "runtimeImplementationAllowed": false,
+  "schemaVersion": "phase3_capital_unblock_impact_v1",
+  "sidecarOnly": true,
+  "sourceQualityCounts": {
+    "safe_for_buy_cash": 6527,
+    "safe_for_display_only": 1796,
+    "safe_for_sell_max_loss": 852,
+    "unknown_missing_fields": 31,
+    "unsafe_old_notional_only": 7134
+  },
+  "summary": {
+    "affectedRowsIfImplementedOnlyForSafeRows": 7379,
+    "falseConfidenceRisk": "high",
+    "ledgerRowsWhereUsdcSizeIsObservedCashNotMaxLoss": 1,
+    "ledgerSafeSellMaxLossRows": 1,
+    "oldAuditRowsWithCapitalDelta": 3000,
+    "oldAuditSensitiveOverlapRows": 2177,
+    "realLocalSafeForSellMaxLossRows": 848,
+    "runtimeSafeCandidateRows": 2267,
+    "safeForBuyCashRows": 6527,
+    "safeForDisplayOnlyRows": 1796,
+    "safeForSellMaxLossRows": 852,
+    "stillUnsafeRows": 8961,
+    "totalRowsEvaluated": 16340,
+    "unknownMissingFieldRows": 31,
+    "unsafeOldNotionalOnlyRows": 7134
+  }
+}
