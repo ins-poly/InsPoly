@@ -33,7 +33,7 @@ def build_measurement_plan(
     max_wall_minutes: int = DEFAULT_MAX_WALL_MINUTES,
     env: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
-    env = env or os.environ
+    env = os.environ if env is None else env
     bounds = {
         "maxEvents": max_events,
         "maxMarkets": max_markets,

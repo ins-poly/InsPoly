@@ -17,7 +17,7 @@
     "Do not write to app storage or mutate saved reports."
   ],
   "gateDecision": "performance_measurement_blocked_missing_env",
-  "generatedAt": "2026-05-25T13:02:49.447973+00:00",
+  "generatedAt": "2026-05-25T13:05:14.886073+00:00",
   "measurementExecuted": false,
   "networkUsed": false,
   "nextAction": "Provide read-only RPC/API env and exact saved-report target before live measurement.",
