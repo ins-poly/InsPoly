@@ -109,6 +109,72 @@ def build_score_loop_memoization_metadata(
     }
 
 
+def build_wallet_context_reuse_metadata(
+    *,
+    context_pool_trade_rows: int,
+    candidate_rows: int,
+    requested_wallet_references: int,
+    unique_requested_wallets: int,
+    wallet_context_count: int,
+    prestarted_future_count: int = 0,
+    wallet_context_cache_hits: int = 0,
+    wallet_context_cache_misses: int = 0,
+    scoped_history_cache_hits: int = 0,
+    scoped_history_cache_misses: int = 0,
+    wallet_history_metrics_cache_hits: int = 0,
+    wallet_history_metrics_cache_misses: int = 0,
+    domain_profile_cache_hits: int = 0,
+    domain_profile_cache_misses: int = 0,
+    prefetch_seconds: float = 0.0,
+    prepare_seconds: float = 0.0,
+    score_seconds: float = 0.0,
+) -> dict[str, object]:
+    """Describe run-local wallet/context reuse without changing analysis rows."""
+
+    context_rows = max(0, int(context_pool_trade_rows or 0))
+    visible_rows = max(0, int(candidate_rows or 0))
+    wallet_refs = max(0, int(requested_wallet_references or 0))
+    unique_wallets = max(0, int(unique_requested_wallets or 0))
+    context_count = max(0, int(wallet_context_count or 0))
+    return {
+        "enabled": True,
+        "runLocalOnly": True,
+        "persistentCacheEnabled": False,
+        "walletFetchBoundaryPreserved": True,
+        "candidateOrderPreserved": True,
+        "candidateAdmissionPreserved": True,
+        "scoreFormulaPreserved": True,
+        "reviewRoutingPreserved": True,
+        "exportsPreserved": True,
+        "contextPoolTradeRows": context_rows,
+        "candidateRows": visible_rows,
+        "requestedWalletReferences": wallet_refs,
+        "uniqueRequestedWallets": unique_wallets,
+        "walletContextCount": context_count,
+        "prestartedFutureCount": max(0, int(prestarted_future_count or 0)),
+        "repeatedWalletContextOpportunities": max(0, wallet_refs - unique_wallets),
+        "walletContextCacheHitsDuringPrepare": max(0, int(wallet_context_cache_hits or 0)),
+        "walletContextCacheMissesDuringPrepare": max(0, int(wallet_context_cache_misses or 0)),
+        "scopedHistoryCacheHits": max(0, int(scoped_history_cache_hits or 0)),
+        "scopedHistoryCacheMisses": max(0, int(scoped_history_cache_misses or 0)),
+        "walletHistoryMetricsCacheHits": max(0, int(wallet_history_metrics_cache_hits or 0)),
+        "walletHistoryMetricsCacheMisses": max(0, int(wallet_history_metrics_cache_misses or 0)),
+        "domainProfileCacheHits": max(0, int(domain_profile_cache_hits or 0)),
+        "domainProfileCacheMisses": max(0, int(domain_profile_cache_misses or 0)),
+        "effectiveScopedHistoryReuseRatio": _ratio(scoped_history_cache_hits, max(1, context_rows)),
+        "effectiveDomainProfileReuseRatio": _ratio(domain_profile_cache_hits, max(1, visible_rows)),
+        "prefetchSecondsPerWalletContext": _ratio(prefetch_seconds, context_count),
+        "prepareSecondsPerContextRow": _ratio(prepare_seconds, context_rows),
+        "scoreSecondsPerCandidateRow": _ratio(score_seconds, visible_rows),
+        "cacheScopes": [
+            "wallet_context_lookup",
+            "scoped_wallet_history",
+            "wallet_history_replay_metrics",
+            "wallet_domain_profile",
+        ],
+    }
+
+
 def summarize_timing_costs(
     timings: Mapping[str, object],
     *,

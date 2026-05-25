@@ -30,7 +30,10 @@ from app.funding_context import (
     grade_funding_evidence,
     unknown_funding_context,
 )
-from app.event_forensic_performance import build_score_loop_memoization_metadata
+from app.event_forensic_performance import (
+    build_score_loop_memoization_metadata,
+    build_wallet_context_reuse_metadata,
+)
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import MAX_TRADES_OFFSET, PolymarketClient
 from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_side_outcome
@@ -626,6 +629,7 @@ class EventForensicAnalyzer:
                 self._funding_resolver.record_trace_skipped(skip_reason)
         context_pool_trades = _dedupe_trades([*normal_candidate_trades, *pre_admission_context_pool])
         below_threshold_candidate_count = prethreshold_candidate_count - len(normal_candidate_trades)
+        context_pool_wallet_references = [trade.wallet for trade in context_pool_trades if trade.wallet]
         context_pool_wallet_count = len({trade.wallet for trade in context_pool_trades})
         candidate_wallet_count = len({trade.wallet for trade in normal_candidate_trades})
         performance["market_fetch_workers"] = min(
@@ -731,7 +735,7 @@ class EventForensicAnalyzer:
             )
 
         stage_started = perf_counter()
-        context_pool_contexts, funding_requests = self._prepare_candidate_contexts(
+        context_pool_contexts, funding_requests, wallet_context_profile = self._prepare_candidate_contexts(
             context_pool_trades,
             resolved=resolved,
             scope_context=scope_context,
@@ -994,6 +998,11 @@ class EventForensicAnalyzer:
         performance["score_input_memoization"] = score_loop_memoization
 
         stage_started = perf_counter()
+        wallet_domain_counts_cache: dict[str, dict[str, int]] = {}
+        wallet_domain_profile = {
+            "cache_hits": 0,
+            "cache_misses": 0,
+        }
         for trade_index, context in enumerate(candidate_contexts, start=1):
             if _stop_requested(stop_event):
                 break
@@ -1037,6 +1046,8 @@ class EventForensicAnalyzer:
                     case,
                     wallet_history_trades=context.wallet_history_trades,
                     focus_markets=scope_context.analysis_markets,
+                    domain_counts_cache=wallet_domain_counts_cache,
+                    profile=wallet_domain_profile,
                 )
                 all_cases.append(case)
 
@@ -1052,6 +1063,25 @@ class EventForensicAnalyzer:
         performance["score_candidates_per_second"] = round(
             (len(candidate_contexts) / score_candidates_elapsed) if score_candidates_elapsed > 0 else 0.0,
             3,
+        )
+        performance["wallet_context_reuse"] = build_wallet_context_reuse_metadata(
+            context_pool_trade_rows=len(context_pool_trades),
+            candidate_rows=len(candidate_contexts),
+            requested_wallet_references=len(context_pool_wallet_references),
+            unique_requested_wallets=context_pool_wallet_count,
+            wallet_context_count=len(wallet_cache),
+            prestarted_future_count=len(warm_wallet_futures),
+            wallet_context_cache_hits=int(wallet_context_profile.get("wallet_context_cache_hits", 0)),
+            wallet_context_cache_misses=int(wallet_context_profile.get("wallet_context_cache_misses", 0)),
+            scoped_history_cache_hits=int(wallet_context_profile.get("scoped_history_cache_hits", 0)),
+            scoped_history_cache_misses=int(wallet_context_profile.get("scoped_history_cache_misses", 0)),
+            wallet_history_metrics_cache_hits=int(wallet_context_profile.get("wallet_history_metrics_cache_hits", 0)),
+            wallet_history_metrics_cache_misses=int(wallet_context_profile.get("wallet_history_metrics_cache_misses", 0)),
+            domain_profile_cache_hits=int(wallet_domain_profile.get("cache_hits", 0)),
+            domain_profile_cache_misses=int(wallet_domain_profile.get("cache_misses", 0)),
+            prefetch_seconds=float(performance["prefetch_wallet_context_seconds"] or 0.0),
+            prepare_seconds=float(performance["prepare_candidate_context_seconds"] or 0.0),
+            score_seconds=float(performance["score_candidates_seconds"] or 0.0),
         )
 
         _annotate_domain_peer_history(all_cases, wallet_cache)
@@ -1754,32 +1784,58 @@ class EventForensicAnalyzer:
         funding_trace_mode: str,
         progress_callback: callable | None,
         stop_event: object | None,
-    ) -> tuple[list[CandidateReplayContext], dict[tuple[str, str], tuple[str, datetime]]]:
+    ) -> tuple[
+        list[CandidateReplayContext],
+        dict[tuple[str, str], tuple[str, datetime]],
+        dict[str, int],
+    ]:
         contexts: list[CandidateReplayContext] = []
         funding_requests: dict[tuple[str, str], tuple[str, datetime]] = {}
         total_candidates = max(1, len(candidate_trades))
         progress_step = max(1, total_candidates // 6)
         all_event_condition_ids = set(resolved.markets)
+        scoped_wallet_history_cache: dict[str, list[Trade]] = {}
         wallet_history_metrics_cache: dict[str, dict[str, dict[str, object]]] = {}
+        profile = {
+            "wallet_context_cache_hits": 0,
+            "wallet_context_cache_misses": 0,
+            "scoped_history_cache_hits": 0,
+            "scoped_history_cache_misses": 0,
+            "wallet_history_metrics_cache_hits": 0,
+            "wallet_history_metrics_cache_misses": 0,
+        }
         for index, trade in enumerate(candidate_trades, start=1):
             if _stop_requested(stop_event):
                 break
             market = resolved.markets[trade.condition_id]
             trade_domain = _domain_for_trade(trade, scope_context.analysis_markets)
+            if trade.wallet in wallet_cache:
+                profile["wallet_context_cache_hits"] += 1
+            else:
+                profile["wallet_context_cache_misses"] += 1
             wallet_inspection, wallet_history_trades, wallet_performance = self._wallet_enrichment(
                 trade.wallet,
                 wallet_cache,
                 scope_context.analysis_markets,
             )
-            scoped_wallet_history_trades = _scope_filter_wallet_history_trades(
-                wallet_history_trades,
-                all_event_condition_ids=all_event_condition_ids,
-                selected_condition_id=scope_context.selected_condition_id,
-            )
+            scoped_wallet_history_trades = scoped_wallet_history_cache.get(trade.wallet)
+            if scoped_wallet_history_trades is None:
+                scoped_wallet_history_trades = _scope_filter_wallet_history_trades(
+                    wallet_history_trades,
+                    all_event_condition_ids=all_event_condition_ids,
+                    selected_condition_id=scope_context.selected_condition_id,
+                )
+                scoped_wallet_history_cache[trade.wallet] = scoped_wallet_history_trades
+                profile["scoped_history_cache_misses"] += 1
+            else:
+                profile["scoped_history_cache_hits"] += 1
             wallet_trade_metrics = wallet_history_metrics_cache.get(trade.wallet)
             if wallet_trade_metrics is None:
                 wallet_trade_metrics = _wallet_trade_replay_metrics(scoped_wallet_history_trades)
                 wallet_history_metrics_cache[trade.wallet] = wallet_trade_metrics
+                profile["wallet_history_metrics_cache_misses"] += 1
+            else:
+                profile["wallet_history_metrics_cache_hits"] += 1
             prior_same_market_trades = [
                 item
                 for item in scoped_wallet_history_trades
@@ -1862,7 +1918,7 @@ class EventForensicAnalyzer:
                     "Preparing replay",
                     f"Prepared {index}/{total_candidates} candidate trade contexts",
                 )
-        return contexts, funding_requests
+        return contexts, funding_requests, profile
 
     def _prefetch_funding_contexts(
         self,
@@ -5760,9 +5816,21 @@ def _annotate_wallet_domain_diversity(
     *,
     wallet_history_trades: list[Trade],
     focus_markets: dict[str, Market],
+    domain_counts_cache: dict[str, dict[str, int]] | None = None,
+    profile: dict[str, int] | None = None,
 ) -> None:
     raw = case.raw_metrics
-    domain_counts = _wallet_review_domain_counts(wallet_history_trades, focus_markets)
+    cache_key = case.trade.wallet if domain_counts_cache is not None else ""
+    if cache_key and cache_key in domain_counts_cache:
+        domain_counts = domain_counts_cache[cache_key]
+        if profile is not None:
+            profile["cache_hits"] = int(profile.get("cache_hits", 0)) + 1
+    else:
+        domain_counts = _wallet_review_domain_counts(wallet_history_trades, focus_markets)
+        if cache_key:
+            domain_counts_cache[cache_key] = domain_counts
+        if profile is not None:
+            profile["cache_misses"] = int(profile.get("cache_misses", 0)) + 1
     nonzero_domains = {domain: count for domain, count in domain_counts.items() if count > 0}
     trade_domain = str(raw.get("trade_domain") or "Other")
     sports_count = int(nonzero_domains.get("Sports", 0))

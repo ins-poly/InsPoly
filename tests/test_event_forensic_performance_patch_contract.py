@@ -4,13 +4,18 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from datetime import UTC, datetime
+from decimal import Decimal
 
+from app.event_forensic import _annotate_wallet_domain_diversity
 from app.event_forensic_performance import (
     build_chunk_metadata,
     candidate_performance_cache_key,
     compare_candidate_output_contract,
+    build_wallet_context_reuse_metadata,
     summarize_timing_costs,
 )
+from app.models import FlaggedCase, Market, Trade, WalletInspection
 from tools.event_forensic_subset_bottleneck_decomposition import (
     build_bottleneck_decomposition,
     main,
@@ -93,6 +98,93 @@ class EventForensicPerformancePatchContractTests(unittest.TestCase):
         self.assertEqual(payload["prefetchSecondsPerCandidateWallet"], 0.1)
         self.assertEqual(payload["candidateRowsPerWallet"], 4.0)
 
+    def test_wallet_context_reuse_metadata_is_additive_and_run_local(self) -> None:
+        metadata = build_wallet_context_reuse_metadata(
+            context_pool_trade_rows=120,
+            candidate_rows=100,
+            requested_wallet_references=120,
+            unique_requested_wallets=30,
+            wallet_context_count=30,
+            prestarted_future_count=10,
+            wallet_context_cache_hits=120,
+            scoped_history_cache_hits=90,
+            scoped_history_cache_misses=30,
+            wallet_history_metrics_cache_hits=90,
+            wallet_history_metrics_cache_misses=30,
+            domain_profile_cache_hits=70,
+            domain_profile_cache_misses=30,
+            prefetch_seconds=15,
+            prepare_seconds=3,
+            score_seconds=20,
+        )
+
+        self.assertTrue(metadata["enabled"])
+        self.assertTrue(metadata["runLocalOnly"])
+        self.assertFalse(metadata["persistentCacheEnabled"])
+        self.assertTrue(metadata["walletFetchBoundaryPreserved"])
+        self.assertEqual(metadata["repeatedWalletContextOpportunities"], 90)
+        self.assertEqual(metadata["effectiveScopedHistoryReuseRatio"], 0.75)
+        self.assertEqual(metadata["prefetchSecondsPerWalletContext"], 0.5)
+        self.assertTrue(metadata["scoreFormulaPreserved"])
+
+    def test_wallet_domain_profile_cache_preserves_raw_metrics(self) -> None:
+        market = _market("cond-politics", question="Will policy pass?")
+        case_a = _flagged_case(
+            _trade(
+                trade_id="candidate-a",
+                condition_id="cond-politics",
+                title="Will policy pass?",
+                event_slug="policy-event",
+            ),
+            market,
+        )
+        case_b = _flagged_case(
+            _trade(
+                trade_id="candidate-b",
+                condition_id="cond-politics",
+                title="Will policy pass?",
+                event_slug="policy-event",
+            ),
+            market,
+        )
+        history = [
+            case_a.trade,
+            _trade(
+                trade_id="sports-history",
+                condition_id="cond-sports",
+                title="NBA Finals winner",
+                event_slug="nba-finals",
+            ),
+        ]
+        baseline = _flagged_case(case_a.trade, market)
+        _annotate_wallet_domain_diversity(
+            baseline,
+            wallet_history_trades=history,
+            focus_markets={market.condition_id: market},
+        )
+
+        cache: dict[str, dict[str, int]] = {}
+        profile = {"cache_hits": 0, "cache_misses": 0}
+        _annotate_wallet_domain_diversity(
+            case_a,
+            wallet_history_trades=history,
+            focus_markets={market.condition_id: market},
+            domain_counts_cache=cache,
+            profile=profile,
+        )
+        _annotate_wallet_domain_diversity(
+            case_b,
+            wallet_history_trades=history,
+            focus_markets={market.condition_id: market},
+            domain_counts_cache=cache,
+            profile=profile,
+        )
+
+        self.assertEqual(case_a.raw_metrics, baseline.raw_metrics)
+        self.assertEqual(case_b.raw_metrics, baseline.raw_metrics)
+        self.assertEqual(profile["cache_misses"], 1)
+        self.assertEqual(profile["cache_hits"], 1)
+
     def test_bottleneck_decomposition_accepts_high_density_rfc_evidence(self) -> None:
         subset_summary = {
             "summary": {
@@ -173,6 +265,75 @@ class EventForensicPerformancePatchContractTests(unittest.TestCase):
         self.assertFalse(payload["networkUsed"])
         self.assertFalse(payload["runtimeBehaviorChanged"])
         self.assertEqual(payload["evidenceGate"], "high_density_subset_evidence_accepted_for_rfc")
+
+
+def _market(condition_id: str, *, question: str) -> Market:
+    return Market(
+        market_id=condition_id,
+        condition_id=condition_id,
+        slug=f"{condition_id}-slug",
+        question=question,
+        category="Politics",
+        end_date=None,
+        liquidity=Decimal("0"),
+        volume=Decimal("0"),
+        outcomes=["Yes", "No"],
+        token_ids=["yes", "no"],
+        tags=[],
+    )
+
+
+def _trade(
+    *,
+    trade_id: str,
+    condition_id: str,
+    title: str,
+    event_slug: str,
+) -> Trade:
+    return Trade(
+        trade_id=trade_id,
+        condition_id=condition_id,
+        asset_id=f"{condition_id}-asset",
+        wallet="0xwallet",
+        side="BUY",
+        outcome="Yes",
+        price=Decimal("0.50"),
+        size=Decimal("10"),
+        timestamp=datetime(2026, 5, 25, tzinfo=UTC),
+        title=title,
+        slug=f"{trade_id}-slug",
+        event_slug=event_slug,
+    )
+
+
+def _flagged_case(trade: Trade, market: Market) -> FlaggedCase:
+    return FlaggedCase(
+        severity="Medium",
+        suspicion_score=50,
+        confidence_score=50,
+        review_priority="normal",
+        verdict="review",
+        trade_count_window=1,
+        window_start="",
+        window_end="",
+        trade=trade,
+        market=market,
+        wallet_inspection=WalletInspection(
+            address=trade.wallet,
+            polygon_nonce=None,
+            traded_market_count=None,
+            recent_trade_count=2,
+            unique_market_count=2,
+            focus_market_count=1,
+            first_trade_at=None,
+            last_trade_at=None,
+        ),
+        subscores={},
+        flags=[],
+        explanation=[],
+        reasons_against=[],
+        raw_metrics={"trade_domain": "Politics"},
+    )
 
 
 if __name__ == "__main__":
