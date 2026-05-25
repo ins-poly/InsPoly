@@ -1,0 +1,52 @@
+{
+  "backgroundSchedulerStarted": false,
+  "gateDecision": "replay_schedule_sidecar_ready",
+  "generatedAt": "2026-05-25T13:01:14.314107+00:00",
+  "networkUsed": false,
+  "qualityNotes": [
+    "schedule_plan_ready"
+  ],
+  "reportType": "event_forensic_replay_schedule_plan",
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "event_forensic_replay_schedule_plan_v1",
+  "sidecarOnly": true,
+  "sourceSnapshot": {
+    "analysisScope": "whole_event",
+    "candidateRowsInSnapshot": 3,
+    "eventSlug": "",
+    "reportType": "event_forensic_replay_snapshot",
+    "schemaVersion": "event_forensic_replay_snapshot_v1",
+    "selectedMarketSlug": "synthetic-selected-market"
+  },
+  "stages": [
+    {
+      "backgroundSchedulerStarted": false,
+      "networkAllowedByDefault": false,
+      "scheduledFor": "2026-05-25T00:00:00+00:00",
+      "stage": "initial",
+      "status": "planned_only"
+    },
+    {
+      "backgroundSchedulerStarted": false,
+      "networkAllowedByDefault": false,
+      "scheduledFor": "2026-05-25T01:00:00+00:00",
+      "stage": "+1h",
+      "status": "planned_only"
+    },
+    {
+      "backgroundSchedulerStarted": false,
+      "networkAllowedByDefault": false,
+      "scheduledFor": "2026-05-25T04:00:00+00:00",
+      "stage": "+4h",
+      "status": "planned_only"
+    },
+    {
+      "backgroundSchedulerStarted": false,
+      "networkAllowedByDefault": false,
+      "scheduledFor": "2026-05-26T00:00:00+00:00",
+      "stage": "+24h",
+      "status": "planned_only"
+    }
+  ],
+  "storageMutated": false
+}
