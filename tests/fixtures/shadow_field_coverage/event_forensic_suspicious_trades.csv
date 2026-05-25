@@ -1,0 +1,2 @@
+analysisScope,conditionId,wallet,username,timestamp,market,side,orderSide,positionSize,liquidityShare,laterWon,openingExposure,existingModelScore,existingModelClass,eventForensicScore,finalEventJudgment
+event,cond-1,wallet-a,analyst,2026-02-26T16:15:20+00:00,Market?,YES,BUY,2080.23,Unavailable,True,True,50,Strong Risk,87,Strong Risk: Retrospective

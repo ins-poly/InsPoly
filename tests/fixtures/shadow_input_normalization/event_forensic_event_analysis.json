@@ -1,0 +1,26 @@
+{
+  "analysis_version": "fixture",
+  "display_trades": [
+    {
+      "id": "trade-1",
+      "conditionId": "cond-1",
+      "wallet": "wallet-a",
+      "side": "YES",
+      "orderSide": "BUY",
+      "price": 0.12,
+      "positionSize": 1200,
+      "laterWon": true,
+      "winnerRank": 1,
+      "existingModelScore": 50,
+      "eventForensicScore": 87
+    }
+  ],
+  "display_wallets": [
+    {
+      "wallet": "wallet-a",
+      "walletResolvedSampleSize": 80,
+      "walletResolvedWinRate": "77.5%",
+      "walletStatisticalPriorLabel": "unlikely_positive_history"
+    }
+  ]
+}

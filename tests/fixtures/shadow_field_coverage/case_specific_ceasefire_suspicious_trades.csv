@@ -1,0 +1,2 @@
+rank,ceasefireLeakRiskScore,wallet,trade_id,timestamp_utc,market,market_slug,condition_id,side,outcome,order_side,price,entry_probability_pct,size,notional_usdc,price_move_after_entry,existingModelScore,eventForensicScore,risk_tier,public_contamination_level
+1,63,wallet-a,trade-1,2026-05-08T15:26:35Z,Russia x Ukraine ceasefire?,russia-x-ukraine-ceasefire-before-2027,cond-1,BUY,YES,BUY,0.29,29,10500,3045,0.03,,,medium_review_candidate,after_public_signal

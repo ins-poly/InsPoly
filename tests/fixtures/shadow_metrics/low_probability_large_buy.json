@@ -1,0 +1,37 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-low-odds",
+      "condition_id": "cond-a",
+      "token_id": "yes-a",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "60000",
+      "price": "0.08",
+      "usdcSize": "4800",
+      "postEntryPrice": "0.18",
+      "timestamp": 1
+    },
+    {
+      "wallet": "wallet-low-odds",
+      "condition_id": "cond-a",
+      "token_id": "yes-a",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "10000",
+      "price": "0.09",
+      "usdcSize": "900",
+      "postEntryPrice": "0.18",
+      "timestamp": 2
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 30,
+    "winning_trades": 22,
+    "trade_count": 40,
+    "distinct_markets": 8
+  },
+  "current_prices": {
+    "wallet-low-odds|cond-a|yes-a|YES": "0.18"
+  }
+}

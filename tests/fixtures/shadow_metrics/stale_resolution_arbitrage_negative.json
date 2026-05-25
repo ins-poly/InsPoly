@@ -1,0 +1,20 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-stale",
+      "condition_id": "cond-stale",
+      "token_id": "yes-stale",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "100000",
+      "price": "0.04",
+      "usdcSize": "4000",
+      "stale_resolution": true,
+      "timestamp": 1
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 15,
+    "winning_trades": 9
+  }
+}

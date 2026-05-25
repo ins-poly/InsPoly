@@ -1,0 +1,15 @@
+{
+  "base_params": {
+    "user": "wallet-a"
+  },
+  "rows": [
+    {
+      "asset": "token-yes-1",
+      "conditionId": "cond-1",
+      "outcome": "YES",
+      "curPrice": 0.195,
+      "size": 533.6,
+      "cashPnl": 10.5
+    }
+  ]
+}

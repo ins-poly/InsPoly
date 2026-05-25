@@ -1,0 +1,21 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-public",
+      "condition_id": "cond-mainstream",
+      "token_id": "yes-mainstream",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "1000",
+      "price": "0.52",
+      "usdcSize": "520",
+      "timestamp": 1
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 200,
+    "winning_trades": 110,
+    "trade_count": 450,
+    "distinct_markets": 120
+  }
+}

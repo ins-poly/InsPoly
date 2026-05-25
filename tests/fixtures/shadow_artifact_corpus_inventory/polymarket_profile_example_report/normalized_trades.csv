@@ -1,0 +1,2 @@
+conditionId,asset,outcome,side,price,shares,api_usdc_size
+cond-1,token-1,YES,BUY,0.2,10,2

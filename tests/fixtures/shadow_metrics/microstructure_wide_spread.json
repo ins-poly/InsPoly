@@ -1,0 +1,26 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-micro",
+      "condition_id": "cond-micro",
+      "token_id": "yes-micro",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "100",
+      "price": "0.4",
+      "usdcSize": "40",
+      "timestamp": 1
+    }
+  ],
+  "microstructure": [
+    {
+      "token_id": "yes-micro",
+      "condition_id": "cond-micro",
+      "timestamp": "2026-05-21T10:00:00+00:00",
+      "spread_bps": "650",
+      "bid_depth": "80",
+      "ask_depth": "120",
+      "liquidity_imbalance": "-0.2"
+    }
+  ]
+}

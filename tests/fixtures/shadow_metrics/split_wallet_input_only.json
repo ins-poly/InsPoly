@@ -1,0 +1,21 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-a",
+      "condition_id": "cond-split",
+      "token_id": "yes-split",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "10000",
+      "price": "0.22",
+      "usdcSize": "2200",
+      "shared_funder_context": true,
+      "split_wallet_context": true,
+      "timestamp": 1
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 8,
+    "winning_trades": 5
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "display_trades": [],
+  "suspicious_trades": [
+    {
+      "wallet": "wallet-fallback",
+      "conditionId": "cond-fallback",
+      "side": "YES",
+      "orderSide": "BUY",
+      "price": 0.1,
+      "positionSize": 1200,
+      "timestamp": "2026-01-01T00:00:00Z"
+    }
+  ]
+}
