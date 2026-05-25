@@ -1,0 +1,30 @@
+{
+  "fixtureRows": [
+    {
+      "eventPayloadPresent": true,
+      "path": "tests/fixtures/gamma_fallback/next_data_event_market.html",
+      "qualityNotes": [],
+      "querySlug": [
+        "event-a",
+        "market-a"
+      ],
+      "sourceMarketPresent": true,
+      "status": "shape_ok"
+    }
+  ],
+  "gateDecision": "gamma_fallback_monitor_ready",
+  "generatedAt": "2026-05-25T13:01:19.865683+00:00",
+  "networkUsed": false,
+  "reportType": "gamma_fallback_drift_monitor",
+  "resolverBehaviorChanged": false,
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "gamma_fallback_drift_monitor_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "fixtureCount": 1,
+    "liveFetchPerformed": false,
+    "missingFixtureCount": 0,
+    "shapeChangedOrIncompleteCount": 0,
+    "shapeOkCount": 1
+  }
+}

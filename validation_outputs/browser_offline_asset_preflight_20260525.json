@@ -1,0 +1,149 @@
+{
+  "dependencyRows": [
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "font_cdn",
+      "file": "app/browser_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "react_cdn",
+      "file": "app/browser_ui.html",
+      "localAssetCandidate": "app/vendor/react.development.js",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://unpkg.com/react@18/umd/react.development.js"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "react_dom_cdn",
+      "file": "app/browser_ui.html",
+      "localAssetCandidate": "app/vendor/react-dom.development.js",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "babel_cdn",
+      "file": "app/browser_ui.html",
+      "localAssetCandidate": "app/vendor/babel.min.js",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://unpkg.com/@babel/standalone/babel.min.js"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "font_cdn",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "react_cdn",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "app/vendor/react.development.js",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://unpkg.com/react@18/umd/react.development.js"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "react_dom_cdn",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "app/vendor/react-dom.development.js",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    },
+    {
+      "analystNavigationOnly": false,
+      "assetKind": "babel_cdn",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "app/vendor/babel.min.js",
+      "localAssetExists": false,
+      "risk": "runtime_blocking_if_offline",
+      "runtimeRequiredForUiBoot": true,
+      "url": "https://unpkg.com/@babel/standalone/babel.min.js"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_chain_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polygonscan.com/address/${text}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_chain_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polygonscan.com/tx/${text}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_profile_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polymarket.com/profile/${address}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_market_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polymarket.com/event/..."
+    }
+  ],
+  "gateDecision": "browser_offline_assets_blocked_missing_assets",
+  "generatedAt": "2026-05-25T12:59:57.043393+00:00",
+  "networkUsed": false,
+  "reportType": "browser_offline_asset_preflight",
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "browser_offline_asset_preflight_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "analystNavigationLinkCount": 4,
+    "assetKindCounts": {
+      "babel_cdn": 2,
+      "external_chain_link": 2,
+      "external_market_link": 1,
+      "external_profile_link": 1,
+      "font_cdn": 2,
+      "react_cdn": 2,
+      "react_dom_cdn": 2
+    },
+    "dependencyCount": 12,
+    "fileCount": 2,
+    "offlineRisk": "high",
+    "runtimeRequiredDependencyCount": 6,
+    "runtimeRequiredMissingLocalAssetCount": 6
+  },
+  "uiRuntimeChanged": false
+}
