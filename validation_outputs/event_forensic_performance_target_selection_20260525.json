@@ -1,23 +1,22 @@
 {
-  "clobAuthUsed": false,
-  "generatedAt": "2026-05-25T14:10:08.468318+00:00",
-  "measurement": {
-    "candidateRows": 144,
-    "candidateWalletCount": 83,
-    "dominantBottleneck": "collect_event_trades_seconds",
-    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
-    "gateDecision": "performance_measurement_complete",
-    "marketCount": 1,
-    "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
-    "rawTradeRows": 3208,
-    "totalEventMarketCount": 1,
-    "totalSeconds": 20.54,
-    "truncatedMarketCount": 1
+  "bounds": {
+    "maxCandidateTargetEventsToResolve": 8,
+    "maxCandidateWalletsPerMarket": 150,
+    "maxEvents": 1,
+    "maxMarkets": 8,
+    "maxResolutionMinutes": 15,
+    "maxTotalTradeRows": 50000,
+    "maxWallMinutes": 30,
+    "maxWallSeconds": 1800
   },
-  "networkUseScope": "bounded_target_resolution_and_one_safe_target_measurement",
+  "generatedAt": "2026-05-25T14:08:36.856556+00:00",
+  "inventory": {
+    "candidateCount": 8,
+    "likelyWithinBoundCount": 6,
+    "savedLocalSafeCount": 4
+  },
   "networkUsed": true,
-  "nextRecommendedAction": "Use the safe single-market target as a budget baseline; larger events still require approved subset policy or another <=8-market target before performance patching.",
-  "ordersPlaced": false,
+  "nextAction": "Use the safe single-market target as a budget baseline; larger events still require approved subset policy or another <=8-market target before performance patching.",
   "pagination": {
     "gateDecision": "pagination_needs_operator_plan",
     "recommendation": "Do not broaden pagination automatically. A future operator run needs an exact bounded target or approved market subset before any live expansion."
@@ -26,9 +25,6 @@
     "gateDecision": "needs_more_measurement",
     "reason": "completed safe target is single-market and not representative enough for larger whole-event optimization; no behavior-preserving patch was implemented"
   },
-  "phase3RuntimeImplemented": false,
-  "prOpened": false,
-  "privateKeysUsed": false,
   "pushPerformed": false,
   "replaySchedule": {
     "gateDecision": "replay_schedule_updated_with_timing_budget",
@@ -48,13 +44,25 @@
       "source": "bounded_measurement_summary"
     }
   },
-  "reportType": "live_performance_pagination_campaign_summary",
+  "reportType": "event_forensic_performance_target_selection_campaign",
   "runtimeBehaviorChanged": false,
+  "safeMeasurement": {
+    "candidateRows": 144,
+    "candidateWalletCount": 83,
+    "dominantBottleneck": "collect_event_trades_seconds",
+    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "gateDecision": "performance_measurement_complete",
+    "marketCount": 1,
+    "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
+    "rawTradeRows": 3208,
+    "totalEventMarketCount": 1,
+    "totalSeconds": 20.54,
+    "truncatedMarketCount": 1
+  },
   "savedArtifactsMutated": false,
-  "schemaVersion": "live_performance_pagination_campaign_summary_v2",
-  "scoringWeightsChanged": false,
+  "schemaVersion": "event_forensic_performance_target_selection_campaign_v1",
   "sidecarOnly": true,
-  "storageSchemaChanged": false,
+  "storageMutated": false,
   "targetResolution": {
     "candidateCount": 8,
     "gateDecision": "safe_target_found",
@@ -62,8 +70,5 @@
     "safeTargetCount": 3,
     "selectedSafeTargetEventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
     "subsetPolicyGate": "subset_policy_not_needed"
-  },
-  "thresholdsChanged": false,
-  "tradingUsed": false,
-  "uiSortingChanged": false
+  }
 }

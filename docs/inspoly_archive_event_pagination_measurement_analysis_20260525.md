@@ -8,13 +8,13 @@ This report combines the bounded live measurement/precheck output with the exist
 
 ## Measurement Input
 
-- Measurement gate: `performance_measurement_blocked_scope_risk`
-- Output directory: `/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_20260525_165052`
-- Event slug: `us-x-iran-permanent-peace-deal-by`
-- Live status: `blocked_scope_exceeded`
-- Live error: `resolved_market_count_exceeds_bound`
-- Saved analysis markets: 6
-- Resolved live markets: 15
+- Measurement gate: `performance_measurement_complete`
+- Output directory: `/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511`
+- Event slug: `russia-x-ukraine-ceasefire-by-january-31-2026`
+- Live status: `completed`
+- Live error: ``
+- Saved analysis markets: 1
+- Resolved live markets: 1
 - Runtime behavior changed: False
 
 ## Local Completeness Baseline
@@ -27,7 +27,7 @@ This report combines the bounded live measurement/precheck output with the exist
 
 ## Findings
 
-- Live target scope drifted from 6 saved analysis market(s) to 15 resolved market(s), exceeding the bounded campaign limit.
+- Completed measurement reported truncated markets.
 - Local completeness audit already contains explicit truncated-report evidence.
 - Legacy reports without current completeness metadata remain unknown and must not be reinterpreted as complete.
 

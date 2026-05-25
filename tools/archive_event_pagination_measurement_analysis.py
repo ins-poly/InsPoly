@@ -48,7 +48,7 @@ def build_pagination_measurement_analysis(
             "status": _text(live_result.get("status")),
             "error": _text(live_result.get("error")),
             "savedAnalysisMarketCount": _int_or_none(selected_target.get("analysisMarketCount")),
-            "resolvedMarketCount": _int_or_none(live_result.get("resolvedMarketCount")),
+            "resolvedMarketCount": _resolved_market_count(live_result),
             "analysisMarketCount": _int_or_none(report_summary.get("analysisMarketCount")),
             "rawTradeCount": _int_or_none(report_summary.get("rawTradeCount")),
             "candidateTradeCount": _int_or_none(report_summary.get("candidateTradeCount")),
@@ -197,6 +197,24 @@ def _int_or_none(value: object) -> int | None:
         return int(float(str(value).replace(",", "")))
     except (TypeError, ValueError):
         return None
+
+
+def _resolved_market_count(live_result: Mapping[str, object]) -> int | None:
+    direct = _int_or_none(live_result.get("resolvedMarketCount"))
+    if direct is not None:
+        return direct
+    total = _int_or_none(live_result.get("totalEventMarketCount"))
+    if total is not None:
+        return total
+    target = live_result.get("resolvedTarget")
+    if isinstance(target, Mapping):
+        count = _int_or_none(target.get("marketCount"))
+        if count is not None:
+            return count
+        event = target.get("event")
+        if isinstance(event, Mapping):
+            return _int_or_none(event.get("marketCount"))
+    return None
 
 
 def main(argv: Sequence[str] | None = None) -> int:

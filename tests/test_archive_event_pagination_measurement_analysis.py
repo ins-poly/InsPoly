@@ -65,6 +65,19 @@ class ArchiveEventPaginationMeasurementAnalysisTests(unittest.TestCase):
 
         self.assertEqual(analysis["gateDecision"], "pagination_needs_operator_plan")
 
+    def test_resolved_market_count_uses_completed_live_result_metadata(self) -> None:
+        analysis = build_pagination_measurement_analysis(
+            {
+                "networkUsed": True,
+                "summary": {"gateDecision": "performance_measurement_complete"},
+                "liveResult": {"status": "completed", "totalEventMarketCount": 1},
+                "reportSummary": {"truncatedMarketCount": 0},
+            },
+            {"summary": {"reportsEvaluated": 1, "truncatedReportedCount": 0, "unknownLegacyCount": 0}},
+        )
+
+        self.assertEqual(analysis["measurement"]["resolvedMarketCount"], 1)
+
     def test_cli_writes_json_and_markdown(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

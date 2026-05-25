@@ -1,11 +1,11 @@
 {
   "findings": [
-    "Live target scope drifted from 6 saved analysis market(s) to 15 resolved market(s), exceeding the bounded campaign limit.",
+    "Completed measurement reported truncated markets.",
     "Local completeness audit already contains explicit truncated-report evidence.",
     "Legacy reports without current completeness metadata remain unknown and must not be reinterpreted as complete."
   ],
   "gateDecision": "pagination_needs_operator_plan",
-  "generatedAt": "2026-05-25T13:53:53.775656+00:00",
+  "generatedAt": "2026-05-25T14:07:46.015518+00:00",
   "localCompletenessSummary": {
     "candidateAdmissionRiskReports": 20,
     "rankingRiskReports": 3,
@@ -14,18 +14,18 @@
     "unknownLegacyCount": 22
   },
   "measurement": {
-    "analysisMarketCount": 0,
-    "candidateTradeCount": 0,
-    "error": "resolved_market_count_exceeds_bound",
-    "eventSlug": "us-x-iran-permanent-peace-deal-by",
-    "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_20260525_165052",
-    "rawTradeCount": 0,
-    "resolvedMarketCount": 15,
-    "savedAnalysisMarketCount": 6,
-    "status": "blocked_scope_exceeded",
-    "truncatedMarketCount": 0
+    "analysisMarketCount": 1,
+    "candidateTradeCount": 144,
+    "error": "",
+    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
+    "rawTradeCount": 3208,
+    "resolvedMarketCount": 1,
+    "savedAnalysisMarketCount": 1,
+    "status": "completed",
+    "truncatedMarketCount": 1
   },
-  "measurementGate": "performance_measurement_blocked_scope_risk",
+  "measurementGate": "performance_measurement_complete",
   "networkUsed": true,
   "recommendation": "Do not broaden pagination automatically. A future operator run needs an exact bounded target or approved market subset before any live expansion.",
   "reportType": "archive_event_pagination_measurement_analysis",

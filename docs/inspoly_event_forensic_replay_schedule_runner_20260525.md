@@ -35,6 +35,16 @@ Real scheduled replay persistence would require either explicit operator workflo
 
 ## 2026-05-25 Measurement Follow-Up
 
-Gate: `replay_schedule_no_update_needed`
+Gate: `replay_schedule_updated_with_timing_budget`
 
-The bounded performance precheck did not produce completed timing data because the selected event resolved to 15 live markets and exceeded the 8-market measurement cap. Replay schedule duration budgeting was therefore not updated in this campaign.
+The first bounded performance precheck did not produce completed timing data because the selected event resolved to 15 live markets and exceeded the 8-market measurement cap.
+
+The follow-up safe-target run completed on `russia-x-ukraine-ceasefire-by-january-31-2026`:
+
+- Total runtime: 20.54 seconds
+- Raw rows: 3,208
+- Candidate rows: 144
+- Candidate wallets: 83
+- Dominant bottleneck: `collect_event_trades_seconds`
+
+`tools/event_forensic_replay_schedule_runner.py` now accepts an optional bounded measurement summary and records planned-only performance-budget metadata. It still does not start a scheduler, call live/RPC, mutate storage, or change Event Forensic behavior.
