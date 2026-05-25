@@ -48,3 +48,16 @@ The follow-up safe-target run completed on `russia-x-ukraine-ceasefire-by-januar
 - Dominant bottleneck: `collect_event_trades_seconds`
 
 `tools/event_forensic_replay_schedule_runner.py` now accepts an optional bounded measurement summary and records planned-only performance-budget metadata. It still does not start a scheduler, call live/RPC, mutate storage, or change Event Forensic behavior.
+
+## 2026-05-25 Expansion Follow-Up
+
+Gate: `replay_schedule_updated_with_timing_budget`
+
+The measurement expansion added two more completed bounded samples and an aggregate output:
+
+- Measurements: 3
+- Median runtime: 20.54 seconds
+- Slowest runtime: 22.44 seconds
+- Completed sample scope: all single-market events
+
+This improves the small-target duration baseline, but it does not justify a broader automatic replay budget for large whole-event runs. Replay schedule planning remains sidecar-only and should label any future larger-event subset replay as subset-only unless whole-event scope is explicitly approved and measured.

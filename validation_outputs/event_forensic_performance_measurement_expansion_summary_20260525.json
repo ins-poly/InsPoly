@@ -1,0 +1,61 @@
+{
+  "aggregateGate": "performance_needs_subset_measurement",
+  "clobAuthUsed": false,
+  "generatedAt": "2026-05-25T14:27:15.972419+00:00",
+  "measurements": [
+    {
+      "candidateRows": 144,
+      "candidateWalletCount": 83,
+      "dominantBottleneck": "collect_event_trades_seconds",
+      "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "gateDecision": "performance_measurement_complete",
+      "marketCount": 1,
+      "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
+      "rawTradeRows": 3208,
+      "sourceSummaryPath": "validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511/summary.json",
+      "totalSeconds": 20.54,
+      "truncatedMarketCount": 1
+    },
+    {
+      "candidateRows": 158,
+      "candidateWalletCount": 102,
+      "dominantBottleneck": "prefetch_wallet_context_seconds",
+      "eventSlug": "maduro-in-us-custody-by-january-31",
+      "gateDecision": "performance_measurement_complete",
+      "marketCount": 1,
+      "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_expansion_20260525_172426_maduro_in_us_custody",
+      "rawTradeRows": 2517,
+      "sourceSummaryPath": "validation_outputs/event_forensic_performance_measurement_expansion_20260525_172426_maduro_in_us_custody/summary.json",
+      "totalSeconds": 22.44,
+      "truncatedMarketCount": 0
+    },
+    {
+      "candidateRows": 0,
+      "candidateWalletCount": 0,
+      "dominantBottleneck": "collect_event_trades_seconds",
+      "eventSlug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+      "gateDecision": "performance_measurement_complete",
+      "marketCount": 1,
+      "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_expansion_20260525_172510_nba_mavericks_grizzlies",
+      "rawTradeRows": 0,
+      "sourceSummaryPath": "validation_outputs/event_forensic_performance_measurement_expansion_20260525_172510_nba_mavericks_grizzlies/summary.json",
+      "totalSeconds": 0.68,
+      "truncatedMarketCount": 0
+    }
+  ],
+  "networkUsed": true,
+  "ordersPlaced": false,
+  "paginationGate": "pagination_issue_observed",
+  "privateKeyUsed": false,
+  "pushPerformed": false,
+  "recommendation": "Safe targets remain too small; request explicit subset-only approval for a larger event before patching.",
+  "reportType": "event_forensic_performance_measurement_expansion_summary",
+  "runtimeBehaviorChanged": false,
+  "safeTargetCount": 2,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_performance_measurement_expansion_summary_v1",
+  "sidecarOnly": true,
+  "storageMutated": false,
+  "subsetApprovalNeeded": true,
+  "targetResolutionGate": "safe_target_found"
+}
