@@ -32,3 +32,9 @@ The generated plan preserved whole-event/selected-market scope metadata and cand
 ## Next Gate
 
 Real scheduled replay persistence would require either explicit operator workflow approval or a storage RFC. The sidecar plan path is ready for local review.
+
+## 2026-05-25 Measurement Follow-Up
+
+Gate: `replay_schedule_no_update_needed`
+
+The bounded performance precheck did not produce completed timing data because the selected event resolved to 15 live markets and exceeded the 8-market measurement cap. Replay schedule duration budgeting was therefore not updated in this campaign.

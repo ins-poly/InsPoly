@@ -1,0 +1,49 @@
+{
+  "reportType": "live_performance_pagination_campaign_summary",
+  "schemaVersion": "live_performance_pagination_campaign_summary_v1",
+  "generatedAt": "2026-05-25T13:55:00+00:00",
+  "sidecarOnly": true,
+  "pushPerformed": false,
+  "prOpened": false,
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "storageSchemaChanged": false,
+  "uiSortingChanged": false,
+  "phase3RuntimeImplemented": false,
+  "scoringWeightsChanged": false,
+  "thresholdsChanged": false,
+  "privateKeysUsed": false,
+  "clobAuthUsed": false,
+  "tradingUsed": false,
+  "ordersPlaced": false,
+  "networkUsed": true,
+  "networkUseScope": "bounded_target_resolution_precheck_only",
+  "measurement": {
+    "gateDecision": "performance_measurement_blocked_scope_risk",
+    "outputDir": "validation_outputs/event_forensic_performance_measurement_20260525_165052",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "savedAnalysisMarketCount": 6,
+    "resolvedLiveMarketCount": 15,
+    "rawTradeRowsLoaded": 0,
+    "candidateRows": 0,
+    "totalSeconds": 0.0,
+    "dominantBottleneck": "unknown",
+    "fullAnalysisCompleted": false
+  },
+  "pagination": {
+    "gateDecision": "pagination_needs_operator_plan",
+    "analysisOutput": "validation_outputs/archive_event_pagination_measurement_analysis_20260525.json",
+    "finding": "Saved local target scope drifted from 6 markets to 15 live markets, exceeding the bounded campaign limit."
+  },
+  "performancePatch": {
+    "gateDecision": "needs_more_measurement",
+    "patchImplemented": false,
+    "reason": "No completed bounded timing sample was collected."
+  },
+  "replaySchedule": {
+    "gateDecision": "replay_schedule_no_update_needed",
+    "updated": false,
+    "reason": "No completed timing sample exists for schedule duration budgeting."
+  },
+  "nextRecommendedAction": "Select a current event that resolves to 8 markets or fewer, or approve an explicit bounded market subset for a larger event before any behavior-preserving performance patch."
+}
