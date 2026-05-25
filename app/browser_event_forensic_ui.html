@@ -751,6 +751,39 @@
       return report?.parent_event_slug || report?.event?.slug || report?.target_resolution?.parentEventSlug || "";
     }
 
+    function reportScopeSemantics(report) {
+      const summary = report?.summary || {};
+      const legacyScope = reportAnalysisScope(report);
+      const productScope = report?.analysisScope || summary.analysisScope || (legacyScope === "market" ? "selected_market" : "whole_event");
+      const primaryScope = report?.primaryScoringScope || summary.primaryScoringScope || report?.analysis_settings?.primary_scoring_scope || productScope;
+      const relatedContext = (
+        report && "relatedMarketsContextIncluded" in report
+          ? report.relatedMarketsContextIncluded
+          : "relatedMarketsContextIncluded" in summary
+          ? summary.relatedMarketsContextIncluded
+          : Array.isArray(report?.related_markets) && report.related_markets.length > 0
+      );
+      const siblingPrimary = (
+        report && "siblingMarketsPrimaryScored" in report
+          ? report.siblingMarketsPrimaryScored
+          : "siblingMarketsPrimaryScored" in summary
+          ? summary.siblingMarketsPrimaryScored
+          : legacyScope === "event" && !!report?.analysis_settings?.include_related_markets
+      );
+      return {
+        analysisScope: productScope,
+        primaryScoringScope: primaryScope,
+        selectedMarketSlug: report?.selectedMarketSlug || summary.selectedMarketSlug || reportSelectedMarketSlug(report) || "",
+        selectedMarketQuestion: report?.selectedMarketQuestion || summary.selectedMarketQuestion || reportSelectedMarketTitle(report) || "",
+        eventSlug: report?.eventSlug || summary.eventSlug || reportParentEventSlug(report) || "",
+        relatedMarketsContextIncluded: !!relatedContext,
+        siblingMarketsPrimaryScored: !!siblingPrimary,
+        scopeExplanation: report?.scopeExplanation || summary.scopeExplanation || report?.scope_note || (legacyScope === "market"
+          ? "Selected-market report: primary scoring and ranking use only the selected market; related or sibling markets are context-only."
+          : "Whole-event report: primary scoring and ranking use the explicitly loaded event markets.")
+      };
+    }
+
     function syncFiltersWithResolvedTarget(current, resolvedTarget) {
       const availableMarkets = Array.isArray(resolvedTarget?.availableMarkets) ? resolvedTarget.availableMarkets : [];
       const currentSelection =
@@ -1658,6 +1691,7 @@
       const resolvedEvent = resolvedTarget?.event || null;
       const selectedMarket = availableMarkets.find(item => item.conditionId === filters.selectedConditionId) || null;
       const showChildMarketPicker = analysisScope === "market" || availableMarkets.length > 0;
+      const scopeSemantics = reportScopeSemantics(report);
       return (
         <div className="column">
           <div style={{overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 12, paddingRight: 2}}>
@@ -1985,13 +2019,16 @@
                     Condition ID: {reportSelectedConditionId(report) || "All child markets"}{"\n"}
                     Market slug: {reportSelectedMarketSlug(report) || "All child markets"}{"\n"}
                     Parent event slug: {reportParentEventSlug(report) || "Unknown"}{"\n"}
+                    Primary scoring scope: {scopeSemantics.primaryScoringScope}{"\n"}
+                    Related context included: {scopeSemantics.relatedMarketsContextIncluded ? "Yes" : "No"}{"\n"}
+                    Sibling markets primary-scored: {scopeSemantics.siblingMarketsPrimaryScored ? "Yes" : "No"}{"\n"}
                     Unique wallets: {summary?.unique_wallet_count || 0}{"\n"}
                     Existing model flagged: {summary?.existing_flagged_count || 0}{"\n"}
                     Clusters: {summary?.wallet_cluster_count || 0}
                   </div>
-                  {report?.scope_note ? (
+                  {scopeSemantics.scopeExplanation ? (
                     <div className="secondary selectable" style={{lineHeight: 1.65, marginTop: 10}}>
-                      {report.scope_note}
+                      {scopeSemantics.scopeExplanation}
                     </div>
                   ) : null}
                   {Array.isArray(report?.evidence_warnings) && report.evidence_warnings.length ? (

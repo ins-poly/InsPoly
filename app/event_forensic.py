@@ -453,6 +453,7 @@ class EventForensicAnalyzer:
                 scope_context=scope_context,
                 threshold=threshold,
                 eligibility=eligibility,
+                include_related_markets=include_related_markets,
             )
             export_files = self._write_report_bundle(
                 started_at,
@@ -1173,9 +1174,20 @@ class EventForensicAnalyzer:
             selected_market_title=scope_context.selected_market_title,
             candidate_trade_count=len(candidate_trades),
         )
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
 
         raw_bundle = {
             "analysis_scope_metadata": _analysis_scope_metadata(resolved, scope_context),
+            "scope_product_metadata": scope_product_metadata,
             "analysis_time_window": {
                 "start_at": window_start_at.isoformat() if window_start_at else "",
                 "end_at": window_end_at.isoformat() if window_end_at else "",
@@ -1219,6 +1231,7 @@ class EventForensicAnalyzer:
             "status": "stopped" if _stop_requested(stop_event) else "completed",
             "input_url": input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -1243,12 +1256,16 @@ class EventForensicAnalyzer:
                 "include_blockchain": include_blockchain,
                 "funding_trace_mode": effective_funding_trace_mode,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
                 "start_at": window_start_at.isoformat() if window_start_at else "",
                 "end_at": window_end_at.isoformat() if window_end_at else "",
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": len(scoped_trades),
                 "candidate_trade_count": len(candidate_trades),
                 "normal_candidate_trade_count": len(normal_candidate_trades),
@@ -2248,13 +2265,25 @@ class EventForensicAnalyzer:
         scope_context: AnalysisScopeContext,
         threshold: Decimal,
         eligibility: dict[str, object],
+        include_related_markets: bool,
     ) -> dict[str, object]:
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
         report = {
             "analysis_version": EVENT_ANALYSIS_VERSION,
             "generated_at": started_at.isoformat(),
             "status": "preview_only",
             "input_url": resolved.input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -2271,13 +2300,17 @@ class EventForensicAnalyzer:
             "eligibility": eligibility,
             "analysis_settings": {
                 "min_notional": f"{threshold:.2f}",
-                "include_related_markets": True,
+                "include_related_markets": include_related_markets,
                 "include_blockchain": True,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": 0,
                 "candidate_trade_count": 0,
                 "existing_flagged_count": 0,
@@ -2336,12 +2369,23 @@ class EventForensicAnalyzer:
         end_at: datetime | None = None,
     ) -> dict[str, object]:
         eligibility = self._eligibility_payload(resolved)
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
         report = {
             "analysis_version": EVENT_ANALYSIS_VERSION,
             "generated_at": started_at.isoformat(),
             "status": "stopped",
             "input_url": resolved.input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -2361,12 +2405,16 @@ class EventForensicAnalyzer:
                 "include_related_markets": include_related_markets,
                 "include_blockchain": include_blockchain,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
                 "start_at": start_at.isoformat() if start_at else "",
                 "end_at": end_at.isoformat() if end_at else "",
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": len(raw_trades),
                 "candidate_trade_count": 0,
                 "existing_flagged_count": 0,
@@ -3842,6 +3890,7 @@ class EventForensicAnalyzer:
             or (report.get("target_resolution") or {}).get("parentEventSlug")
             or ""
         )
+        scope_product_metadata = _report_scope_product_metadata(report)
         lines = [
             "# InsPoly Event Forensic Report",
             "",
@@ -3856,6 +3905,11 @@ class EventForensicAnalyzer:
             f"- Unique wallets in loaded {'selected-market' if analysis_scope == 'market' else 'event'} sample: {summary.get('unique_wallet_count', 0)}",
             f"- Parent event slug: {parent_event_slug or 'Unknown'}",
             f"- Scope: {report.get('scope_note', 'Event-wide review across all wallets active in the loaded event.')}",
+            f"- Product scope: {scope_product_metadata['analysisScope']}",
+            f"- Primary scoring scope: {scope_product_metadata['primaryScoringScope']}",
+            f"- Related markets context included: {'yes' if scope_product_metadata['relatedMarketsContextIncluded'] else 'no'}",
+            f"- Sibling markets primary-scored: {'yes' if scope_product_metadata['siblingMarketsPrimaryScored'] else 'no'}",
+            f"- Scope explanation: {scope_product_metadata['scopeExplanation']}",
             "",
         ]
         if analysis_scope == "market":
@@ -5285,6 +5339,52 @@ def _analysis_scope_metadata(
     }
 
 
+def _scope_product_metadata(
+    resolved: ResolvedEvent,
+    scope_context: AnalysisScopeContext,
+    *,
+    include_related_markets: bool,
+) -> dict[str, object]:
+    selected_scope = scope_context.analysis_scope == "market"
+    product_scope = "selected_market" if selected_scope else "whole_event"
+    selected_market_question = scope_context.selected_market_title or ""
+    if selected_scope:
+        scope_explanation = (
+            "Selected-market report: primary scoring and ranking use only the selected market. "
+            "Related or sibling markets are context-only unless whole-event scope is explicitly selected."
+        )
+    else:
+        scope_explanation = (
+            "Whole-event report: primary scoring and ranking use the explicitly loaded event markets. "
+            "Related case-family markets can contribute only because whole-event scope is active."
+        )
+    return {
+        "analysisScope": product_scope,
+        "primaryScoringScope": product_scope,
+        "selectedMarketSlug": scope_context.selected_market_slug or "",
+        "selectedMarketQuestion": selected_market_question,
+        "eventSlug": resolved.event_slug,
+        "relatedMarketsContextIncluded": bool(include_related_markets),
+        "siblingMarketsPrimaryScored": bool(not selected_scope and include_related_markets),
+        "scopeExplanation": scope_explanation,
+    }
+
+
+def _scope_summary_metadata(
+    resolved: ResolvedEvent,
+    scope_context: AnalysisScopeContext,
+    *,
+    include_related_markets: bool,
+) -> dict[str, object]:
+    return dict(
+        _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+    )
+
+
 def _scope_note(scope_context: AnalysisScopeContext) -> str:
     if scope_context.analysis_scope == "market":
         market_title = scope_context.selected_market_title or "the selected child market"
@@ -5436,6 +5536,63 @@ def _report_selected_market_slug(report: dict[str, object]) -> str | None:
 def _report_selected_market_title(report: dict[str, object]) -> str | None:
     value = report.get("selected_market_title")
     return str(value) if value else None
+
+
+def _report_scope_product_metadata(report: dict[str, object]) -> dict[str, object]:
+    summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
+    settings = report.get("analysis_settings") if isinstance(report.get("analysis_settings"), dict) else {}
+    event = report.get("event") if isinstance(report.get("event"), dict) else {}
+    legacy_scope = _report_analysis_scope(report)
+    product_scope = str(
+        report.get("analysisScope")
+        or summary.get("analysisScope")
+        or ("selected_market" if legacy_scope == "market" else "whole_event")
+    )
+    primary_scope = str(
+        report.get("primaryScoringScope")
+        or summary.get("primaryScoringScope")
+        or settings.get("primary_scoring_scope")
+        or product_scope
+    )
+    related_context = report.get("relatedMarketsContextIncluded", summary.get("relatedMarketsContextIncluded"))
+    if related_context is None:
+        related_context = bool(report.get("related_markets") or [])
+    sibling_primary = report.get("siblingMarketsPrimaryScored", summary.get("siblingMarketsPrimaryScored"))
+    if sibling_primary is None:
+        sibling_primary = bool(legacy_scope == "event" and settings.get("include_related_markets", False))
+    explanation = str(report.get("scopeExplanation") or summary.get("scopeExplanation") or report.get("scope_note") or "")
+    if not explanation:
+        explanation = (
+            "Selected-market report: primary scoring and ranking use only the selected market; related or sibling markets are context-only."
+            if legacy_scope == "market"
+            else "Whole-event report: primary scoring and ranking use the explicitly loaded event markets."
+        )
+    selected_market_title = _report_selected_market_title(report) or ""
+    return {
+        "analysisScope": product_scope,
+        "primaryScoringScope": primary_scope,
+        "selectedMarketSlug": str(
+            report.get("selectedMarketSlug")
+            or summary.get("selectedMarketSlug")
+            or _report_selected_market_slug(report)
+            or ""
+        ),
+        "selectedMarketQuestion": str(
+            report.get("selectedMarketQuestion")
+            or summary.get("selectedMarketQuestion")
+            or selected_market_title
+        ),
+        "eventSlug": str(
+            report.get("eventSlug")
+            or summary.get("eventSlug")
+            or event.get("slug")
+            or report.get("parent_event_slug")
+            or ""
+        ),
+        "relatedMarketsContextIncluded": bool(related_context),
+        "siblingMarketsPrimaryScored": bool(sibling_primary),
+        "scopeExplanation": explanation,
+    }
 
 
 def _report_resolution_status(report: dict[str, object]) -> str:
