@@ -34,6 +34,7 @@ from app.funding_context import (
 )
 from app.models import FlaggedCase, Market, Trade, WalletInspection
 from app.polymarket import PolymarketClient
+from app.side_outcome import normalize_cluster_direction, normalize_side_outcome
 from app.site_categories import SiteCategory, category_sensitivity
 from app.storage import Storage
 from app.topic_rules import match_focus_topic
@@ -510,6 +511,7 @@ class Scanner:
         _annotate_domain_peer_history(candidate_cases, wallet_cache)
         _annotate_preclassification_linkage(candidate_cases)
         flagged_cases = [case for case in candidate_cases if _case_survives_output_threshold(case)]
+        _annotate_side_outcome_raw_metrics(flagged_cases)
         flagged_cases.sort(key=lambda item: item.suspicion_score, reverse=True)
         stopped = _stop_requested(stop_event)
         trade_collection_diagnostics = {
@@ -1789,12 +1791,10 @@ def _funding_availability_report_lines(health: dict[str, object] | None) -> list
 
 
 def _pre_admission_direction_hint(trade: Trade) -> str:
-    outcome = str(trade.outcome or "").strip().lower()
-    if not outcome:
-        return ""
-    if trade.side == "SELL":
-        return f"short_{outcome}"
-    return f"long_{outcome}"
+    normalized = normalize_cluster_direction(trade.side, trade.outcome, trade.price)
+    if normalized.cluster_normalization_status == "normalized":
+        return normalized.cluster_direction
+    return ""
 
 
 def _trade_group_time_span_minutes(trades: list[Trade]) -> float:
@@ -1838,6 +1838,33 @@ def _common_funding_grade(
 def _annotate_preclassification_linkage(cases: list[FlaggedCase]) -> None:
     _annotate_shared_funding_links(cases)
     _annotate_coordinated_sizing_clusters(cases)
+
+
+def _annotate_side_outcome_raw_metrics(cases: list[FlaggedCase]) -> None:
+    for case in cases:
+        metrics = normalize_side_outcome(case.trade.side, case.trade.outcome, case.trade.price).to_raw_metrics()
+        if metrics.get("model_probability_basis") == "unknown" and case.raw_metrics.get("model_probability_basis"):
+            metrics["model_probability_basis"] = case.raw_metrics["model_probability_basis"]
+        metrics.update(normalize_cluster_direction(case.trade.side, case.trade.outcome, case.trade.price).to_raw_metrics())
+        case.raw_metrics.update(metrics)
+
+
+def _cluster_direction_for_trade(trade: Trade) -> str:
+    normalized = normalize_cluster_direction(trade.side, trade.outcome, trade.price)
+    if normalized.cluster_normalization_status == "normalized":
+        return normalized.cluster_direction
+    return ""
+
+
+def _cluster_direction_for_case(case: FlaggedCase) -> str:
+    raw = case.raw_metrics
+    direction = str(raw.get("cluster_direction") or "").strip()
+    if direction in {"long_yes", "long_no"} and raw.get("cluster_normalization_status") == "normalized":
+        return direction
+    model_direction = str(raw.get("model_economic_direction") or "").strip()
+    if model_direction in {"long_yes", "long_no"} and raw.get("side_outcome_normalization_status") == "normalized":
+        return model_direction
+    return _cluster_direction_for_trade(case.trade)
 
 
 def _annotate_hard_evidence_review(
@@ -1916,7 +1943,9 @@ def _split_wallet_group_key(case: FlaggedCase) -> str:
     if not strict_key:
         return ""
     condition_id = case.trade.condition_id
-    direction = raw.get("economic_direction", "")
+    direction = _cluster_direction_for_case(case)
+    if not direction:
+        return ""
     return f"{strict_key}|{condition_id}|{direction}"
 
 
@@ -1925,7 +1954,9 @@ def _coordinated_sizing_group_key(case: FlaggedCase) -> str:
     if raw.get("coordinated_sizing_cluster_flag") != "Yes":
         return ""
     condition_id = case.trade.condition_id
-    direction = raw.get("economic_direction", "")
+    direction = _cluster_direction_for_case(case)
+    if not direction:
+        return ""
     return f"{condition_id}|{direction}"
 
 
@@ -2797,11 +2828,21 @@ def _score_trade(
     raw_metrics["opening_exposure_flag"] = "Yes" if opening_exposure_flag else "No"
     raw_metrics["economic_direction"] = economic_direction
     raw_metrics["trade_state"] = trade_state
+    side_outcome_model = normalize_side_outcome(trade.side, trade.outcome, trade.price)
+    raw_metrics.update(side_outcome_model.to_raw_metrics())
+    raw_metrics.update(normalize_cluster_direction(trade.side, trade.outcome, trade.price).to_raw_metrics())
+    model_probability = side_outcome_model.economic_side_probability
+    model_probability_basis = side_outcome_model.model_probability_basis
+    if model_probability is None:
+        model_probability = trade.price
+        model_probability_basis = "raw_token_price_fallback"
+    raw_metrics["model_probability"] = str(model_probability)
+    raw_metrics["model_probability_basis"] = model_probability_basis
 
     capital_at_risk = _capital_at_risk_usdc(trade, execution_state)
     raw_metrics["capital_at_risk_usdc"] = _fmt_decimal(capital_at_risk)
     raw_metrics["price_implied_probability"] = f"{(trade.price * Decimal('100')):.1f}%"
-    uncertainty = _uncertainty_level(trade.price)
+    uncertainty = _uncertainty_level(model_probability)
     raw_metrics["uncertainty_level"] = f"{uncertainty:.2f}"
 
     opening_increase = opening_exposure_flag and capital_at_risk > 0
@@ -2980,7 +3021,7 @@ def _score_trade(
         if prior_wallet_gap_days >= STRONG_DORMANT_REACTIVATION_DAYS:
             dormancy_bonus = 5
         elif (
-            trade.price <= Decimal("0.35")
+            model_probability <= Decimal("0.35")
             or size_basis >= Decimal("2500")
             or prior_family_market_count >= 2
         ):
@@ -3104,7 +3145,7 @@ def _score_trade(
             if end_dt > trade.timestamp:
                 hours_to_resolution = max((end_dt - trade.timestamp).total_seconds() / 3600, 0.0)
                 raw_metrics["hours_to_resolution"] = f"{hours_to_resolution:.2f}"
-                if opening_increase and trade.price < Decimal("0.95"):
+                if opening_increase and model_probability < Decimal("0.95"):
                     if hours_to_resolution <= 1:
                         subscores["timing"] += 9
                         explanation.append("The trade was placed very close to a truth-revealing market moment while uncertainty still remained.")
@@ -3136,15 +3177,15 @@ def _score_trade(
             "The trade landed during the event's local off-hours window, when large directional entries can be more informative."
         )
 
-    if trade.price >= Decimal("0.98"):
+    if model_probability >= Decimal("0.98"):
         flags.append("near_certainty_trade")
         subscores["benign_discount"] -= 10
         reasons_against.append("The entry price already implied an almost certain outcome, which strongly weakens an insider-style interpretation.")
-    elif trade.price >= Decimal("0.95"):
+    elif model_probability >= Decimal("0.95"):
         flags.append("near_certainty_trade")
         subscores["benign_discount"] -= 6
         reasons_against.append("The entry price already implied a near-certain outcome, which strongly weakens an insider-style interpretation.")
-    elif trade.price <= Decimal("0.30") and opening_increase:
+    elif model_probability <= Decimal("0.30") and opening_increase:
         subscores["market_state"] += 4
         flags.append("low_probability_conviction")
         explanation.append("The trade committed real capital at a low implied probability, which makes the conviction more noteworthy.")
@@ -3165,7 +3206,7 @@ def _score_trade(
 
     if (
         opening_increase
-        and trade.price >= Decimal("0.97")
+        and model_probability >= Decimal("0.97")
         and capital_at_risk >= Decimal("5000")
         and _move_is_at_most(favorable_moves["1h"], Decimal("0.02"))
     ):
@@ -3190,14 +3231,16 @@ def _score_trade(
     if market.volume and market.volume <= Decimal("300000"):
         subscores["market_sensitivity"] += 2
 
-    cluster_trades = [
-        item
-        for item in market_window_trades
-        if item.side == trade.side
-        and item.outcome == trade.outcome
-        and item.wallet != trade.wallet
-        and abs((item.timestamp - trade.timestamp).total_seconds()) <= 30 * 60
-    ]
+    cluster_direction = str(raw_metrics.get("cluster_direction") or "").strip()
+    cluster_trades = []
+    if cluster_direction:
+        cluster_trades = [
+            item
+            for item in market_window_trades
+            if _cluster_direction_for_trade(item) == cluster_direction
+            and item.wallet != trade.wallet
+            and abs((item.timestamp - trade.timestamp).total_seconds()) <= 30 * 60
+        ]
     cluster_wallets = {item.wallet for item in cluster_trades}
     raw_metrics["cluster_wallets_30m_same_side"] = str(len(cluster_wallets))
     same_side_dollar_volume = trade.notional + sum((item.notional for item in cluster_trades), Decimal("0"))
@@ -3278,6 +3321,7 @@ def _score_trade(
         favorable_moves=favorable_moves,
         flags=flags,
         event_context=event_context,
+        model_probability=model_probability,
     )
     hard_resolution_gap_flag = resolution_gap_type == "hard"
     soft_resolution_gap_flag = resolution_gap_type == "possible"
@@ -3302,7 +3346,7 @@ def _score_trade(
                 "This looks closer to public-news lag or stale market pricing than to a private-information entry."
             )
 
-    materially_uncertain = trade.price <= Decimal("0.94")
+    materially_uncertain = model_probability <= Decimal("0.94")
     beat_consensus = consensus_edge is not None and consensus_edge >= Decimal("0.03")
     favorable_repricing = (
         _move_is_at_least(favorable_moves["15m"], Decimal("0.02"))
@@ -3392,6 +3436,7 @@ def _score_trade(
             liquidity_ratio=liquidity_ratio,
             flags=flags,
             raw_metrics=raw_metrics,
+            model_probability=model_probability,
         )
     )
     _update_suspicious_funding_quality(raw_metrics, flags)
@@ -3598,6 +3643,7 @@ def _repricing_source_quality_metrics(
     liquidity_ratio: Decimal | None,
     flags: list[str],
     raw_metrics: dict[str, str],
+    model_probability: Decimal,
 ) -> dict[str, str]:
     window_label = _repricing_quality_window(favorable_moves)
     driver_stats = _repricing_driver_stats(
@@ -3625,7 +3671,7 @@ def _repricing_source_quality_metrics(
     very_thin_market = market.liquidity > 0 and market.liquidity <= Decimal("50000")
     low_volume = market.volume > 0 and market.volume <= Decimal("300000")
     low_trade_count = same_outcome_trade_count < 8 or driver_stats["window_trade_count"] < 3
-    high_price = trade.price >= Decimal("0.85")
+    high_price = model_probability >= Decimal("0.85")
     near_certainty_or_decay = any(
         flag in flags
         for flag in ("near_certainty_trade", "yield_farm_pattern", "theta_decay_pattern")
@@ -3787,6 +3833,7 @@ def _resolution_gap_type(
     favorable_moves: dict[str, Decimal | None],
     flags: list[str],
     event_context: EventContext,
+    model_probability: Decimal,
 ) -> str | None:
     if not opening_exposure_flag:
         return None
@@ -3797,14 +3844,14 @@ def _resolution_gap_type(
         if trade.timestamp >= event_context.public_knowledge_at:
             return "hard"
     if event_context.official_confirmation_at is not None and trade.timestamp >= event_context.official_confirmation_at:
-        if trade.price >= Decimal("0.90"):
+        if model_probability >= Decimal("0.90"):
             return "hard"
     if event_context.broad_report_at is not None and trade.timestamp >= event_context.broad_report_at:
-        if trade.price >= Decimal("0.95") and _move_is_at_most(favorable_moves["1h"], Decimal("0.02")):
+        if model_probability >= Decimal("0.95") and _move_is_at_most(favorable_moves["1h"], Decimal("0.02")):
             return "possible"
 
-    near_certainty = trade.price >= Decimal("0.94")
-    very_low_uncertainty = _uncertainty_level(trade.price) <= Decimal("0.12")
+    near_certainty = model_probability >= Decimal("0.94")
+    very_low_uncertainty = _uncertainty_level(model_probability) <= Decimal("0.12")
     weak_repricing = (
         (
             favorable_moves["15m"] is None
@@ -3833,7 +3880,7 @@ def _resolution_gap_type(
         and weak_repricing
         and weak_consensus_edge
         and stale_window
-        and (late_entry_pattern or trade.price >= Decimal("0.97") or favorable_moves["1h"] is None or favorable_moves["1h"] <= Decimal("0.01"))
+        and (late_entry_pattern or model_probability >= Decimal("0.97") or favorable_moves["1h"] is None or favorable_moves["1h"] <= Decimal("0.01"))
     ):
         return "possible"
     return None
@@ -4547,7 +4594,7 @@ def _proxy_tight_cohort_groups(linked_cases: list[FlaggedCase]) -> list[list[Fla
         raw = case.raw_metrics
         if raw.get("opening_exposure_flag") != "Yes":
             continue
-        direction = str(raw.get("economic_direction") or "").strip()
+        direction = _cluster_direction_for_case(case)
         fingerprint = str(raw.get("funding_fingerprint") or raw.get("funding_graph_key_proxy") or "").strip()
         if not direction or not fingerprint:
             continue
@@ -4803,7 +4850,10 @@ def _shared_funding_split_groups(linked_cases: list[FlaggedCase]) -> list[list[F
     for case in linked_cases:
         if case.raw_metrics.get("opening_exposure_flag") != "Yes":
             continue
-        key = (case.trade.condition_id, case.raw_metrics.get("economic_direction", ""))
+        direction = _cluster_direction_for_case(case)
+        if not direction:
+            continue
+        key = (case.trade.condition_id, direction)
         grouped.setdefault(key, []).append(case)
 
     result: list[list[FlaggedCase]] = []
@@ -4832,7 +4882,10 @@ def _annotate_coordinated_sizing_clusters(cases: list[FlaggedCase]) -> None:
     for case in cases:
         if case.raw_metrics.get("opening_exposure_flag") != "Yes":
             continue
-        key = (case.trade.condition_id, case.raw_metrics.get("economic_direction", ""))
+        direction = _cluster_direction_for_case(case)
+        if not direction:
+            continue
+        key = (case.trade.condition_id, direction)
         grouped.setdefault(key, []).append(case)
 
     for grouped_cases in grouped.values():
@@ -4944,6 +4997,8 @@ def _to_markdown(report: dict[str, object]) -> str:
                 f"- Wallet: {trade['wallet']}",
                 f"- Time: {trade['timestamp']}",
                 f"- Position: {trade['side']} {trade['outcome']}",
+                f"- Token price: {case['raw_metrics'].get('raw_token_price_label', case['raw_metrics'].get('price_implied_probability', 'Unavailable'))}",
+                f"- Economic probability: {case['raw_metrics'].get('economic_side_probability_label', 'Unavailable')}",
                 f"- Trade size: ${case['raw_metrics']['trade_notional_usdc']}",
                 f"- Trade state: {case['raw_metrics'].get('trade_state', 'Unavailable')}",
                 f"- Capital at risk: ${case['raw_metrics'].get('capital_at_risk_usdc', '0')}",
@@ -5024,6 +5079,8 @@ def _to_text_report(report: dict[str, object]) -> str:
                 "Key context:",
                 f"- Trade time: {trade['timestamp']}",
                 f"- Position: {trade['side']} {trade['outcome']}",
+                f"- Token price: {case['raw_metrics'].get('raw_token_price_label', case['raw_metrics'].get('price_implied_probability', 'Unavailable'))}",
+                f"- Economic probability: {case['raw_metrics'].get('economic_side_probability_label', 'Unavailable')}",
                 f"- Trade size: ${case['raw_metrics']['trade_notional_usdc']}",
                 f"- Trade state: {case['raw_metrics'].get('trade_state', 'Unavailable')}",
                 f"- Capital at risk: ${case['raw_metrics'].get('capital_at_risk_usdc', '0')}",

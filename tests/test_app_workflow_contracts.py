@@ -129,9 +129,12 @@ class AppWorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(payload["entryProbability"], 91.0)
         self.assertEqual(payload["entryProbabilityLabel"], "91.0%")
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: Yes @ 91.0%")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: Yes @ 91.0%")
         self.assertEqual(payload["walletPredictions"], 88)
         self.assertEqual(payload["walletPredictionsLabel"], "88")
-        self.assertTrue(any("Entry probability at trade: 91.0%" in line for line in context_lines))
+        self.assertTrue(any("Token price at trade: Raw token: Yes @ 91.0%." in line for line in context_lines))
+        self.assertTrue(any("Economic-side probability at trade: Economic side: Yes @ 91.0%." in line for line in context_lines))
         self.assertTrue(any("Wallet public prediction count: 88." in line for line in context_lines))
 
     def test_browser_scanner_hides_wallets_over_prediction_cap_from_visible_review(self) -> None:
@@ -144,6 +147,90 @@ class AppWorkflowContractTests(unittest.TestCase):
         }
 
         self.assertFalse(app._case_passes_wallet_quality(case))
+
+    def test_old_scanner_report_without_side_outcome_fields_still_loads_and_derives_safely(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        report = {
+            "cases": [
+                {
+                    "severity": "Worth a Look",
+                    "case_type": None,
+                    "suspicion_score": 55,
+                    "confidence_score": 90,
+                    "review_priority": "Medium",
+                    "verdict": "Needs review",
+                    "trade_count_window": 1,
+                    "window_start": "2026-05-07T10:00:00+00:00",
+                    "window_end": "2026-05-07T10:00:00+00:00",
+                    "trade": {
+                        "trade_id": "old-sell-yes",
+                        "title": "Old report market",
+                        "wallet": "0xabcdef1234567890",
+                        "trader_name": "",
+                        "trader_pseudonym": "",
+                        "outcome": "YES",
+                        "side": "SELL",
+                        "price": "0.20",
+                        "timestamp": "2026-05-07T10:00:00+00:00",
+                        "event_slug": "old-report-market",
+                    },
+                    "market": {"site_categories": []},
+                    "wallet_inspection": {},
+                    "subscores": {},
+                    "flags": [],
+                    "explanation": ["Old report row."],
+                    "reasons_against": [],
+                    "raw_metrics": {
+                        "trade_notional_usdc": "1000",
+                        "price_implied_probability": "20.0%",
+                        "liquidity_ratio": "Unavailable",
+                        "trade_state": "increase",
+                    },
+                }
+            ]
+        }
+
+        normalized = app._normalize_report(report)
+        payload = app._case_card_payload(normalized["cases"][0])
+
+        self.assertNotIn("raw_token_price_label", normalized["cases"][0]["raw_metrics"])
+        self.assertEqual(payload["entryProbability"], 20.0)
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: No @ 80.0%")
+
+    def test_old_report_without_safe_side_outcome_inputs_stays_unknown_not_zero(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        case = {
+            "trade": {
+                "trade_id": "unknown-side",
+                "title": "Unknown side market",
+                "wallet": "0xabcdef1234567890",
+                "trader_name": "",
+                "trader_pseudonym": "",
+                "outcome": "",
+                "side": "",
+                "timestamp": "2026-05-07T10:00:00+00:00",
+                "event_slug": "unknown-side",
+            },
+            "market": {"site_categories": []},
+            "raw_metrics": {
+                "trade_notional_usdc": "1000",
+                "price_implied_probability": "",
+                "liquidity_ratio": "Unavailable",
+            },
+            "flags": [],
+            "severity": "Low Risk",
+            "case_type": None,
+            "suspicion_score": 10,
+            "explanation": [],
+            "reasons_against": [],
+        }
+
+        payload = app._case_card_payload(case)
+
+        self.assertIsNone(payload["entryProbability"])
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: unknown")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: unknown")
 
     def test_browser_scanner_default_filters_include_system_scope_controls(self) -> None:
         app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
@@ -192,9 +279,11 @@ class AppWorkflowContractTests(unittest.TestCase):
         html = Path("app/browser_ui.html").read_text(encoding="utf-8")
 
         self.assertIn("maxEntryProbability", html)
-        self.assertIn("Max entry probability %", html)
+        self.assertIn("Max token price %", html)
+        self.assertIn("Maximum raw token price percent", html)
         self.assertIn("parseProbabilityFilter", html)
-        self.assertIn("Entry chance", html)
+        self.assertIn("Token price", html)
+        self.assertNotIn("Entry chance", html)
 
     def test_browser_scanner_ui_exposes_system_funding_and_case_family_controls(self) -> None:
         html = Path("app/browser_ui.html").read_text(encoding="utf-8")

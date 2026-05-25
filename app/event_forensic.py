@@ -32,6 +32,7 @@ from app.funding_context import (
 )
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import MAX_TRADES_OFFSET, PolymarketClient
+from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_side_outcome
 from app.scanner import (
     ProgressEvent,
     HARD_EVIDENCE_REVIEW_TIER,
@@ -92,6 +93,11 @@ EVENT_FORENSIC_GRAPH_TRADE_LIMIT = 24
 EVENT_FORENSIC_GRAPH_WALLET_LIMIT = 18
 EVENT_FORENSIC_GRAPH_CLUSTER_LIMIT = 12
 EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD = 40
+WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER = "weak_history_near_certainty_review_required"
+WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON = (
+    "Weak economic history plus a near-certain later-winning entry is review-required context, "
+    "not primary Event Forensic placement."
+)
 EVENT_FORENSIC_CASE_FAMILY_EVENT_LIMIT = 30
 EVENT_FORENSIC_HIGH_ASYMMETRY_DOMAINS = {"Politics", "Geopolitics", "Middle East", "Ukraine / war"}
 EVENT_FORENSIC_PUBLIC_BETTING_DOMAINS = {"Sports", "Entertainment", "Crypto", "Macro / rates"}
@@ -1089,18 +1095,35 @@ class EventForensicAnalyzer:
             trade_payloads,
             minimum_notional=threshold,
         )
+        _annotate_weak_history_near_certainty_review_policy(visible_trade_payloads)
         ranked_trades = self._ranked_trade_rows(visible_trade_payloads)
+        prepolicy_threshold_suspicious_trade_count = sum(
+            1 for item in ranked_trades if item["eventForensicScore"] >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD
+        )
+        prepolicy_hard_evidence_review_trade_count = sum(
+            1 for item in ranked_trades if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER
+        )
         threshold_suspicious_trades = [
             item for item in ranked_trades if item["eventForensicScore"] >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD
+            and not _is_weak_history_near_certainty_review_demoted(item)
         ]
         hard_evidence_review_trades = [
             item for item in ranked_trades if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER
+            and not _is_weak_history_near_certainty_review_demoted(item)
         ]
         suspicious_trades = _dedupe_trade_payloads(
             [*threshold_suspicious_trades, *hard_evidence_review_trades]
         )
         suspicious_trades.sort(key=_event_trade_sort_key, reverse=True)
-        display_trades = suspicious_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT] or ranked_trades[:25]
+        review_required_trades = [
+            item for item in ranked_trades if _is_weak_history_near_certainty_review_demoted(item)
+        ]
+        review_required_trades.sort(key=_event_trade_sort_key, reverse=True)
+        fallback_display_trades = [
+            item for item in ranked_trades if not _is_weak_history_near_certainty_review_demoted(item)
+        ][:25]
+        display_trades = suspicious_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT] or fallback_display_trades
+        display_review_required_trades = review_required_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT]
 
         ranked_wallets = self._build_wallet_rankings(
             visible_trade_payloads,
@@ -1235,10 +1258,15 @@ class EventForensicAnalyzer:
                 "forensic_suspicious_trade_count": len(threshold_suspicious_trades),
                 "primary_review_trade_count": len(suspicious_trades),
                 "hard_evidence_review_trade_count": len(hard_evidence_review_trades),
+                "prepolicy_forensic_suspicious_trade_count": prepolicy_threshold_suspicious_trade_count,
+                "prepolicy_hard_evidence_review_trade_count": prepolicy_hard_evidence_review_trade_count,
+                "weak_history_near_certainty_review_demotion_count": len(review_required_trades),
+                "review_required_trade_count": len(review_required_trades),
                 "suspicious_wallet_count": len(suspicious_wallets),
                 "wallet_context_count": len(ranked_wallets),
                 "wallet_cluster_count": len(wallet_clusters),
                 "display_trade_count": len(display_trades),
+                "display_review_required_trade_count": len(display_review_required_trades),
                 "display_wallet_count": len(display_wallets),
                 "display_cluster_count": len(display_clusters),
                 "below_threshold_candidate_count": below_threshold_candidate_count,
@@ -1280,9 +1308,11 @@ class EventForensicAnalyzer:
             "funding_resolver_health": self._funding_resolver.health().to_dict(),
             "candidate_admission_funnel": candidate_admission_funnel,
             "suspicious_trades": display_trades,
+            "review_required_trades": review_required_trades,
             "suspicious_wallets": display_wallets,
             "wallet_clusters": display_clusters,
             "display_trades": display_trades,
+            "display_review_required_trades": display_review_required_trades,
             "display_wallets": display_wallets,
             "display_clusters": display_clusters,
             "wallet_graph": wallet_graph,
@@ -2432,7 +2462,7 @@ class EventForensicAnalyzer:
             wallet_joined_at = str(getattr(wallet_inspection, "first_trade_at", "") or "")
             winner = winners_by_condition.get(trade.condition_id)
             outcome_known = bool(winner)
-            later_won = bool(raw.get("trade_state") == "increase" and winner and trade.outcome == winner)
+            later_won = bool(raw.get("trade_state") == "increase" and _case_economic_side_won(case, winner))
             related_count = related_by_wallet.get(wallet, 0)
             scored_related_count = 0 if analysis_scope == "market" else related_count
             sibling_activity = sibling_market_activity.get(
@@ -2444,8 +2474,7 @@ class EventForensicAnalyzer:
                 1
                 for item in wallet_cases
                 if item.raw_metrics.get("trade_state") == "increase"
-                and winners_by_condition.get(item.trade.condition_id)
-                and item.trade.outcome == winners_by_condition.get(item.trade.condition_id)
+                and _case_economic_side_won(item, winners_by_condition.get(item.trade.condition_id))
             )
             wallet_opening_entries = sum(
                 1 for item in wallet_cases if item.raw_metrics.get("trade_state") == "increase"
@@ -2467,6 +2496,11 @@ class EventForensicAnalyzer:
                 later_won=later_won,
                 opening_exposure=raw.get("opening_exposure_flag") == "Yes" or raw.get("trade_state") == "increase",
             )
+            side_outcome_context = normalize_side_outcome(trade.side, trade.outcome, trade.price).to_payload()
+            cluster_context = normalize_cluster_direction(trade.side, trade.outcome, trade.price).to_payload()
+            model_probability = side_outcome_context.get("economicSideProbability")
+            if not isinstance(model_probability, (int, float)):
+                model_probability = float(trade.price)
             strong_risk_attribution = {
                 field: raw.get(field, "")
                 for field in STRONG_RISK_ATTRIBUTION_FIELDS
@@ -2487,7 +2521,7 @@ class EventForensicAnalyzer:
                     "retrospective_event_forensic": True,
                     "later_correctness": later_won,
                     "winner_rank": winning_entry_ranks.get(trade.trade_id) or "",
-                    "low_probability_winner": bool(trade.price <= Decimal("0.35")),
+                    "low_probability_winner": bool(model_probability <= 0.35),
                     "dormant_after_win": "dormant_after_win" in flags,
                     "resolved_event_only": True,
                     "live_detectable": False,
@@ -2606,6 +2640,8 @@ class EventForensicAnalyzer:
                     "side": trade.outcome,
                     "orderSide": trade.side,
                     "price": float(trade.price),
+                    **side_outcome_context,
+                    **cluster_context,
                     "positionSize": float(trade.notional),
                     "liquidityShare": raw.get("liquidity_ratio", "Unavailable"),
                     "openingExposure": raw.get("trade_state") == "increase",
@@ -3754,9 +3790,10 @@ class EventForensicAnalyzer:
     ) -> list[dict[str, object]]:
         points: list[dict[str, object]] = []
         for trade in suspicious_trades[:12]:
+            price_context = _side_outcome_label_for_trade(trade)
             note = (
                 f"{trade['walletShort']} {trade['orderSide']} {trade['side']} for "
-                f"${trade['positionSize']:,.0f}. {trade['summary']}"
+                f"${trade['positionSize']:,.0f}. {price_context}. {trade['summary']}"
             )
             points.append(
                 {
@@ -3881,6 +3918,11 @@ class EventForensicAnalyzer:
             lines.append("")
 
         top_trades = (report.get("display_trades") or report.get("suspicious_trades", []))[:8]
+        review_required_trades = (
+            report.get("display_review_required_trades")
+            or report.get("review_required_trades")
+            or []
+        )[:8]
         top_wallets = (report.get("display_wallets") or report.get("suspicious_wallets", []))[:8]
         clusters = (report.get("display_clusters") or report.get("wallet_clusters", []))[:5]
         primary_story = _primary_story_lines(report, top_trades, top_wallets, clusters)
@@ -3894,6 +3936,18 @@ class EventForensicAnalyzer:
             lines.extend(other_candidates)
         else:
             lines.append("- No secondary wallet or trade lead cleared the on-screen review threshold.")
+
+        if review_required_trades:
+            lines.extend(["", "## Review-Required Context", ""])
+            lines.append(
+                "- These rows remain exported but are kept out of the primary trade list by the weak-history near-certainty policy."
+            )
+            for trade in review_required_trades:
+                lines.append(
+                    f"- `{trade.get('walletShort') or _short_wallet(str(trade.get('wallet') or ''))}` "
+                    f"{trade.get('orderSide') or ''} {trade.get('side') or ''} in **{trade.get('market') or 'Unknown market'}**: "
+                    f"{trade.get('weakHistoryNearCertaintyReviewReason') or WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON}"
+                )
 
         lines.extend(["", "## What To Inspect Next", ""])
         lines.extend(_next_action_lines(report, primary_story, clusters))
@@ -4186,6 +4240,22 @@ class EventForensicAnalyzer:
                 "market",
                 "side",
                 "orderSide",
+                "rawTokenOutcome",
+                "rawOrderSide",
+                "rawTokenPrice",
+                "rawTokenPriceLabel",
+                "economicSide",
+                "economicSideProbability",
+                "economicSideProbabilityLabel",
+                "economicDirectionNormalized",
+                "modelProbabilityBasis",
+                "modelEconomicDirection",
+                "sideOutcomeNormalizationStatus",
+                "sideOutcomeFallbackReason",
+                "clusterDirection",
+                "clusterDirectionBasis",
+                "clusterNormalizationStatus",
+                "clusterDirectionFallbackReason",
                 "positionSize",
                 "liquidityShare",
                 "laterWon",
@@ -4195,6 +4265,10 @@ class EventForensicAnalyzer:
                 "existingModelScore",
                 "existingModelClass",
                 "eventForensicScore",
+                "weakHistoryNearCertaintyReviewDemotion",
+                "weakHistoryNearCertaintyReviewReason",
+                "reviewBucketBeforePolicy",
+                "reviewBucketAfterPolicy",
                 "hardEvidenceSources",
                 "hardEvidenceStrength",
                 "hardEvidencePrimaryReason",
@@ -4579,6 +4653,22 @@ def _candidate_audit_fieldnames() -> list[str]:
         "side",
         "outcome",
         "orderSide",
+        "rawTokenOutcome",
+        "rawOrderSide",
+        "rawTokenPrice",
+        "rawTokenPriceLabel",
+        "economicSide",
+        "economicSideProbability",
+        "economicSideProbabilityLabel",
+        "economicDirectionNormalized",
+        "modelProbabilityBasis",
+        "modelEconomicDirection",
+        "sideOutcomeNormalizationStatus",
+        "sideOutcomeFallbackReason",
+        "clusterDirection",
+        "clusterDirectionBasis",
+        "clusterNormalizationStatus",
+        "clusterDirectionFallbackReason",
         "notionalUsd",
         "currentModelScore",
         "currentModelSeverity",
@@ -4591,6 +4681,10 @@ def _candidate_audit_fieldnames() -> list[str]:
         "hardEvidenceReviewTier",
         "hardEvidenceSources",
         "eventForensicScore",
+        "weakHistoryNearCertaintyReviewDemotion",
+        "weakHistoryNearCertaintyReviewReason",
+        "reviewBucketBeforePolicy",
+        "reviewBucketAfterPolicy",
         "eventForensicFlags",
         "eventForensicBoosters",
         "eventForensicReducers",
@@ -4710,6 +4804,22 @@ def _candidate_audit_row_from_trade_payload(
         "side": item.get("side", ""),
         "outcome": item.get("side", ""),
         "orderSide": item.get("orderSide", ""),
+        "rawTokenOutcome": item.get("rawTokenOutcome", ""),
+        "rawOrderSide": item.get("rawOrderSide", ""),
+        "rawTokenPrice": item.get("rawTokenPrice", ""),
+        "rawTokenPriceLabel": item.get("rawTokenPriceLabel", ""),
+        "economicSide": item.get("economicSide", ""),
+        "economicSideProbability": item.get("economicSideProbability", ""),
+        "economicSideProbabilityLabel": item.get("economicSideProbabilityLabel", ""),
+        "economicDirectionNormalized": item.get("economicDirectionNormalized", ""),
+        "modelProbabilityBasis": item.get("modelProbabilityBasis", ""),
+        "modelEconomicDirection": item.get("modelEconomicDirection", ""),
+        "sideOutcomeNormalizationStatus": item.get("sideOutcomeNormalizationStatus", ""),
+        "sideOutcomeFallbackReason": item.get("sideOutcomeFallbackReason", ""),
+        "clusterDirection": item.get("clusterDirection", ""),
+        "clusterDirectionBasis": item.get("clusterDirectionBasis", ""),
+        "clusterNormalizationStatus": item.get("clusterNormalizationStatus", ""),
+        "clusterDirectionFallbackReason": item.get("clusterDirectionFallbackReason", ""),
         "notionalUsd": item.get("positionSize", ""),
         "currentModelScore": item.get("existingModelScore", ""),
         "currentModelSeverity": item.get("existingModelClass", ""),
@@ -4722,6 +4832,10 @@ def _candidate_audit_row_from_trade_payload(
         "hardEvidenceReviewTier": hard_evidence_tier,
         "hardEvidenceSources": hard_evidence_sources,
         "eventForensicScore": item.get("eventForensicScore", ""),
+        "weakHistoryNearCertaintyReviewDemotion": item.get("weakHistoryNearCertaintyReviewDemotion", ""),
+        "weakHistoryNearCertaintyReviewReason": item.get("weakHistoryNearCertaintyReviewReason", ""),
+        "reviewBucketBeforePolicy": item.get("reviewBucketBeforePolicy", ""),
+        "reviewBucketAfterPolicy": item.get("reviewBucketAfterPolicy", ""),
         "eventForensicFlags": event_flags,
         "eventForensicBoosters": event_flags,
         "eventForensicReducers": event_reducers,
@@ -4775,6 +4889,14 @@ def _candidate_audit_display_tier(
         else:
             reason = f"Event Forensic score {score} met the primary threshold {EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD}."
         return "primary_event_forensic", reason, "Shown in the primary UI review list."
+    if _is_weak_history_near_certainty_review_demoted(item):
+        reason = str(item.get("weakHistoryNearCertaintyReviewReason") or WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON)
+        before_bucket = str(item.get("reviewBucketBeforePolicy") or "primary_review")
+        return (
+            WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER,
+            reason,
+            f"Kept in exports and candidate audit, but moved from `{before_bucket}` to secondary review-required context.",
+        )
     demotion_bits = _dedupe_labels([*reducers, *suppressors])
     demotion_text = "; ".join(demotion_bits[:4]) if demotion_bits else f"Event Forensic score {score} stayed below primary threshold {EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD}."
     if current_severity == "Strong Risk":
@@ -4985,6 +5107,7 @@ def _candidate_audit_markdown(report: dict[str, object], rows: list[dict[str, ob
             "## Notes",
             "",
             "- `primary_event_forensic` rows are the rows shown in the primary Event Forensic trade list.",
+            f"- `{WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER}` rows matched the approved weak-history near-certainty later-win placement policy and remain in exports/candidate audit.",
             "- `current_model_*_demoted` rows were visible to the current/base model but did not survive Event Forensic primary review.",
             "- `not_flagged_candidate` rows are exported so analysts can see the full selected-market candidate stack.",
             "- Funding disabled/cache-miss rows must be interpreted as funding `unknown`, not clean funding.",
@@ -5840,7 +5963,7 @@ def _wallet_hard_evidence_attribution(
     for item in items:
         raw = item.get("rawMetrics") if isinstance(item.get("rawMetrics"), dict) else {}
         flags = _payload_flag_set(item.get("eventForensicFlags"))
-        price = _metric_float(item.get("price")) or 0.0
+        price = _payload_model_probability(item, raw)
         winner_rank_value = _metric_int(item.get("winnerRank"))
         later_won = bool(item.get("laterWon"))
         saved_hard_sources = _text_values(item.get("hardEvidenceSources")) or _text_values(
@@ -6750,11 +6873,13 @@ def _primary_story_lines(
     if top_trades:
         trade = top_trades[0]
         wallet = str(trade.get("wallet") or "")
+        price_context = _side_outcome_label_for_trade(trade)
         lines = [
             f"- Primary trade: **{trade.get('walletShort') or _short_wallet(wallet)}** on **{trade.get('market') or 'Unknown market'}**.",
             (
                 f"- What happened: {trade.get('orderSide') or 'TRADE'} {trade.get('side') or ''} "
-                f"for {_money_label(trade.get('positionSize'))} at {trade.get('displayTime') or 'an unknown time'}."
+                f"for {_money_label(trade.get('positionSize'))} at {trade.get('displayTime') or 'an unknown time'}. "
+                f"{price_context}."
             ),
             f"- Why it matters: {str(trade.get('summary') or 'This is the strongest trade lead in the loaded data.')}",
         ]
@@ -6809,11 +6934,23 @@ def _other_candidate_lines(
         lines.append(
             f"- **{trade.get('walletShort') or _short_wallet(wallet_address)}** on **{trade.get('market') or 'Unknown market'}**: "
             f"{trade.get('orderSide') or 'TRADE'} {trade.get('side') or ''} for {_money_label(trade.get('positionSize'))} "
-            f"at {trade.get('displayTime') or 'an unknown time'}."
+            f"at {trade.get('displayTime') or 'an unknown time'}. {_side_outcome_label_for_trade(trade)}."
         )
         if len(lines) >= limit:
             break
     return lines
+
+
+def _side_outcome_label_for_trade(trade: dict[str, object]) -> str:
+    raw_label = str(trade.get("rawTokenPriceLabel") or "").strip()
+    economic_label = str(trade.get("economicSideProbabilityLabel") or "").strip()
+    if raw_label and economic_label:
+        return f"{raw_label}; {economic_label}"
+    price = trade.get("price")
+    if price not in (None, ""):
+        normalized = normalize_side_outcome(trade.get("orderSide"), trade.get("side"), price)
+        return f"{normalized.raw_token_price_label}; {normalized.economic_side_probability_label}"
+    return "Token price unavailable; economic probability unavailable"
 
 
 def _suspicious_funding_quality_note(row: dict[str, object]) -> str:
@@ -7157,7 +7294,11 @@ def _winning_entry_ranks(cases: list[FlaggedCase], winners_by_condition: dict[st
     grouped: dict[str, list[FlaggedCase]] = defaultdict(list)
     for case in cases:
         winner = winners_by_condition.get(case.trade.condition_id)
-        if winner and case.trade.outcome == winner and case.raw_metrics.get("trade_state") == "increase":
+        if (
+            winner
+            and _case_economic_side_won(case, winner)
+            and case.raw_metrics.get("trade_state") == "increase"
+        ):
             grouped[case.trade.condition_id].append(case)
     result: dict[str, int] = {}
     for market_cases in grouped.values():
@@ -7165,6 +7306,38 @@ def _winning_entry_ranks(cases: list[FlaggedCase], winners_by_condition: dict[st
         for index, case in enumerate(ordered, start=1):
             result[case.trade.trade_id] = index
     return result
+
+
+def _normalize_winner_outcome(value: object) -> str:
+    text = str(value or "").strip().upper()
+    if text in {"YES", "Y"}:
+        return "YES"
+    if text in {"NO", "N"}:
+        return "NO"
+    return UNKNOWN
+
+
+def _case_side_outcome_model(case: FlaggedCase):
+    return normalize_side_outcome(case.trade.side, case.trade.outcome, case.trade.price)
+
+
+def _case_economic_side_won(case: FlaggedCase, winner: object) -> bool:
+    winner_outcome = _normalize_winner_outcome(winner)
+    normalized = _case_side_outcome_model(case)
+    return bool(winner_outcome != UNKNOWN and normalized.economic_side == winner_outcome)
+
+
+def _payload_model_probability(item: dict[str, object], raw: dict[str, object]) -> float:
+    for value in (
+        item.get("economicSideProbability"),
+        raw.get("economic_side_probability"),
+        raw.get("model_probability"),
+        item.get("price"),
+    ):
+        probability = _metric_float(value)
+        if probability is not None:
+            return probability / 100.0 if probability > 1 else probability
+    return 0.0
 
 
 def _event_forensic_score(
@@ -7184,9 +7357,16 @@ def _event_forensic_score(
     dormant_gap_days = _metric_float(raw.get("days_since_prior_wallet_trade"))
     post_trade_gap_days = _metric_float(raw.get("days_to_next_wallet_trade"))
     try:
-        entry_price = float(case.trade.price)
+        raw_entry_price = float(case.trade.price)
     except (TypeError, ValueError):
-        entry_price = 0.0
+        raw_entry_price = 0.0
+    normalized_side_outcome = _case_side_outcome_model(case)
+    if normalized_side_outcome.economic_side_probability is None:
+        entry_price = raw_entry_price
+        entry_probability_basis = "raw_token_price_fallback"
+    else:
+        entry_price = float(normalized_side_outcome.economic_side_probability)
+        entry_probability_basis = normalized_side_outcome.model_probability_basis
     near_certainty_entry = entry_price >= NEAR_CERTAINTY_PRICE
     poor_history = _poor_wallet_history(raw)
     independent_proof = _has_independent_forensic_proof(
@@ -7358,6 +7538,8 @@ def _event_forensic_score(
                 "High-impact repricing source quality is weak without non-repricing hard evidence."
             )
 
+    raw["event_forensic_model_probability"] = f"{entry_price:.6f}".rstrip("0").rstrip(".")
+    raw["event_forensic_model_probability_basis"] = entry_probability_basis
     score = max(0, min(100, score))
     if not notes:
         notes.extend(case.explanation[:2])
@@ -7375,6 +7557,105 @@ def _dedupe_trade_payloads(rows: list[dict[str, object]]) -> list[dict[str, obje
         seen.add(key)
         result.append(row)
     return result
+
+
+def _annotate_weak_history_near_certainty_review_policy(rows: list[dict[str, object]]) -> None:
+    for item in rows:
+        before_bucket = _review_bucket_before_weak_history_policy(item)
+        demote, reason = _weak_history_near_certainty_review_demotion(item)
+        item["reviewBucketBeforePolicy"] = before_bucket
+        item["weakHistoryNearCertaintyReviewDemotion"] = "Yes" if demote else "No"
+        item["weakHistoryNearCertaintyReviewReason"] = reason
+        item["reviewBucketAfterPolicy"] = (
+            WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER if demote else before_bucket
+        )
+
+
+def _is_weak_history_near_certainty_review_demoted(item: dict[str, object]) -> bool:
+    return str(item.get("weakHistoryNearCertaintyReviewDemotion") or "") == "Yes"
+
+
+def _review_bucket_before_weak_history_policy(item: dict[str, object]) -> str:
+    current_strong = str(item.get("existingModelClass") or "") == "Strong Risk"
+    retrospective_strong = str(item.get("finalEventJudgment") or "").startswith("Strong Risk")
+    if current_strong or retrospective_strong:
+        return "current_or_retrospective_strong_risk"
+    if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER:
+        return "hard_evidence_review"
+    if _metric_int(item.get("eventForensicScore")) >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD:
+        return "event_forensic_primary_threshold"
+    return "secondary_context"
+
+
+def _weak_history_near_certainty_review_demotion(item: dict[str, object]) -> tuple[bool, str]:
+    raw = item.get("rawMetrics")
+    raw_metrics = raw if isinstance(raw, dict) else {}
+    before_bucket = _review_bucket_before_weak_history_policy(item)
+    if before_bucket == "secondary_context":
+        return False, "already_secondary_review_context"
+    if not _payload_later_won_true(item):
+        return False, "later_correctness_unknown_or_false"
+    probability = _weak_history_policy_probability(item, raw_metrics)
+    if probability is None:
+        return False, "economic_side_probability_unavailable"
+    if probability < NEAR_CERTAINTY_PRICE:
+        return False, "economic_side_probability_not_near_certainty"
+    if not _payload_has_weak_history_signal(item, raw_metrics):
+        return False, "weak_history_signal_absent_or_unknown"
+    return True, WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON
+
+
+def _payload_later_won_true(item: dict[str, object]) -> bool:
+    value = item.get("laterWon")
+    if isinstance(value, bool):
+        return value
+    text = str(value or "").strip().lower()
+    return text in {"true", "yes", "1"}
+
+
+def _weak_history_policy_probability(item: dict[str, object], raw_metrics: dict[str, object]) -> float | None:
+    status = str(
+        item.get("sideOutcomeNormalizationStatus")
+        or raw_metrics.get("sideOutcomeNormalizationStatus")
+        or raw_metrics.get("side_outcome_normalization_status")
+        or ""
+    ).strip()
+    if status and status != "normalized":
+        return None
+    for value in (
+        item.get("economicSideProbability"),
+        raw_metrics.get("event_forensic_model_probability"),
+        raw_metrics.get("economic_side_probability"),
+        raw_metrics.get("model_probability"),
+    ):
+        probability = _metric_float(value)
+        if probability is not None:
+            return probability / 100.0 if probability > 1 else probability
+    return None
+
+
+def _payload_has_weak_history_signal(item: dict[str, object], raw_metrics: dict[str, object]) -> bool:
+    flags = _text_values(item.get("eventForensicFlags"))
+    if "weak_wallet_track_record" in flags:
+        return True
+    text_parts = [
+        *_text_values(item.get("eventForensicFlags")),
+        *_text_values(item.get("eventForensicReducers")),
+        *_text_values(item.get("reducesConcern")),
+        str(item.get("summary") or ""),
+        str(raw_metrics.get("wallet_economic_history_note") or ""),
+        str(raw_metrics.get("economic_history_note") or ""),
+        str(raw_metrics.get("weak_wallet_track_record") or ""),
+    ]
+    text = " ".join(part.lower() for part in text_parts if str(part).strip())
+    if "strong track record" in text or "history is not weak" in text:
+        return False
+    return (
+        "weak_wallet_track_record" in text
+        or "weak economic history" in text
+        or "weak economic track" in text
+        or "broader losing record" in text
+    )
 
 
 def _event_trade_sort_key(item: dict[str, object]) -> tuple[int, int, int, int, float]:
@@ -7528,13 +7809,13 @@ def _timing_clusters(
     trade_payloads: list[dict[str, object]],
     suspicious_wallet_lookup: set[str],
 ) -> list[list[dict[str, object]]]:
-    grouped: dict[tuple[str, str, str], list[dict[str, object]]] = defaultdict(list)
+    grouped: dict[tuple[str, ...], list[dict[str, object]]] = defaultdict(list)
     for item in trade_payloads:
         if item["wallet"] not in suspicious_wallet_lookup:
             continue
         if item["eventForensicScore"] < 45 and item.get("hardEvidenceReviewTier") != HARD_EVIDENCE_REVIEW_TIER:
             continue
-        key = (item["marketSlug"], item["orderSide"], item["side"])
+        key = _timing_cluster_key(item)
         grouped[key].append(item)
 
     clusters: list[list[dict[str, object]]] = []
@@ -7556,6 +7837,17 @@ def _timing_clusters(
         if len({trade["wallet"] for trade in current}) >= 2:
             clusters.append(current[:])
     return clusters
+
+
+def _timing_cluster_key(item: dict[str, object]) -> tuple[str, ...]:
+    cluster_direction = str(item.get("clusterDirection") or "").strip()
+    if cluster_direction in {"long_yes", "long_no"} and item.get("clusterNormalizationStatus") == "normalized":
+        return (str(item.get("marketSlug") or ""), cluster_direction)
+    return (
+        str(item.get("marketSlug") or ""),
+        str(item.get("orderSide") or ""),
+        str(item.get("side") or ""),
+    )
 
 
 def _suggest_model_improvements(

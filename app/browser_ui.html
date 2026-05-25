@@ -497,7 +497,7 @@
               </div>
 
               <div style={{marginBottom: 12}}>
-                <div className="section-label">Max entry probability %</div>
+                <div className="section-label">Max token price %</div>
                 <input
                   value={filters.maxEntryProbability || ""}
                   onChange={event => setFilters(current => ({ ...current, maxEntryProbability: event.target.value }))}
@@ -505,7 +505,7 @@
                   inputMode="decimal"
                   style={{width: "100%"}}
                   placeholder="Optional, e.g. 90"
-                  aria-label="Maximum entry probability percent"
+                  aria-label="Maximum raw token price percent"
                 />
               </div>
 
@@ -788,7 +788,8 @@
                   ) : null}
                   <span className="mono" style={{color: card.side === "YES" ? "var(--green)" : "var(--red)"}}>{card.orderSide} {card.side}</span>
                   <span className="mono">{card.position}</span>
-                  <span className="mono">entry {card.entryProbabilityLabel || "Unavailable"}</span>
+                  <span className="mono">{card.rawTokenPriceLabel || "Raw token: unknown"}</span>
+                  <span className="mono">{card.economicSideProbabilityLabel || "Economic side: unknown"}</span>
                   <span className="mono">pred {card.walletPredictionsLabel || "Unavailable"}</span>
                   <span className="mono" style={{color: "var(--amber)"}}>{card.liquidityShare} liq</span>
                 </div>
@@ -796,7 +797,7 @@
                 <div style={{display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginBottom: 10}}>
                   <StatTile label="Score" value={card.score} />
                   <StatTile label="Trade size" value={card.position} />
-                  <StatTile label="Entry chance" value={card.entryProbabilityLabel || "Unavailable"} />
+                  <StatTile label="Token price" value={card.entryProbabilityLabel || "Unavailable"} />
                 </div>
 
                 <div className="selectable" style={{color: "var(--text-sec)", lineHeight: 1.6}}>{card.preview}</div>
@@ -860,7 +861,8 @@
                 </a>
               )}
               {detail && <span>Resolves in ~{detail.timeToResolution}</span>}
-              <span>Entry {detail?.entryProbability || card.entryProbabilityLabel || "Unavailable"}</span>
+              <span>{detail?.rawTokenPriceLabel || card.rawTokenPriceLabel || "Raw token: unknown"}</span>
+              <span>{detail?.economicSideProbabilityLabel || card.economicSideProbabilityLabel || "Economic side: unknown"}</span>
             </div>
             <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
               <button className="btn" onClick={onCopy}>Copy analysis</button>
@@ -1233,7 +1235,7 @@
       };
 
       const copyCards = async () => {
-        const payload = filteredCases.map(card => `${card.riskLabel}${card.caseType ? ` | ${card.caseType}` : ""} | ${card.market}\n${card.wallet} | ${card.position} | entry ${card.entryProbabilityLabel || "Unavailable"} | ${card.liquidityShare}\n${card.preview}`).join("\n\n");
+        const payload = filteredCases.map(card => `${card.riskLabel}${card.caseType ? ` | ${card.caseType}` : ""} | ${card.market}\n${card.wallet} | ${card.position} | ${card.rawTokenPriceLabel || "Raw token: unknown"} | ${card.economicSideProbabilityLabel || "Economic side: unknown"} | ${card.liquidityShare}\n${card.preview}`).join("\n\n");
         await navigator.clipboard.writeText(payload || "No visible cards.");
         setCopyToast(true);
         setTimeout(() => setCopyToast(false), 1600);

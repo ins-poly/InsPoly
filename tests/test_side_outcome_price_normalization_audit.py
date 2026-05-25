@@ -8,7 +8,9 @@ from pathlib import Path
 from app.event_context import EventContext
 from app.funding_context import FundingContext
 from app.models import Market, Trade, WalletInspection
+from app.archive_scanner import _trade_row
 from app.scanner import (
+    _annotate_side_outcome_raw_metrics,
     _capital_at_risk_usdc,
     _classify_execution_state,
     _economic_direction,
@@ -187,6 +189,25 @@ class SideOutcomePriceNormalizationAuditTests(unittest.TestCase):
         self.assertEqual(buy_yes.raw_metrics["price_implied_probability"], "20.0%")
         self.assertEqual(buy_no.raw_metrics["price_implied_probability"], "80.0%")
 
+    def test_phase1_additive_fields_preserve_raw_probability_and_expose_economic_side(self) -> None:
+        case = _scored_case(_trade(trade_id="sell-yes", side="SELL", outcome="YES", price="0.20", asset_id="asset-yes"))
+        _annotate_side_outcome_raw_metrics([case])
+
+        self.assertEqual(case.raw_metrics["price_implied_probability"], "20.0%")
+        self.assertEqual(case.raw_metrics["economic_direction"], "short_yes")
+        self.assertEqual(case.raw_metrics["raw_token_outcome"], "YES")
+        self.assertEqual(case.raw_metrics["raw_order_side"], "SELL")
+        self.assertEqual(case.raw_metrics["raw_token_price"], "0.20")
+        self.assertEqual(case.raw_metrics["raw_token_price_label"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(case.raw_metrics["economic_side"], "NO")
+        self.assertEqual(case.raw_metrics["economic_side_probability"], "0.80")
+        self.assertEqual(case.raw_metrics["economic_side_probability_label"], "Economic side: No @ 80.0%")
+        self.assertEqual(case.raw_metrics["economic_direction_normalized"], "long_no")
+        self.assertEqual(case.raw_metrics["model_probability"], "0.80")
+        self.assertEqual(case.raw_metrics["model_probability_basis"], "economic_side_probability")
+        self.assertEqual(case.raw_metrics["side_outcome_normalization_status"], "normalized")
+        self.assertNotIn("low_probability_conviction", case.flags)
+
     def test_repricing_move_for_opening_sell_uses_short_token_direction(self) -> None:
         entry = _trade(
             trade_id="sell-yes-entry",
@@ -219,25 +240,32 @@ class SideOutcomePriceNormalizationAuditTests(unittest.TestCase):
         self.assertEqual(moves["15m"], Decimal("0"))
         self.assertEqual(moves["1h"], Decimal("0.10"))
 
-    @unittest.expectedFailure
-    def test_opening_sell_yes_should_store_economic_side_probability_not_raw_yes_price(self) -> None:
+    def test_opening_sell_yes_preserves_raw_price_field_and_adds_model_probability(self) -> None:
         case = _scored_case(_trade(trade_id="sell-yes", side="SELL", outcome="YES", price="0.20", asset_id="asset-yes"))
 
-        self.assertEqual(case.raw_metrics["price_implied_probability"], "80.0%")
+        self.assertEqual(case.raw_metrics["price_implied_probability"], "20.0%")
+        self.assertEqual(case.raw_metrics["economic_side_probability"], "0.80")
+        self.assertEqual(case.raw_metrics["model_probability"], "0.80")
 
-    @unittest.expectedFailure
-    def test_opening_sell_no_should_store_economic_side_probability_not_raw_no_price(self) -> None:
+    def test_opening_sell_no_preserves_raw_price_field_and_adds_model_probability(self) -> None:
         case = _scored_case(_trade(trade_id="sell-no", side="SELL", outcome="NO", price="0.80", asset_id="asset-no"))
 
-        self.assertEqual(case.raw_metrics["price_implied_probability"], "20.0%")
+        self.assertEqual(case.raw_metrics["price_implied_probability"], "80.0%")
+        self.assertEqual(case.raw_metrics["economic_side_probability"], "0.20")
+        self.assertEqual(case.raw_metrics["model_probability"], "0.20")
 
-    @unittest.expectedFailure
     def test_low_probability_flags_should_use_economic_side_probability_for_sell_yes(self) -> None:
         case = _scored_case(_trade(trade_id="sell-yes-low-prob", side="SELL", outcome="YES", price="0.20", asset_id="asset-yes"))
 
         self.assertNotIn("low_probability_conviction", case.flags)
 
-    @unittest.expectedFailure
+    def test_near_certainty_flags_should_use_economic_side_probability_for_sell_yes(self) -> None:
+        case = _scored_case(_trade(trade_id="sell-yes-near", side="SELL", outcome="YES", price="0.05", asset_id="asset-yes"))
+
+        self.assertIn("near_certainty_trade", case.flags)
+        self.assertEqual(case.raw_metrics["price_implied_probability"], "5.0%")
+        self.assertEqual(case.raw_metrics["model_probability"], "0.95")
+
     def test_same_side_cluster_should_group_sell_yes_with_buy_no_as_no_exposure(self) -> None:
         entry = _trade(
             trade_id="sell-yes-cluster",
@@ -259,9 +287,76 @@ class SideOutcomePriceNormalizationAuditTests(unittest.TestCase):
         case = _scored_case(entry, [entry, buy_no_peer])
 
         self.assertEqual(case.raw_metrics["cluster_wallets_30m_same_side"], "1")
+        self.assertEqual(case.raw_metrics["economic_direction"], "short_yes")
+        self.assertEqual(case.raw_metrics["cluster_direction"], "long_no")
+        self.assertEqual(case.raw_metrics["cluster_normalization_status"], "normalized")
 
-    @unittest.expectedFailure
+    def test_same_side_cluster_groups_buy_yes_with_sell_no_as_yes_exposure(self) -> None:
+        entry = _trade(
+            trade_id="buy-yes-cluster",
+            side="BUY",
+            outcome="YES",
+            price="0.20",
+            asset_id="asset-yes",
+        )
+        sell_no_peer = _trade(
+            trade_id="sell-no-peer",
+            side="SELL",
+            outcome="NO",
+            price="0.80",
+            asset_id="asset-no",
+            timestamp=entry.timestamp + timedelta(minutes=5),
+            wallet="0xpeer",
+        )
+
+        case = _scored_case(entry, [entry, sell_no_peer])
+
+        self.assertEqual(case.raw_metrics["cluster_wallets_30m_same_side"], "1")
+        self.assertEqual(case.raw_metrics["economic_direction"], "long_yes")
+        self.assertEqual(case.raw_metrics["cluster_direction"], "long_yes")
+
+    def test_same_side_cluster_does_not_group_buy_yes_with_buy_no(self) -> None:
+        entry = _trade(
+            trade_id="buy-yes-no-cluster",
+            side="BUY",
+            outcome="YES",
+            price="0.20",
+            asset_id="asset-yes",
+        )
+        buy_no_peer = _trade(
+            trade_id="buy-no-not-peer",
+            side="BUY",
+            outcome="NO",
+            price="0.80",
+            asset_id="asset-no",
+            timestamp=entry.timestamp + timedelta(minutes=5),
+            wallet="0xpeer",
+        )
+
+        case = _scored_case(entry, [entry, buy_no_peer])
+
+        self.assertEqual(case.raw_metrics["cluster_wallets_30m_same_side"], "0")
+
+    def test_archive_trade_row_exports_additive_cluster_direction_fields(self) -> None:
+        row = _trade_row(
+            _trade(
+                trade_id="archive-sell-yes-cluster",
+                side="SELL",
+                outcome="YES",
+                price="0.20",
+                asset_id="asset-yes",
+            )
+        )
+
+        self.assertEqual(row["economic_direction_normalized"], "long_no")
+        self.assertEqual(row["cluster_direction"], "long_no")
+        self.assertEqual(row["cluster_direction_basis"], "economic_direction_normalized")
+        self.assertEqual(row["cluster_normalization_status"], "normalized")
+
     def test_browser_scanner_display_should_label_entry_as_token_price_when_un_normalized(self) -> None:
         html = Path("app/browser_ui.html").read_text(encoding="utf-8")
 
-        self.assertIn("Token entry price", html)
+        self.assertIn("Token price", html)
+        self.assertIn("Raw token:", html)
+        self.assertIn("Economic side:", html)
+        self.assertNotIn("Entry chance", html)
