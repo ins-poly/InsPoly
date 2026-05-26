@@ -182,3 +182,25 @@ Full unit discovery is recommended before future push/PR, but not required for t
 Gate: `local_release_v2_ready_for_future_push_packaging`.
 
 The local release context is current and ready for a future packaging/push decision. Remaining blockers are explicit product/operator decisions, and no push or PR was performed.
+
+## 2026-05-26 Pre-Push Dry-Run Addendum
+
+This V2 report is superseded for current packaging state by:
+
+- `docs/inspoly_final_pre_push_packaging_dry_run_20260526.md`
+- `validation_outputs/inspoly_final_pre_push_packaging_dry_run_20260526.json`
+
+Current head at the dry run: `0ce05da` (`Add local browser offline runtime assets`).
+
+Current local series length: `39` commits on top of `origin/main`.
+
+Current dry-run gate: `pre_push_dry_run_ready`.
+
+Important update since this V2 report:
+
+- Browser strict offline boot moved from `browser_offline_asset_policy_ready_for_product_decision` to `browser_strict_offline_ready`.
+- Pinned local React `18.3.1`, ReactDOM `18.3.1`, and Babel standalone `7.29.7` runtime assets are committed under `app/vendor/browser/` with `app/vendor/browser/PROVENANCE.json`.
+- Both current browser UIs now boot from local vendor assets; Google Fonts are no longer required for boot.
+- Latest recorded full suite after browser implementation: `1105` tests OK.
+
+The dry-run report is the current source of truth for final pre-push packaging, local-only artifact policy, and the future pre-push checklist.

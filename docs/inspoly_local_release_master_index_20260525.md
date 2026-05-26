@@ -53,6 +53,30 @@ Important updates since this index:
 
 Use the 2026-05-26 consolidation report as the current source of truth for gates and local-only artifact handling.
 
+## 2026-05-26 Final Pre-Push Dry-Run Addendum
+
+The current pre-push packaging state is consolidated in:
+
+- `docs/inspoly_final_pre_push_packaging_dry_run_20260526.md`
+- `validation_outputs/inspoly_final_pre_push_packaging_dry_run_20260526.json`
+
+Current head at the dry run: `0ce05da` (`Add local browser offline runtime assets`).
+
+Current local series length: `39` commits on top of `origin/main`.
+
+Current gate: `pre_push_dry_run_ready`.
+
+Important updates since the earlier addendum:
+
+- Browser strict offline boot is now `browser_strict_offline_ready`.
+- Local pinned browser runtime assets are committed under `app/vendor/browser/` with version/license/hash provenance.
+- Replay persistence remains `replay_keep_sidecar_only_final`.
+- Phase 3 capital runtime remains `phase3_sidecar_only_final` with blocker `phase3_blocked_until_new_source_fields`.
+- Event Forensic pagination/provider expansion remains RFC/operator-gated, not a production runtime change.
+- Push/PR remains deferred by user.
+
+Use the pre-push dry-run report as the current source of truth before any future push/PR decision.
+
 ## Commit Ledger
 
 | Commit | Title | Category | Runtime behavior changed | Tests / checks mentioned | Push status | Risk | Rollback note |
