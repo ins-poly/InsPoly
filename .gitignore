@@ -64,6 +64,13 @@ AI_DESIGN_SCROLL_HANDOFF.md
 SELF_IMPROVEMENT_WORKFLOW.md
 QA_SINGLE_MARKET_SMOKE.md
 
+# Compact strategic handoff files are reviewable and may be staged explicitly.
+!AI_CONTROL/
+!AI_CONTROL/*.md
+!skills/
+!skills/strategic-autonomy-review/
+!skills/strategic-autonomy-review/SKILL.md
+
 # Existing private/internal notes are kept locally. Public docs are explicitly
 # unignored below.
 docs/*
