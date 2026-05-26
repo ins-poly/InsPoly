@@ -32,6 +32,7 @@ from app.funding_context import (
 )
 from app.event_forensic_performance import (
     build_score_loop_memoization_metadata,
+    build_score_trade_prepared_context_metadata,
     build_scorer_context_profile_metadata,
     build_wallet_context_reuse_metadata,
 )
@@ -58,6 +59,7 @@ from app.scanner import (
     _build_structural_pre_admission_metadata,
     _build_wallet_inspection,
     _capital_at_risk_usdc,
+    build_score_trade_prepared_context,
     _case_survives_output_threshold,
     _case_has_hard_evidence_review,
     _classify_execution_state,
@@ -310,6 +312,7 @@ class CandidateReplayContext:
     prior_family_market_count: int = 0
     event_family_share: float = 0.0
     funding_skip_reason: str = ""
+    prepared_score_context: object | None = None
 
 
 @dataclass(slots=True)
@@ -997,6 +1000,15 @@ class EventForensicAnalyzer:
             unique_domains=len(scoring_domain_notional_samples),
         )
         performance["score_input_memoization"] = score_loop_memoization
+        prepared_context_count = sum(
+            1 for context in candidate_contexts if context.prepared_score_context is not None
+        )
+        performance["score_trade_prepared_context"] = build_score_trade_prepared_context_metadata(
+            candidate_rows=len(candidate_contexts),
+            prepared_context_rows=prepared_context_count,
+            score_call_count=len(candidate_contexts),
+            fallback_context_rows=len(candidate_contexts) - prepared_context_count,
+        )
 
         stage_started = perf_counter()
         wallet_domain_counts_cache: dict[str, dict[str, int]] = {}
@@ -1057,6 +1069,7 @@ class EventForensicAnalyzer:
                 prior_family_trade_count=context.prior_family_trade_count,
                 prior_family_market_count=context.prior_family_market_count,
                 event_family_share=context.event_family_share,
+                prepared_context=context.prepared_score_context,
             )
             scorer_profile_seconds["score_trade_call"] += perf_counter() - profile_started
             if case is not None:
@@ -1878,28 +1891,22 @@ class EventForensicAnalyzer:
                 profile["wallet_history_metrics_cache_misses"] += 1
             else:
                 profile["wallet_history_metrics_cache_hits"] += 1
-            prior_same_market_trades = [
-                item
-                for item in scoped_wallet_history_trades
-                if item.condition_id == trade.condition_id
-                and item.trade_id != trade.trade_id
-                and item.timestamp <= trade.timestamp
-            ]
-            prior_same_asset_trades = [
-                item
-                for item in scoped_wallet_history_trades
-                if item.asset_id == trade.asset_id
-                and item.trade_id != trade.trade_id
-                and item.timestamp <= trade.timestamp
-            ]
+            wallet_window_trades = wallet_trades.get(trade.wallet, [])
+            market_window_trades = market_trades.get(trade.condition_id, [])
+            prepared_score_context = build_score_trade_prepared_context(
+                trade=trade,
+                wallet_window_trades=wallet_window_trades,
+                wallet_history_trades=scoped_wallet_history_trades,
+                market_window_trades=market_window_trades,
+            )
             execution_state = _classify_execution_state(
                 trade,
-                prior_same_asset_trades,
-                prior_same_market_trades,
+                prepared_score_context.prior_same_asset_trades,
+                prepared_score_context.prior_same_market_trades,
             )
             opening_exposure = _is_opening_exposure(execution_state)
             capital_at_risk = _capital_at_risk_usdc(trade, execution_state)
-            conviction_ratio = _wallet_market_conviction_ratio(wallet_trades.get(trade.wallet, []), trade)
+            conviction_ratio = prepared_score_context.wallet_market_conviction_ratio
             trade_metrics = wallet_trade_metrics.get(trade.trade_id, {})
             prior_gap_days = trade_metrics.get("prior_wallet_gap_days")
             funding_cache_key: tuple[str, str] | None = None
@@ -1934,7 +1941,7 @@ class EventForensicAnalyzer:
                     wallet_inspection=wallet_inspection,
                     wallet_history_trades=scoped_wallet_history_trades,
                     wallet_performance=wallet_performance,
-                    market_window_trades=market_trades.get(trade.condition_id, []),
+                    market_window_trades=market_window_trades,
                     domain_window_trades=domain_trades.get(trade_domain, []),
                     event_context=self._event_context_resolver.resolve(
                         trade=trade,
@@ -1950,6 +1957,7 @@ class EventForensicAnalyzer:
                     prior_family_market_count=int(trade_metrics.get("prior_family_market_count") or 0),
                     event_family_share=float(trade_metrics.get("event_family_share") or 0.0),
                     funding_skip_reason=funding_skip_reason,
+                    prepared_score_context=prepared_score_context,
                 )
             )
             if index == 1 or index == total_candidates or index % progress_step == 0:

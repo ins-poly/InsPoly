@@ -12,6 +12,7 @@ from app.event_forensic_performance import (
     build_chunk_metadata,
     candidate_performance_cache_key,
     compare_candidate_output_contract,
+    build_score_trade_prepared_context_metadata,
     build_scorer_context_profile_metadata,
     build_wallet_context_reuse_metadata,
     summarize_timing_costs,
@@ -155,6 +156,22 @@ class EventForensicPerformancePatchContractTests(unittest.TestCase):
         self.assertTrue(metadata["candidateAdmissionPreserved"])
         self.assertTrue(metadata["scoreFormulaPreserved"])
         self.assertTrue(metadata["walletContextReuseSummary"]["walletFetchBoundaryPreserved"])
+
+    def test_score_trade_prepared_context_metadata_preserves_score_call_contract(self) -> None:
+        metadata = build_score_trade_prepared_context_metadata(
+            candidate_rows=100,
+            prepared_context_rows=100,
+            score_call_count=100,
+            fallback_context_rows=0,
+        )
+
+        self.assertTrue(metadata["enabled"])
+        self.assertEqual(metadata["preparedContextCoverageRatio"], 1.0)
+        self.assertEqual(metadata["avoidedRepeatedContextBuilds"], 100)
+        self.assertTrue(metadata["scoreCallCountUnchanged"])
+        self.assertIn("same_outcome_market_trades", metadata["cacheScopes"])
+        self.assertTrue(metadata["candidateAdmissionPreserved"])
+        self.assertTrue(metadata["scoreFormulaPreserved"])
 
     def test_wallet_domain_profile_cache_preserves_raw_metrics(self) -> None:
         market = _market("cond-politics", question="Will policy pass?")

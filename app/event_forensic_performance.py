@@ -247,6 +247,47 @@ def build_scorer_context_profile_metadata(
     }
 
 
+def build_score_trade_prepared_context_metadata(
+    *,
+    candidate_rows: int,
+    prepared_context_rows: int,
+    score_call_count: int,
+    fallback_context_rows: int = 0,
+) -> dict[str, object]:
+    """Describe prepared scorer-context reuse without changing scoring rows."""
+
+    candidate_count = max(0, int(candidate_rows or 0))
+    prepared_count = max(0, int(prepared_context_rows or 0))
+    score_calls = max(0, int(score_call_count or 0))
+    fallback_count = max(0, int(fallback_context_rows or 0))
+    return {
+        "enabled": True,
+        "runLocalOnly": True,
+        "additiveMetadataOnly": True,
+        "candidateRows": candidate_count,
+        "scoreCallCount": score_calls,
+        "preparedContextRows": prepared_count,
+        "fallbackContextRows": fallback_count,
+        "preparedContextCoverageRatio": _ratio(prepared_count, candidate_count),
+        "scoreCallCountUnchanged": score_calls == candidate_count,
+        "avoidedRepeatedContextBuilds": prepared_count,
+        "cacheScopes": [
+            "same_outcome_market_trades",
+            "same_market_wallet_trades",
+            "prior_same_market_trades",
+            "prior_same_asset_trades",
+            "related_window_trades",
+            "wallet_baseline_notionals",
+            "wallet_market_conviction_ratio",
+        ],
+        "candidateOrderPreserved": True,
+        "candidateAdmissionPreserved": True,
+        "scoreFormulaPreserved": True,
+        "reviewRoutingPreserved": True,
+        "exportsPreserved": True,
+    }
+
+
 def summarize_timing_costs(
     timings: Mapping[str, object],
     *,

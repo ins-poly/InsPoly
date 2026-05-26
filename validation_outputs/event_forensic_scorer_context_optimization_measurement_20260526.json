@@ -1,0 +1,1720 @@
+{
+  "commitsCompared": {
+    "currentOptimizationRun": "working_tree_prepared_score_context",
+    "postScorerMeasurement": "338b559",
+    "preScorerMemoizationBaseline": "pre-3bf03ce",
+    "scorerMemoization": "3bf03ce",
+    "scorerProfile": "5d12334",
+    "walletContextCache": "eae111e"
+  },
+  "comparisonPostScorerToOptimized": {
+    "candidateRowsDelta": 0,
+    "candidateWalletCountDelta": 51,
+    "normalizedPrefetchImprovementPercent": -19.583,
+    "normalizedScoreImprovementPercent": 10.063,
+    "normalizedTotalImprovementPercent": -5.356,
+    "prefetchWalletContextImprovementPercent": -21.465,
+    "prefetchWalletContextSecondsDelta": 53.62,
+    "rawTradeRowsDelta": 51,
+    "scoreCandidatesImprovementPercent": 10.063,
+    "scoreCandidatesSecondsDelta": -35.58,
+    "totalSecondsDelta": 34.52,
+    "totalSecondsImprovementPercent": -5.356
+  },
+  "comparisonPreMemoizationToOptimized": {
+    "candidateRowsDelta": 1,
+    "candidateWalletCountDelta": 53,
+    "normalizedPrefetchImprovementPercent": -26.193,
+    "normalizedScoreImprovementPercent": 18.089,
+    "normalizedTotalImprovementPercent": -2.333,
+    "prefetchWalletContextImprovementPercent": -28.258,
+    "prefetchWalletContextSecondsDelta": 66.85,
+    "rawTradeRowsDelta": 61,
+    "scoreCandidatesImprovementPercent": 18.083,
+    "scoreCandidatesSecondsDelta": -70.2,
+    "totalSecondsDelta": 15.52,
+    "totalSecondsImprovementPercent": -2.339
+  },
+  "comparisonProfileToOptimized": {
+    "candidateRowsDelta": 0,
+    "candidateWalletCountDelta": 5,
+    "normalizedPrefetchImprovementPercent": -13.809,
+    "normalizedScoreImprovementPercent": 6.424,
+    "normalizedTotalImprovementPercent": -5.242,
+    "prefetchWalletContextImprovementPercent": -13.982,
+    "prefetchWalletContextSecondsDelta": 37.22,
+    "rawTradeRowsDelta": -12,
+    "scoreCandidatesImprovementPercent": 6.424,
+    "scoreCandidatesSecondsDelta": -21.83,
+    "totalSecondsDelta": 33.82,
+    "totalSecondsImprovementPercent": -5.242
+  },
+  "forbiddenScopePreserved": {
+    "directGateChanges": false,
+    "phase3Runtime": false,
+    "scoringWeightsChanged": false,
+    "storageSchemaChanged": false,
+    "thresholdsChanged": false,
+    "tradingOrPrivateKeyUsed": false,
+    "uiSortingChanged": false
+  },
+  "gateDecision": "scorer_context_patch_partial",
+  "generatedAt": "2026-05-26T09:12:04.162350+00:00",
+  "networkUsed": true,
+  "nextRecommendedCampaign": "wallet_api_boundary_batching_rfc_or_pagination_operator_plan",
+  "postScorerContextOptimization": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15354,
+    "candidateWalletCount": 3292,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_complete",
+    "liveResolvedMarketCount": 15,
+    "networkUsed": true,
+    "normalized": {
+      "candidatesPerWallet": 4.664034,
+      "prefetchSecondsPer1000Wallets": 92.168894,
+      "prepareSecondsPer1000Candidates": 1.118275,
+      "scoreSecondsPer1000Candidates": 20.711215,
+      "totalSecondsPer1000Candidates": 44.222352,
+      "totalSecondsPer1000RawRows": 21.231707
+    },
+    "rawTradeRows": 31980,
+    "runtimeBoundViolations": [],
+    "scoreInputMemoization": {
+      "cacheScopes": [
+        "wallet_window_trades",
+        "market_notional_samples",
+        "domain_notional_samples",
+        "funding_resolver_health"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "chunkMetadata": {
+        "chunkCount": 31,
+        "chunkSize": 500,
+        "chunks": [
+          {
+            "chunkIndex": 1,
+            "endIndexExclusive": 500,
+            "itemCount": 500,
+            "startIndexInclusive": 0
+          },
+          {
+            "chunkIndex": 2,
+            "endIndexExclusive": 1000,
+            "itemCount": 500,
+            "startIndexInclusive": 500
+          },
+          {
+            "chunkIndex": 3,
+            "endIndexExclusive": 1500,
+            "itemCount": 500,
+            "startIndexInclusive": 1000
+          },
+          {
+            "chunkIndex": 4,
+            "endIndexExclusive": 2000,
+            "itemCount": 500,
+            "startIndexInclusive": 1500
+          },
+          {
+            "chunkIndex": 5,
+            "endIndexExclusive": 2500,
+            "itemCount": 500,
+            "startIndexInclusive": 2000
+          },
+          {
+            "chunkIndex": 6,
+            "endIndexExclusive": 3000,
+            "itemCount": 500,
+            "startIndexInclusive": 2500
+          },
+          {
+            "chunkIndex": 7,
+            "endIndexExclusive": 3500,
+            "itemCount": 500,
+            "startIndexInclusive": 3000
+          },
+          {
+            "chunkIndex": 8,
+            "endIndexExclusive": 4000,
+            "itemCount": 500,
+            "startIndexInclusive": 3500
+          },
+          {
+            "chunkIndex": 9,
+            "endIndexExclusive": 4500,
+            "itemCount": 500,
+            "startIndexInclusive": 4000
+          },
+          {
+            "chunkIndex": 10,
+            "endIndexExclusive": 5000,
+            "itemCount": 500,
+            "startIndexInclusive": 4500
+          },
+          {
+            "chunkIndex": 11,
+            "endIndexExclusive": 5500,
+            "itemCount": 500,
+            "startIndexInclusive": 5000
+          },
+          {
+            "chunkIndex": 12,
+            "endIndexExclusive": 6000,
+            "itemCount": 500,
+            "startIndexInclusive": 5500
+          },
+          {
+            "chunkIndex": 13,
+            "endIndexExclusive": 6500,
+            "itemCount": 500,
+            "startIndexInclusive": 6000
+          },
+          {
+            "chunkIndex": 14,
+            "endIndexExclusive": 7000,
+            "itemCount": 500,
+            "startIndexInclusive": 6500
+          },
+          {
+            "chunkIndex": 15,
+            "endIndexExclusive": 7500,
+            "itemCount": 500,
+            "startIndexInclusive": 7000
+          },
+          {
+            "chunkIndex": 16,
+            "endIndexExclusive": 8000,
+            "itemCount": 500,
+            "startIndexInclusive": 7500
+          },
+          {
+            "chunkIndex": 17,
+            "endIndexExclusive": 8500,
+            "itemCount": 500,
+            "startIndexInclusive": 8000
+          },
+          {
+            "chunkIndex": 18,
+            "endIndexExclusive": 9000,
+            "itemCount": 500,
+            "startIndexInclusive": 8500
+          },
+          {
+            "chunkIndex": 19,
+            "endIndexExclusive": 9500,
+            "itemCount": 500,
+            "startIndexInclusive": 9000
+          },
+          {
+            "chunkIndex": 20,
+            "endIndexExclusive": 10000,
+            "itemCount": 500,
+            "startIndexInclusive": 9500
+          },
+          {
+            "chunkIndex": 21,
+            "endIndexExclusive": 10500,
+            "itemCount": 500,
+            "startIndexInclusive": 10000
+          },
+          {
+            "chunkIndex": 22,
+            "endIndexExclusive": 11000,
+            "itemCount": 500,
+            "startIndexInclusive": 10500
+          },
+          {
+            "chunkIndex": 23,
+            "endIndexExclusive": 11500,
+            "itemCount": 500,
+            "startIndexInclusive": 11000
+          },
+          {
+            "chunkIndex": 24,
+            "endIndexExclusive": 12000,
+            "itemCount": 500,
+            "startIndexInclusive": 11500
+          },
+          {
+            "chunkIndex": 25,
+            "endIndexExclusive": 12500,
+            "itemCount": 500,
+            "startIndexInclusive": 12000
+          },
+          {
+            "chunkIndex": 26,
+            "endIndexExclusive": 13000,
+            "itemCount": 500,
+            "startIndexInclusive": 12500
+          },
+          {
+            "chunkIndex": 27,
+            "endIndexExclusive": 13500,
+            "itemCount": 500,
+            "startIndexInclusive": 13000
+          },
+          {
+            "chunkIndex": 28,
+            "endIndexExclusive": 14000,
+            "itemCount": 500,
+            "startIndexInclusive": 13500
+          },
+          {
+            "chunkIndex": 29,
+            "endIndexExclusive": 14500,
+            "itemCount": 500,
+            "startIndexInclusive": 14000
+          },
+          {
+            "chunkIndex": 30,
+            "endIndexExclusive": 15000,
+            "itemCount": 500,
+            "startIndexInclusive": 14500
+          },
+          {
+            "chunkIndex": 31,
+            "endIndexExclusive": 15354,
+            "itemCount": 354,
+            "startIndexInclusive": 15000
+          }
+        ],
+        "coveredItemCount": 15354,
+        "rowsHidden": false,
+        "totalItems": 15354
+      },
+      "enabled": true,
+      "exportsPreserved": true,
+      "repeatedWalletCandidateOpportunities": 12062,
+      "reviewRoutingPreserved": true,
+      "scoreFormulaPreserved": true,
+      "uniqueDomains": 1,
+      "uniqueMarkets": 6,
+      "uniqueWallets": 3292
+    },
+    "scoreTradePreparedContext": {
+      "additiveMetadataOnly": true,
+      "avoidedRepeatedContextBuilds": 15354,
+      "cacheScopes": [
+        "same_outcome_market_trades",
+        "same_market_wallet_trades",
+        "prior_same_market_trades",
+        "prior_same_asset_trades",
+        "related_window_trades",
+        "wallet_baseline_notionals",
+        "wallet_market_conviction_ratio"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "enabled": true,
+      "exportsPreserved": true,
+      "fallbackContextRows": 0,
+      "preparedContextCoverageRatio": 1.0,
+      "preparedContextRows": 15354,
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scoreCallCount": 15354,
+      "scoreCallCountUnchanged": true,
+      "scoreFormulaPreserved": true
+    },
+    "scorerContextProfile": {
+      "additiveMetadataOnly": true,
+      "bucketSeconds": {
+        "append_case": 0.002992,
+        "candidate_admission_metadata": 0.008468,
+        "funding_context_lookup": 0.021423,
+        "progress_emit": 0.101833,
+        "score_input_lookup": 0.018304,
+        "score_trade_call": 310.912613,
+        "wallet_domain_profile_annotation": 6.901139
+      },
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "enabled": true,
+      "exportsPreserved": true,
+      "externalToScoreTradeBuckets": [
+        "funding_context_lookup",
+        "score_input_lookup",
+        "candidate_admission_metadata",
+        "wallet_domain_profile_annotation",
+        "progress_emit"
+      ],
+      "profilingOverheadNote": "Buckets are coarse run-local timings around existing calls. They do not instrument inside _score_trade() and should be interpreted as profiler evidence, not scorer semantics.",
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scoreFormulaPreserved": true,
+      "scoreLoopSeconds": 317.995684,
+      "scoreTradeCallCovers": [
+        "low_probability_checks",
+        "near_certainty_checks",
+        "cluster_timing_context",
+        "weak_history_score_reducers",
+        "market_domain_percentile_context"
+      ],
+      "scoredCaseCount": 15354,
+      "skippedCaseCount": 0,
+      "topBuckets": [
+        {
+          "bucket": "score_trade_call",
+          "seconds": 310.912613,
+          "secondsPerCandidate": 0.02025,
+          "shareOfScoreLoop": 0.977726
+        },
+        {
+          "bucket": "wallet_domain_profile_annotation",
+          "seconds": 6.901139,
+          "secondsPerCandidate": 0.000449,
+          "shareOfScoreLoop": 0.021702
+        },
+        {
+          "bucket": "progress_emit",
+          "seconds": 0.101833,
+          "secondsPerCandidate": 7e-06,
+          "shareOfScoreLoop": 0.00032
+        },
+        {
+          "bucket": "funding_context_lookup",
+          "seconds": 0.021423,
+          "secondsPerCandidate": 1e-06,
+          "shareOfScoreLoop": 6.7e-05
+        },
+        {
+          "bucket": "score_input_lookup",
+          "seconds": 0.018304,
+          "secondsPerCandidate": 1e-06,
+          "shareOfScoreLoop": 5.8e-05
+        },
+        {
+          "bucket": "candidate_admission_metadata",
+          "seconds": 0.008468,
+          "secondsPerCandidate": 1e-06,
+          "shareOfScoreLoop": 2.7e-05
+        },
+        {
+          "bucket": "append_case",
+          "seconds": 0.002992,
+          "secondsPerCandidate": 0.0,
+          "shareOfScoreLoop": 9e-06
+        }
+      ],
+      "walletContextReuseSummary": {
+        "effectiveDomainProfileReuseRatio": 0.785593,
+        "effectiveScopedHistoryReuseRatio": 0.785593,
+        "repeatedWalletContextOpportunities": 12062,
+        "walletFetchBoundaryPreserved": true
+      }
+    },
+    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_scorer_context_optimization_live_20260526_115811",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 3.93,
+      "collect_event_trades_seconds": 22.79,
+      "collect_price_history_seconds": 0.42,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 303.42,
+      "prepare_candidate_context_seconds": 17.17,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.16,
+      "score_candidates_seconds": 318.0,
+      "total_seconds": 678.99,
+      "trade_collection_elapsed_seconds": 22.79
+    },
+    "totalSeconds": 678.99,
+    "truncatedMarketCount": 6,
+    "walletContextReuse": {
+      "cacheScopes": [
+        "wallet_context_lookup",
+        "scoped_wallet_history",
+        "wallet_history_replay_metrics",
+        "wallet_domain_profile"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "contextPoolTradeRows": 15354,
+      "domainProfileCacheHits": 12062,
+      "domainProfileCacheMisses": 3292,
+      "effectiveDomainProfileReuseRatio": 0.785593,
+      "effectiveScopedHistoryReuseRatio": 0.785593,
+      "enabled": true,
+      "exportsPreserved": true,
+      "persistentCacheEnabled": false,
+      "prefetchSecondsPerWalletContext": 0.092169,
+      "prepareSecondsPerContextRow": 0.001118,
+      "prestartedFutureCount": 3292,
+      "repeatedWalletContextOpportunities": 12062,
+      "requestedWalletReferences": 15354,
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scopedHistoryCacheHits": 12062,
+      "scopedHistoryCacheMisses": 3292,
+      "scoreFormulaPreserved": true,
+      "scoreSecondsPerCandidateRow": 0.020711,
+      "uniqueRequestedWallets": 3292,
+      "walletContextCacheHitsDuringPrepare": 15354,
+      "walletContextCacheMissesDuringPrepare": 0,
+      "walletContextCount": 3292,
+      "walletFetchBoundaryPreserved": true,
+      "walletHistoryMetricsCacheHits": 12062,
+      "walletHistoryMetricsCacheMisses": 3292
+    }
+  },
+  "postScorerContextProfile": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15354,
+    "candidateWalletCount": 3287,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_complete",
+    "liveResolvedMarketCount": 15,
+    "networkUsed": true,
+    "normalized": {
+      "candidatesPerWallet": 4.671129,
+      "prefetchSecondsPer1000Wallets": 80.985701,
+      "prepareSecondsPer1000Candidates": 0.433763,
+      "scoreSecondsPer1000Candidates": 22.132995,
+      "totalSecondsPer1000Candidates": 42.019669,
+      "totalSecondsPer1000RawRows": 20.166604
+    },
+    "rawTradeRows": 31992,
+    "runtimeBoundViolations": [],
+    "scoreInputMemoization": {
+      "cacheScopes": [
+        "wallet_window_trades",
+        "market_notional_samples",
+        "domain_notional_samples",
+        "funding_resolver_health"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "chunkMetadata": {
+        "chunkCount": 31,
+        "chunkSize": 500,
+        "chunks": [
+          {
+            "chunkIndex": 1,
+            "endIndexExclusive": 500,
+            "itemCount": 500,
+            "startIndexInclusive": 0
+          },
+          {
+            "chunkIndex": 2,
+            "endIndexExclusive": 1000,
+            "itemCount": 500,
+            "startIndexInclusive": 500
+          },
+          {
+            "chunkIndex": 3,
+            "endIndexExclusive": 1500,
+            "itemCount": 500,
+            "startIndexInclusive": 1000
+          },
+          {
+            "chunkIndex": 4,
+            "endIndexExclusive": 2000,
+            "itemCount": 500,
+            "startIndexInclusive": 1500
+          },
+          {
+            "chunkIndex": 5,
+            "endIndexExclusive": 2500,
+            "itemCount": 500,
+            "startIndexInclusive": 2000
+          },
+          {
+            "chunkIndex": 6,
+            "endIndexExclusive": 3000,
+            "itemCount": 500,
+            "startIndexInclusive": 2500
+          },
+          {
+            "chunkIndex": 7,
+            "endIndexExclusive": 3500,
+            "itemCount": 500,
+            "startIndexInclusive": 3000
+          },
+          {
+            "chunkIndex": 8,
+            "endIndexExclusive": 4000,
+            "itemCount": 500,
+            "startIndexInclusive": 3500
+          },
+          {
+            "chunkIndex": 9,
+            "endIndexExclusive": 4500,
+            "itemCount": 500,
+            "startIndexInclusive": 4000
+          },
+          {
+            "chunkIndex": 10,
+            "endIndexExclusive": 5000,
+            "itemCount": 500,
+            "startIndexInclusive": 4500
+          },
+          {
+            "chunkIndex": 11,
+            "endIndexExclusive": 5500,
+            "itemCount": 500,
+            "startIndexInclusive": 5000
+          },
+          {
+            "chunkIndex": 12,
+            "endIndexExclusive": 6000,
+            "itemCount": 500,
+            "startIndexInclusive": 5500
+          },
+          {
+            "chunkIndex": 13,
+            "endIndexExclusive": 6500,
+            "itemCount": 500,
+            "startIndexInclusive": 6000
+          },
+          {
+            "chunkIndex": 14,
+            "endIndexExclusive": 7000,
+            "itemCount": 500,
+            "startIndexInclusive": 6500
+          },
+          {
+            "chunkIndex": 15,
+            "endIndexExclusive": 7500,
+            "itemCount": 500,
+            "startIndexInclusive": 7000
+          },
+          {
+            "chunkIndex": 16,
+            "endIndexExclusive": 8000,
+            "itemCount": 500,
+            "startIndexInclusive": 7500
+          },
+          {
+            "chunkIndex": 17,
+            "endIndexExclusive": 8500,
+            "itemCount": 500,
+            "startIndexInclusive": 8000
+          },
+          {
+            "chunkIndex": 18,
+            "endIndexExclusive": 9000,
+            "itemCount": 500,
+            "startIndexInclusive": 8500
+          },
+          {
+            "chunkIndex": 19,
+            "endIndexExclusive": 9500,
+            "itemCount": 500,
+            "startIndexInclusive": 9000
+          },
+          {
+            "chunkIndex": 20,
+            "endIndexExclusive": 10000,
+            "itemCount": 500,
+            "startIndexInclusive": 9500
+          },
+          {
+            "chunkIndex": 21,
+            "endIndexExclusive": 10500,
+            "itemCount": 500,
+            "startIndexInclusive": 10000
+          },
+          {
+            "chunkIndex": 22,
+            "endIndexExclusive": 11000,
+            "itemCount": 500,
+            "startIndexInclusive": 10500
+          },
+          {
+            "chunkIndex": 23,
+            "endIndexExclusive": 11500,
+            "itemCount": 500,
+            "startIndexInclusive": 11000
+          },
+          {
+            "chunkIndex": 24,
+            "endIndexExclusive": 12000,
+            "itemCount": 500,
+            "startIndexInclusive": 11500
+          },
+          {
+            "chunkIndex": 25,
+            "endIndexExclusive": 12500,
+            "itemCount": 500,
+            "startIndexInclusive": 12000
+          },
+          {
+            "chunkIndex": 26,
+            "endIndexExclusive": 13000,
+            "itemCount": 500,
+            "startIndexInclusive": 12500
+          },
+          {
+            "chunkIndex": 27,
+            "endIndexExclusive": 13500,
+            "itemCount": 500,
+            "startIndexInclusive": 13000
+          },
+          {
+            "chunkIndex": 28,
+            "endIndexExclusive": 14000,
+            "itemCount": 500,
+            "startIndexInclusive": 13500
+          },
+          {
+            "chunkIndex": 29,
+            "endIndexExclusive": 14500,
+            "itemCount": 500,
+            "startIndexInclusive": 14000
+          },
+          {
+            "chunkIndex": 30,
+            "endIndexExclusive": 15000,
+            "itemCount": 500,
+            "startIndexInclusive": 14500
+          },
+          {
+            "chunkIndex": 31,
+            "endIndexExclusive": 15354,
+            "itemCount": 354,
+            "startIndexInclusive": 15000
+          }
+        ],
+        "coveredItemCount": 15354,
+        "rowsHidden": false,
+        "totalItems": 15354
+      },
+      "enabled": true,
+      "exportsPreserved": true,
+      "repeatedWalletCandidateOpportunities": 12067,
+      "reviewRoutingPreserved": true,
+      "scoreFormulaPreserved": true,
+      "uniqueDomains": 1,
+      "uniqueMarkets": 6,
+      "uniqueWallets": 3287
+    },
+    "scoreTradePreparedContext": null,
+    "scorerContextProfile": {
+      "additiveMetadataOnly": true,
+      "bucketSeconds": {
+        "append_case": 0.003784,
+        "candidate_admission_metadata": 0.012037,
+        "funding_context_lookup": 0.029512,
+        "progress_emit": 0.14259,
+        "score_input_lookup": 0.033212,
+        "score_trade_call": 332.66275,
+        "wallet_domain_profile_annotation": 6.903115
+      },
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "enabled": true,
+      "exportsPreserved": true,
+      "externalToScoreTradeBuckets": [
+        "funding_context_lookup",
+        "score_input_lookup",
+        "candidate_admission_metadata",
+        "wallet_domain_profile_annotation",
+        "progress_emit"
+      ],
+      "profilingOverheadNote": "Buckets are coarse run-local timings around existing calls. They do not instrument inside _score_trade() and should be interpreted as profiler evidence, not scorer semantics.",
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scoreFormulaPreserved": true,
+      "scoreLoopSeconds": 339.827235,
+      "scoreTradeCallCovers": [
+        "low_probability_checks",
+        "near_certainty_checks",
+        "cluster_timing_context",
+        "weak_history_score_reducers",
+        "market_domain_percentile_context"
+      ],
+      "scoredCaseCount": 15354,
+      "skippedCaseCount": 0,
+      "topBuckets": [
+        {
+          "bucket": "score_trade_call",
+          "seconds": 332.66275,
+          "secondsPerCandidate": 0.021666,
+          "shareOfScoreLoop": 0.978917
+        },
+        {
+          "bucket": "wallet_domain_profile_annotation",
+          "seconds": 6.903115,
+          "secondsPerCandidate": 0.00045,
+          "shareOfScoreLoop": 0.020314
+        },
+        {
+          "bucket": "progress_emit",
+          "seconds": 0.14259,
+          "secondsPerCandidate": 9e-06,
+          "shareOfScoreLoop": 0.00042
+        },
+        {
+          "bucket": "score_input_lookup",
+          "seconds": 0.033212,
+          "secondsPerCandidate": 2e-06,
+          "shareOfScoreLoop": 9.8e-05
+        },
+        {
+          "bucket": "funding_context_lookup",
+          "seconds": 0.029512,
+          "secondsPerCandidate": 2e-06,
+          "shareOfScoreLoop": 8.7e-05
+        },
+        {
+          "bucket": "candidate_admission_metadata",
+          "seconds": 0.012037,
+          "secondsPerCandidate": 1e-06,
+          "shareOfScoreLoop": 3.5e-05
+        },
+        {
+          "bucket": "append_case",
+          "seconds": 0.003784,
+          "secondsPerCandidate": 0.0,
+          "shareOfScoreLoop": 1.1e-05
+        }
+      ],
+      "walletContextReuseSummary": {
+        "effectiveDomainProfileReuseRatio": 0.785919,
+        "effectiveScopedHistoryReuseRatio": 0.785919,
+        "repeatedWalletContextOpportunities": 12067,
+        "walletFetchBoundaryPreserved": true
+      }
+    },
+    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_scorer_context_profile_live_20260526_112806",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 4.11,
+      "collect_event_trades_seconds": 15.01,
+      "collect_price_history_seconds": 0.42,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 266.2,
+      "prepare_candidate_context_seconds": 6.66,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.18,
+      "score_candidates_seconds": 339.83,
+      "total_seconds": 645.17,
+      "trade_collection_elapsed_seconds": 15.01
+    },
+    "totalSeconds": 645.17,
+    "truncatedMarketCount": 6,
+    "walletContextReuse": {
+      "cacheScopes": [
+        "wallet_context_lookup",
+        "scoped_wallet_history",
+        "wallet_history_replay_metrics",
+        "wallet_domain_profile"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "contextPoolTradeRows": 15354,
+      "domainProfileCacheHits": 12067,
+      "domainProfileCacheMisses": 3287,
+      "effectiveDomainProfileReuseRatio": 0.785919,
+      "effectiveScopedHistoryReuseRatio": 0.785919,
+      "enabled": true,
+      "exportsPreserved": true,
+      "persistentCacheEnabled": false,
+      "prefetchSecondsPerWalletContext": 0.080986,
+      "prepareSecondsPerContextRow": 0.000434,
+      "prestartedFutureCount": 3287,
+      "repeatedWalletContextOpportunities": 12067,
+      "requestedWalletReferences": 15354,
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scopedHistoryCacheHits": 12067,
+      "scopedHistoryCacheMisses": 3287,
+      "scoreFormulaPreserved": true,
+      "scoreSecondsPerCandidateRow": 0.022133,
+      "uniqueRequestedWallets": 3287,
+      "walletContextCacheHitsDuringPrepare": 15354,
+      "walletContextCacheMissesDuringPrepare": 0,
+      "walletContextCount": 3287,
+      "walletFetchBoundaryPreserved": true,
+      "walletHistoryMetricsCacheHits": 12067,
+      "walletHistoryMetricsCacheMisses": 3287
+    }
+  },
+  "postScorerMemoizationBaseline": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15354,
+    "candidateWalletCount": 3241,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_complete",
+    "liveResolvedMarketCount": 15,
+    "networkUsed": true,
+    "normalized": {
+      "candidatesPerWallet": 4.737427,
+      "prefetchSecondsPer1000Wallets": 77.074977,
+      "prepareSecondsPer1000Candidates": 0.26117,
+      "scoreSecondsPer1000Candidates": 23.028527,
+      "totalSecondsPer1000Candidates": 41.974078,
+      "totalSecondsPer1000RawRows": 20.184472
+    },
+    "rawTradeRows": 31929,
+    "runtimeBoundViolations": [],
+    "scoreInputMemoization": {
+      "cacheScopes": [
+        "wallet_window_trades",
+        "market_notional_samples",
+        "domain_notional_samples",
+        "funding_resolver_health"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "chunkMetadata": {
+        "chunkCount": 31,
+        "chunkSize": 500,
+        "chunks": [
+          {
+            "chunkIndex": 1,
+            "endIndexExclusive": 500,
+            "itemCount": 500,
+            "startIndexInclusive": 0
+          },
+          {
+            "chunkIndex": 2,
+            "endIndexExclusive": 1000,
+            "itemCount": 500,
+            "startIndexInclusive": 500
+          },
+          {
+            "chunkIndex": 3,
+            "endIndexExclusive": 1500,
+            "itemCount": 500,
+            "startIndexInclusive": 1000
+          },
+          {
+            "chunkIndex": 4,
+            "endIndexExclusive": 2000,
+            "itemCount": 500,
+            "startIndexInclusive": 1500
+          },
+          {
+            "chunkIndex": 5,
+            "endIndexExclusive": 2500,
+            "itemCount": 500,
+            "startIndexInclusive": 2000
+          },
+          {
+            "chunkIndex": 6,
+            "endIndexExclusive": 3000,
+            "itemCount": 500,
+            "startIndexInclusive": 2500
+          },
+          {
+            "chunkIndex": 7,
+            "endIndexExclusive": 3500,
+            "itemCount": 500,
+            "startIndexInclusive": 3000
+          },
+          {
+            "chunkIndex": 8,
+            "endIndexExclusive": 4000,
+            "itemCount": 500,
+            "startIndexInclusive": 3500
+          },
+          {
+            "chunkIndex": 9,
+            "endIndexExclusive": 4500,
+            "itemCount": 500,
+            "startIndexInclusive": 4000
+          },
+          {
+            "chunkIndex": 10,
+            "endIndexExclusive": 5000,
+            "itemCount": 500,
+            "startIndexInclusive": 4500
+          },
+          {
+            "chunkIndex": 11,
+            "endIndexExclusive": 5500,
+            "itemCount": 500,
+            "startIndexInclusive": 5000
+          },
+          {
+            "chunkIndex": 12,
+            "endIndexExclusive": 6000,
+            "itemCount": 500,
+            "startIndexInclusive": 5500
+          },
+          {
+            "chunkIndex": 13,
+            "endIndexExclusive": 6500,
+            "itemCount": 500,
+            "startIndexInclusive": 6000
+          },
+          {
+            "chunkIndex": 14,
+            "endIndexExclusive": 7000,
+            "itemCount": 500,
+            "startIndexInclusive": 6500
+          },
+          {
+            "chunkIndex": 15,
+            "endIndexExclusive": 7500,
+            "itemCount": 500,
+            "startIndexInclusive": 7000
+          },
+          {
+            "chunkIndex": 16,
+            "endIndexExclusive": 8000,
+            "itemCount": 500,
+            "startIndexInclusive": 7500
+          },
+          {
+            "chunkIndex": 17,
+            "endIndexExclusive": 8500,
+            "itemCount": 500,
+            "startIndexInclusive": 8000
+          },
+          {
+            "chunkIndex": 18,
+            "endIndexExclusive": 9000,
+            "itemCount": 500,
+            "startIndexInclusive": 8500
+          },
+          {
+            "chunkIndex": 19,
+            "endIndexExclusive": 9500,
+            "itemCount": 500,
+            "startIndexInclusive": 9000
+          },
+          {
+            "chunkIndex": 20,
+            "endIndexExclusive": 10000,
+            "itemCount": 500,
+            "startIndexInclusive": 9500
+          },
+          {
+            "chunkIndex": 21,
+            "endIndexExclusive": 10500,
+            "itemCount": 500,
+            "startIndexInclusive": 10000
+          },
+          {
+            "chunkIndex": 22,
+            "endIndexExclusive": 11000,
+            "itemCount": 500,
+            "startIndexInclusive": 10500
+          },
+          {
+            "chunkIndex": 23,
+            "endIndexExclusive": 11500,
+            "itemCount": 500,
+            "startIndexInclusive": 11000
+          },
+          {
+            "chunkIndex": 24,
+            "endIndexExclusive": 12000,
+            "itemCount": 500,
+            "startIndexInclusive": 11500
+          },
+          {
+            "chunkIndex": 25,
+            "endIndexExclusive": 12500,
+            "itemCount": 500,
+            "startIndexInclusive": 12000
+          },
+          {
+            "chunkIndex": 26,
+            "endIndexExclusive": 13000,
+            "itemCount": 500,
+            "startIndexInclusive": 12500
+          },
+          {
+            "chunkIndex": 27,
+            "endIndexExclusive": 13500,
+            "itemCount": 500,
+            "startIndexInclusive": 13000
+          },
+          {
+            "chunkIndex": 28,
+            "endIndexExclusive": 14000,
+            "itemCount": 500,
+            "startIndexInclusive": 13500
+          },
+          {
+            "chunkIndex": 29,
+            "endIndexExclusive": 14500,
+            "itemCount": 500,
+            "startIndexInclusive": 14000
+          },
+          {
+            "chunkIndex": 30,
+            "endIndexExclusive": 15000,
+            "itemCount": 500,
+            "startIndexInclusive": 14500
+          },
+          {
+            "chunkIndex": 31,
+            "endIndexExclusive": 15354,
+            "itemCount": 354,
+            "startIndexInclusive": 15000
+          }
+        ],
+        "coveredItemCount": 15354,
+        "rowsHidden": false,
+        "totalItems": 15354
+      },
+      "enabled": true,
+      "exportsPreserved": true,
+      "repeatedWalletCandidateOpportunities": 12113,
+      "reviewRoutingPreserved": true,
+      "scoreFormulaPreserved": true,
+      "uniqueDomains": 1,
+      "uniqueMarkets": 6,
+      "uniqueWallets": 3241
+    },
+    "scoreTradePreparedContext": null,
+    "scorerContextProfile": null,
+    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 3.77,
+      "collect_event_trades_seconds": 20.89,
+      "collect_price_history_seconds": 0.4,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 249.8,
+      "prepare_candidate_context_seconds": 4.01,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.19,
+      "score_candidates_seconds": 353.58,
+      "total_seconds": 644.47,
+      "trade_collection_elapsed_seconds": 20.89
+    },
+    "totalSeconds": 644.47,
+    "truncatedMarketCount": 6,
+    "walletContextReuse": null
+  },
+  "postWalletContextCache": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15354,
+    "candidateWalletCount": 3242,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_complete",
+    "liveResolvedMarketCount": 15,
+    "networkUsed": true,
+    "normalized": {
+      "candidatesPerWallet": 4.735965,
+      "prefetchSecondsPer1000Wallets": 97.668106,
+      "prepareSecondsPer1000Candidates": 0.26638,
+      "scoreSecondsPer1000Candidates": 22.013807,
+      "totalSecondsPer1000Candidates": 45.822587,
+      "totalSecondsPer1000RawRows": 22.020657
+    },
+    "rawTradeRows": 31950,
+    "runtimeBoundViolations": [],
+    "scoreInputMemoization": {
+      "cacheScopes": [
+        "wallet_window_trades",
+        "market_notional_samples",
+        "domain_notional_samples",
+        "funding_resolver_health"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "chunkMetadata": {
+        "chunkCount": 31,
+        "chunkSize": 500,
+        "chunks": [
+          {
+            "chunkIndex": 1,
+            "endIndexExclusive": 500,
+            "itemCount": 500,
+            "startIndexInclusive": 0
+          },
+          {
+            "chunkIndex": 2,
+            "endIndexExclusive": 1000,
+            "itemCount": 500,
+            "startIndexInclusive": 500
+          },
+          {
+            "chunkIndex": 3,
+            "endIndexExclusive": 1500,
+            "itemCount": 500,
+            "startIndexInclusive": 1000
+          },
+          {
+            "chunkIndex": 4,
+            "endIndexExclusive": 2000,
+            "itemCount": 500,
+            "startIndexInclusive": 1500
+          },
+          {
+            "chunkIndex": 5,
+            "endIndexExclusive": 2500,
+            "itemCount": 500,
+            "startIndexInclusive": 2000
+          },
+          {
+            "chunkIndex": 6,
+            "endIndexExclusive": 3000,
+            "itemCount": 500,
+            "startIndexInclusive": 2500
+          },
+          {
+            "chunkIndex": 7,
+            "endIndexExclusive": 3500,
+            "itemCount": 500,
+            "startIndexInclusive": 3000
+          },
+          {
+            "chunkIndex": 8,
+            "endIndexExclusive": 4000,
+            "itemCount": 500,
+            "startIndexInclusive": 3500
+          },
+          {
+            "chunkIndex": 9,
+            "endIndexExclusive": 4500,
+            "itemCount": 500,
+            "startIndexInclusive": 4000
+          },
+          {
+            "chunkIndex": 10,
+            "endIndexExclusive": 5000,
+            "itemCount": 500,
+            "startIndexInclusive": 4500
+          },
+          {
+            "chunkIndex": 11,
+            "endIndexExclusive": 5500,
+            "itemCount": 500,
+            "startIndexInclusive": 5000
+          },
+          {
+            "chunkIndex": 12,
+            "endIndexExclusive": 6000,
+            "itemCount": 500,
+            "startIndexInclusive": 5500
+          },
+          {
+            "chunkIndex": 13,
+            "endIndexExclusive": 6500,
+            "itemCount": 500,
+            "startIndexInclusive": 6000
+          },
+          {
+            "chunkIndex": 14,
+            "endIndexExclusive": 7000,
+            "itemCount": 500,
+            "startIndexInclusive": 6500
+          },
+          {
+            "chunkIndex": 15,
+            "endIndexExclusive": 7500,
+            "itemCount": 500,
+            "startIndexInclusive": 7000
+          },
+          {
+            "chunkIndex": 16,
+            "endIndexExclusive": 8000,
+            "itemCount": 500,
+            "startIndexInclusive": 7500
+          },
+          {
+            "chunkIndex": 17,
+            "endIndexExclusive": 8500,
+            "itemCount": 500,
+            "startIndexInclusive": 8000
+          },
+          {
+            "chunkIndex": 18,
+            "endIndexExclusive": 9000,
+            "itemCount": 500,
+            "startIndexInclusive": 8500
+          },
+          {
+            "chunkIndex": 19,
+            "endIndexExclusive": 9500,
+            "itemCount": 500,
+            "startIndexInclusive": 9000
+          },
+          {
+            "chunkIndex": 20,
+            "endIndexExclusive": 10000,
+            "itemCount": 500,
+            "startIndexInclusive": 9500
+          },
+          {
+            "chunkIndex": 21,
+            "endIndexExclusive": 10500,
+            "itemCount": 500,
+            "startIndexInclusive": 10000
+          },
+          {
+            "chunkIndex": 22,
+            "endIndexExclusive": 11000,
+            "itemCount": 500,
+            "startIndexInclusive": 10500
+          },
+          {
+            "chunkIndex": 23,
+            "endIndexExclusive": 11500,
+            "itemCount": 500,
+            "startIndexInclusive": 11000
+          },
+          {
+            "chunkIndex": 24,
+            "endIndexExclusive": 12000,
+            "itemCount": 500,
+            "startIndexInclusive": 11500
+          },
+          {
+            "chunkIndex": 25,
+            "endIndexExclusive": 12500,
+            "itemCount": 500,
+            "startIndexInclusive": 12000
+          },
+          {
+            "chunkIndex": 26,
+            "endIndexExclusive": 13000,
+            "itemCount": 500,
+            "startIndexInclusive": 12500
+          },
+          {
+            "chunkIndex": 27,
+            "endIndexExclusive": 13500,
+            "itemCount": 500,
+            "startIndexInclusive": 13000
+          },
+          {
+            "chunkIndex": 28,
+            "endIndexExclusive": 14000,
+            "itemCount": 500,
+            "startIndexInclusive": 13500
+          },
+          {
+            "chunkIndex": 29,
+            "endIndexExclusive": 14500,
+            "itemCount": 500,
+            "startIndexInclusive": 14000
+          },
+          {
+            "chunkIndex": 30,
+            "endIndexExclusive": 15000,
+            "itemCount": 500,
+            "startIndexInclusive": 14500
+          },
+          {
+            "chunkIndex": 31,
+            "endIndexExclusive": 15354,
+            "itemCount": 354,
+            "startIndexInclusive": 15000
+          }
+        ],
+        "coveredItemCount": 15354,
+        "rowsHidden": false,
+        "totalItems": 15354
+      },
+      "enabled": true,
+      "exportsPreserved": true,
+      "repeatedWalletCandidateOpportunities": 12112,
+      "reviewRoutingPreserved": true,
+      "scoreFormulaPreserved": true,
+      "uniqueDomains": 1,
+      "uniqueMarkets": 6,
+      "uniqueWallets": 3242
+    },
+    "scoreTradePreparedContext": null,
+    "scorerContextProfile": null,
+    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_wallet_prefetch_optimization_live_20260525_195106",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 4.1,
+      "collect_event_trades_seconds": 24.66,
+      "collect_price_history_seconds": 0.41,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 316.64,
+      "prepare_candidate_context_seconds": 4.09,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.17,
+      "score_candidates_seconds": 338.0,
+      "total_seconds": 703.56,
+      "trade_collection_elapsed_seconds": 24.66
+    },
+    "totalSeconds": 703.56,
+    "truncatedMarketCount": 6,
+    "walletContextReuse": {
+      "cacheScopes": [
+        "wallet_context_lookup",
+        "scoped_wallet_history",
+        "wallet_history_replay_metrics",
+        "wallet_domain_profile"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "contextPoolTradeRows": 15354,
+      "domainProfileCacheHits": 12112,
+      "domainProfileCacheMisses": 3242,
+      "effectiveDomainProfileReuseRatio": 0.78885,
+      "effectiveScopedHistoryReuseRatio": 0.78885,
+      "enabled": true,
+      "exportsPreserved": true,
+      "persistentCacheEnabled": false,
+      "prefetchSecondsPerWalletContext": 0.097668,
+      "prepareSecondsPerContextRow": 0.000266,
+      "prestartedFutureCount": 3242,
+      "repeatedWalletContextOpportunities": 12112,
+      "requestedWalletReferences": 15354,
+      "reviewRoutingPreserved": true,
+      "runLocalOnly": true,
+      "scopedHistoryCacheHits": 12112,
+      "scopedHistoryCacheMisses": 3242,
+      "scoreFormulaPreserved": true,
+      "scoreSecondsPerCandidateRow": 0.022014,
+      "uniqueRequestedWallets": 3242,
+      "walletContextCacheHitsDuringPrepare": 15354,
+      "walletContextCacheMissesDuringPrepare": 0,
+      "walletContextCount": 3242,
+      "walletFetchBoundaryPreserved": true,
+      "walletHistoryMetricsCacheHits": 12112,
+      "walletHistoryMetricsCacheMisses": 3242
+    }
+  },
+  "preMemoizationBaseline": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15353,
+    "candidateWalletCount": 3239,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_blocked_scope",
+    "liveResolvedMarketCount": 15,
+    "networkUsed": true,
+    "normalized": {
+      "candidatesPerWallet": 4.740043,
+      "prefetchSecondsPer1000Wallets": 73.037975,
+      "prepareSecondsPer1000Candidates": 0.345861,
+      "scoreSecondsPer1000Candidates": 25.284961,
+      "totalSecondsPer1000Candidates": 43.214356,
+      "totalSecondsPer1000RawRows": 20.786052
+    },
+    "rawTradeRows": 31919,
+    "runtimeBoundViolations": [],
+    "scoreInputMemoization": null,
+    "scoreTradePreparedContext": null,
+    "scorerContextProfile": null,
+    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_subset_measurement_20260525_181811",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 4.22,
+      "collect_event_trades_seconds": 14.74,
+      "collect_price_history_seconds": 0.48,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 236.57,
+      "prepare_candidate_context_seconds": 5.31,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.18,
+      "score_candidates_seconds": 388.2,
+      "total_seconds": 663.47,
+      "trade_collection_elapsed_seconds": 14.74
+    },
+    "totalSeconds": 663.47,
+    "truncatedMarketCount": 6,
+    "walletContextReuse": null
+  },
+  "preparedContext": {
+    "additiveMetadataOnly": true,
+    "avoidedRepeatedContextBuilds": 15354,
+    "cacheScopes": [
+      "same_outcome_market_trades",
+      "same_market_wallet_trades",
+      "prior_same_market_trades",
+      "prior_same_asset_trades",
+      "related_window_trades",
+      "wallet_baseline_notionals",
+      "wallet_market_conviction_ratio"
+    ],
+    "candidateAdmissionPreserved": true,
+    "candidateOrderPreserved": true,
+    "candidateRows": 15354,
+    "enabled": true,
+    "exportsPreserved": true,
+    "fallbackContextRows": 0,
+    "preparedContextCoverageRatio": 1.0,
+    "preparedContextRows": 15354,
+    "reviewRoutingPreserved": true,
+    "runLocalOnly": true,
+    "scoreCallCount": 15354,
+    "scoreCallCountUnchanged": true,
+    "scoreFormulaPreserved": true
+  },
+  "profilerTopBottlenecks": [
+    {
+      "bucket": "score_trade_call",
+      "seconds": 310.912613,
+      "secondsPerCandidate": 0.02025,
+      "shareOfScoreLoop": 0.977726
+    },
+    {
+      "bucket": "wallet_domain_profile_annotation",
+      "seconds": 6.901139,
+      "secondsPerCandidate": 0.000449,
+      "shareOfScoreLoop": 0.021702
+    },
+    {
+      "bucket": "progress_emit",
+      "seconds": 0.101833,
+      "secondsPerCandidate": 7e-06,
+      "shareOfScoreLoop": 0.00032
+    },
+    {
+      "bucket": "funding_context_lookup",
+      "seconds": 0.021423,
+      "secondsPerCandidate": 1e-06,
+      "shareOfScoreLoop": 6.7e-05
+    },
+    {
+      "bucket": "score_input_lookup",
+      "seconds": 0.018304,
+      "secondsPerCandidate": 1e-06,
+      "shareOfScoreLoop": 5.8e-05
+    }
+  ],
+  "reportType": "event_forensic_scorer_context_optimization_measurement",
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_scorer_context_optimization_measurement_v1",
+  "scope": {
+    "analysisMarketCount": 6,
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "liveResolvedMarketCount": 15,
+    "subsetOnly": true,
+    "wholeEventCompletenessClaim": false
+  },
+  "scoreCallInputAudit": {
+    "duplicateEquivalentScoreCallsRare": true,
+    "exactInputSignature": {
+      "largestGroupSize": 3,
+      "repeatedSignatureGroups": 6,
+      "reuseRatio": 0.000977,
+      "rowsInRepeatedSignatureGroups": 15,
+      "topRepeatedGroups": [
+        {
+          "count": 3,
+          "signature": [
+            "0xfd2b117412a698f322b0cd18d6827dad262b8e50",
+            "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+            "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871-241-192-799-449-125",
+            "2026-05-23T05:05:26+00:00",
+            "BUY",
+            "YES",
+            "0.16",
+            "1600.0",
+            "normal_candidate",
+            "event",
+            ""
+          ]
+        },
+        {
+          "count": 3,
+          "signature": [
+            "0xfd2b117412a698f322b0cd18d6827dad262b8e50",
+            "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+            "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871-241-192-799-449-125",
+            "2026-05-25T04:40:49+00:00",
+            "BUY",
+            "YES",
+            "0.24",
+            "2400.0",
+            "normal_candidate",
+            "event",
+            ""
+          ]
+        },
+        {
+          "count": 3,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x1db02ba50e2312a62b4104de691cc7a76065d8d0da40decf93eb1b914a3217b7",
+            "us-x-iran-permanent-peace-deal-by-may-15-2026-144-885-839",
+            "2026-05-10T07:49:58+00:00",
+            "SELL",
+            "NO",
+            "0.843",
+            "421.5",
+            "normal_candidate",
+            "event",
+            ""
+          ]
+        },
+        {
+          "count": 2,
+          "signature": [
+            "0xfd2b117412a698f322b0cd18d6827dad262b8e50",
+            "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+            "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871-241-192-799-449-125",
+            "2026-05-23T05:05:27+00:00",
+            "BUY",
+            "YES",
+            "0.16",
+            "1600.0",
+            "normal_candidate",
+            "event",
+            ""
+          ]
+        },
+        {
+          "count": 2,
+          "signature": [
+            "0xfd2b117412a698f322b0cd18d6827dad262b8e50",
+            "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+            "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871-241-192-799-449-125",
+            "2026-05-23T05:09:18+00:00",
+            "BUY",
+            "YES",
+            "0.16",
+            "1600.0",
+            "normal_candidate",
+            "event",
+            ""
+          ]
+        }
+      ],
+      "uniqueSignatures": 15344
+    },
+    "gateDecision": "score_call_input_reuse_context_fragments_only",
+    "normalizedProbabilityContext": {
+      "largestGroupSize": 104,
+      "repeatedSignatureGroups": 610,
+      "reuseRatio": 0.692568,
+      "rowsInRepeatedSignatureGroups": 10633,
+      "topRepeatedGroups": [
+        {
+          "count": 104,
+          "signature": [
+            "BUY",
+            "NO",
+            "NO",
+            "0.85",
+            "long_no",
+            "long_no"
+          ]
+        },
+        {
+          "count": 93,
+          "signature": [
+            "BUY",
+            "NO",
+            "NO",
+            "0.84",
+            "long_no",
+            "long_no"
+          ]
+        },
+        {
+          "count": 93,
+          "signature": [
+            "SELL",
+            "NO",
+            "YES",
+            "0.002",
+            "long_yes",
+            "long_yes"
+          ]
+        },
+        {
+          "count": 90,
+          "signature": [
+            "SELL",
+            "NO",
+            "YES",
+            "0.005",
+            "long_yes",
+            "long_yes"
+          ]
+        },
+        {
+          "count": 88,
+          "signature": [
+            "SELL",
+            "NO",
+            "YES",
+            "0.001",
+            "long_yes",
+            "long_yes"
+          ]
+        }
+      ],
+      "uniqueSignatures": 5330
+    },
+    "safeOptimizationRecommendation": "memoize_context_fragments_only",
+    "totalRows": 15353,
+    "walletMarketTokenSignature": {
+      "largestGroupSize": 97,
+      "repeatedSignatureGroups": 2337,
+      "reuseRatio": 0.684296,
+      "rowsInRepeatedSignatureGroups": 10506,
+      "topRepeatedGroups": [
+        {
+          "count": 97,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x6114a8a3f9ac214f48a7e20d169f1c7a5c84082cb6f7058ed9fe1137b11fd0e7",
+            "BUY",
+            "YES"
+          ]
+        },
+        {
+          "count": 93,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x6114a8a3f9ac214f48a7e20d169f1c7a5c84082cb6f7058ed9fe1137b11fd0e7",
+            "SELL",
+            "YES"
+          ]
+        },
+        {
+          "count": 71,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+            "BUY",
+            "YES"
+          ]
+        },
+        {
+          "count": 67,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x6114a8a3f9ac214f48a7e20d169f1c7a5c84082cb6f7058ed9fe1137b11fd0e7",
+            "BUY",
+            "NO"
+          ]
+        },
+        {
+          "count": 66,
+          "signature": [
+            "0x8a98109fb0f1d87d9bfcb4486ba3587b95c51b92",
+            "0x6114a8a3f9ac214f48a7e20d169f1c7a5c84082cb6f7058ed9fe1137b11fd0e7",
+            "SELL",
+            "NO"
+          ]
+        }
+      ],
+      "uniqueSignatures": 7184
+    }
+  },
+  "sidecarOnly": false,
+  "staticEquivalence": {
+    "candidateCount": 15353,
+    "candidateRowsSha256": "ddfea19a7a1ef30be98a0bc55df4733e3a3cc61c54b97521b4125dca4ed73d37",
+    "exportRowCount": 15353,
+    "passed": true
+  },
+  "storageMutated": false,
+  "wholeEventCompletenessClaim": false
+}

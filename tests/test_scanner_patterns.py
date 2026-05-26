@@ -65,6 +65,7 @@ from app.scanner import (
     SUSPICIOUS_FUNDING_QUALITY_WEAK,
     STRUCTURAL_PRE_ADMISSION_MAX_FLOOR_USD,
     STRUCTURAL_PRE_ADMISSION_FLOOR_USD,
+    build_score_trade_prepared_context,
     _annotate_hard_evidence_review,
     _annotate_shared_funding_links,
     _apply_candidate_admission_metadata,
@@ -3496,6 +3497,130 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertEqual(execution_state, "increase_short")
         self.assertTrue(_is_opening_exposure(execution_state))
         self.assertEqual(_capital_at_risk_usdc(trade, execution_state), trade.notional)
+
+    def test_score_trade_prepared_context_preserves_score_and_raw_metrics(self) -> None:
+        current_trade = _trade(
+            trade_id="prepared-current",
+            wallet="0xprepared",
+            condition_id="cond-prepared",
+            asset_id="asset-yes",
+            timestamp=datetime(2026, 4, 7, 12, 0, tzinfo=UTC),
+            price="0.22",
+            size="8000",
+            title="US x Iran peace deal by April 7, 2026?",
+            slug="us-x-iran-peace-deal-by-april-7-2026",
+            event_slug="us-x-iran-peace-deal-by-april-7-2026",
+        )
+        wallet_history = [
+            _trade(
+                trade_id="prepared-prior-1",
+                wallet="0xprepared",
+                condition_id="cond-prepared",
+                asset_id="asset-yes",
+                timestamp=current_trade.timestamp - timedelta(days=7),
+                price="0.18",
+                size="2000",
+                title=current_trade.title,
+                slug=current_trade.slug,
+                event_slug=current_trade.event_slug,
+            ),
+            _trade(
+                trade_id="prepared-prior-2",
+                wallet="0xprepared",
+                condition_id="cond-other",
+                asset_id="asset-other",
+                timestamp=current_trade.timestamp - timedelta(days=2),
+                price="0.30",
+                size="2500",
+                title="Related market",
+                slug="related-market",
+                event_slug=current_trade.event_slug,
+            ),
+            current_trade,
+        ]
+        wallet_window_trades = [
+            wallet_history[0],
+            current_trade,
+            _trade(
+                trade_id="prepared-related",
+                wallet="0xprepared",
+                condition_id="cond-related",
+                asset_id="asset-related",
+                timestamp=current_trade.timestamp + timedelta(minutes=20),
+                price="0.25",
+                size="1500",
+                title="Related event market",
+                slug="related-event-market",
+                event_slug=current_trade.event_slug,
+            ),
+        ]
+        market_window_trades = [
+            wallet_history[0],
+            current_trade,
+            _trade(
+                trade_id="prepared-peer-after",
+                wallet="0xpeer",
+                condition_id="cond-prepared",
+                asset_id="asset-yes",
+                timestamp=current_trade.timestamp + timedelta(minutes=18),
+                price="0.34",
+                size="3000",
+                title=current_trade.title,
+                slug=current_trade.slug,
+                event_slug=current_trade.event_slug,
+            ),
+        ]
+        market = _market(
+            condition_id="cond-prepared",
+            slug=current_trade.slug,
+            question=current_trade.title,
+        )
+        prepared = build_score_trade_prepared_context(
+            trade=current_trade,
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+        )
+        baseline = _score_trade(
+            trade=current_trade,
+            market=market,
+            trade_domain="Middle East",
+            wallet_inspection=_wallet_inspection(len(wallet_history)),
+            wallet_performance=_wallet_performance(),
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+            domain_window_trades=market_window_trades,
+            event_context=_event_context(),
+            funding_context=FundingContext(funding_found=False),
+            include_below_threshold=True,
+        )
+        optimized = _score_trade(
+            trade=current_trade,
+            market=market,
+            trade_domain="Middle East",
+            wallet_inspection=_wallet_inspection(len(wallet_history)),
+            wallet_performance=_wallet_performance(),
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+            domain_window_trades=market_window_trades,
+            event_context=_event_context(),
+            funding_context=FundingContext(funding_found=False),
+            include_below_threshold=True,
+            prepared_context=prepared,
+        )
+
+        self.assertIsNotNone(baseline)
+        self.assertIsNotNone(optimized)
+        assert baseline is not None
+        assert optimized is not None
+        self.assertEqual(optimized.suspicion_score, baseline.suspicion_score)
+        self.assertEqual(optimized.severity, baseline.severity)
+        self.assertEqual(optimized.flags, baseline.flags)
+        self.assertEqual(optimized.raw_metrics, baseline.raw_metrics)
+        self.assertEqual(len(prepared.same_outcome_market_trades), 3)
+        self.assertEqual(len(prepared.related_window_trades), 2)
 
     def test_should_trace_funding_for_high_conviction_and_forensic_modes(self) -> None:
         inspection = WalletInspection(

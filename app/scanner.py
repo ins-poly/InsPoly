@@ -64,6 +64,17 @@ class ProgressEvent:
     metadata: dict[str, object] | None = None
 
 
+@dataclass(slots=True)
+class ScoreTradePreparedContext:
+    same_outcome_market_trades: list[Trade]
+    same_market_wallet_trades: list[Trade]
+    prior_same_market_trades: list[Trade]
+    prior_same_asset_trades: list[Trade]
+    related_window_trades: list[Trade]
+    wallet_baseline_notionals: list[float]
+    wallet_market_conviction_ratio: float
+
+
 class ScanStopped(Exception):
     pass
 
@@ -2573,6 +2584,51 @@ def _domain_for_trade(trade: Trade, focus_markets: dict[str, Market]) -> str:
     return "Other"
 
 
+def build_score_trade_prepared_context(
+    *,
+    trade: Trade,
+    wallet_window_trades: list[Trade],
+    wallet_history_trades: list[Trade],
+    market_window_trades: list[Trade],
+) -> ScoreTradePreparedContext:
+    """Precompute pure scorer context lists without changing scorer semantics."""
+
+    return ScoreTradePreparedContext(
+        same_outcome_market_trades=sorted(
+            [item for item in market_window_trades if item.asset_id == trade.asset_id],
+            key=lambda item: (item.timestamp, item.trade_id),
+        ),
+        same_market_wallet_trades=[
+            item for item in wallet_window_trades if item.condition_id == trade.condition_id
+        ],
+        prior_same_market_trades=[
+            item
+            for item in wallet_history_trades
+            if item.condition_id == trade.condition_id
+            and item.trade_id != trade.trade_id
+            and item.timestamp <= trade.timestamp
+        ],
+        prior_same_asset_trades=[
+            item
+            for item in wallet_history_trades
+            if item.asset_id == trade.asset_id
+            and item.trade_id != trade.trade_id
+            and item.timestamp <= trade.timestamp
+        ],
+        related_window_trades=[
+            item
+            for item in wallet_window_trades
+            if abs((item.timestamp - trade.timestamp).total_seconds()) <= 30 * 60
+        ],
+        wallet_baseline_notionals=[
+            float(item.notional)
+            for item in wallet_history_trades
+            if item.trade_id != trade.trade_id and item.notional > 0
+        ],
+        wallet_market_conviction_ratio=_wallet_market_conviction_ratio(wallet_window_trades, trade),
+    )
+
+
 def _score_trade(
     *,
     trade: Trade,
@@ -2596,6 +2652,7 @@ def _score_trade(
     prior_family_trade_count: int | None = None,
     prior_family_market_count: int | None = None,
     event_family_share: float | None = None,
+    prepared_context: ScoreTradePreparedContext | None = None,
 ) -> FlaggedCase | None:
     subscores = {
         "trade_state": 0,
@@ -2772,25 +2829,17 @@ def _score_trade(
     raw_metrics["market_breadth"] = str(activity_summary.market_breadth)
     raw_metrics["manual_review_value_score"] = f"{activity_summary.manual_review_value_score:.1f}"
     raw_metrics["low_analyst_value_flag"] = "Yes" if activity_summary.low_analyst_value_flag else "No"
-    same_outcome_market_trades = sorted(
-        [item for item in market_window_trades if item.asset_id == trade.asset_id],
-        key=lambda item: (item.timestamp, item.trade_id),
-    )
-    same_market_wallet_trades = [item for item in wallet_window_trades if item.condition_id == trade.condition_id]
-    prior_same_market_trades = [
-        item
-        for item in wallet_history_trades
-        if item.condition_id == trade.condition_id
-        and item.trade_id != trade.trade_id
-        and item.timestamp <= trade.timestamp
-    ]
-    prior_same_asset_trades = [
-        item
-        for item in wallet_history_trades
-        if item.asset_id == trade.asset_id
-        and item.trade_id != trade.trade_id
-        and item.timestamp <= trade.timestamp
-    ]
+    if prepared_context is None:
+        prepared_context = build_score_trade_prepared_context(
+            trade=trade,
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history_trades,
+            market_window_trades=market_window_trades,
+        )
+    same_outcome_market_trades = prepared_context.same_outcome_market_trades
+    same_market_wallet_trades = prepared_context.same_market_wallet_trades
+    prior_same_market_trades = prepared_context.prior_same_market_trades
+    prior_same_asset_trades = prepared_context.prior_same_asset_trades
     if prior_wallet_gap_days is None and observed_post_trade_gap_days is None:
         prior_wallet_gap_days, observed_post_trade_gap_days = _wallet_activity_gap_days(wallet_history_trades, trade)
     if family_key is None:
@@ -2924,11 +2973,7 @@ def _score_trade(
         raw_metrics["domain_peer_percentile"] = "Unavailable"
 
     size_multiple: float | None = None
-    wallet_baseline = [
-        float(item.notional)
-        for item in wallet_history_trades
-        if item.trade_id != trade.trade_id and item.notional > 0
-    ]
+    wallet_baseline = prepared_context.wallet_baseline_notionals
     if len(wallet_baseline) >= 5:
         wallet_median = median(wallet_baseline)
         if wallet_median > 0:
@@ -3050,11 +3095,7 @@ def _score_trade(
         flags.append("event_family_repeat")
         explanation.append("The wallet has repeatedly returned to closely related markets in this same event family.")
 
-    related_window_trades = [
-        item
-        for item in wallet_window_trades
-        if abs((item.timestamp - trade.timestamp).total_seconds()) <= 30 * 60
-    ]
+    related_window_trades = prepared_context.related_window_trades
     related_markets = {item.condition_id for item in related_window_trades}
     raw_metrics["related_markets_30m"] = str(len(related_markets))
     if len(related_markets) >= 3:
@@ -3063,7 +3104,7 @@ def _score_trade(
     elif len(related_markets) == 2:
         subscores["wallet_behavior"] += 2
 
-    conviction_ratio = _wallet_market_conviction_ratio(wallet_window_trades, trade)
+    conviction_ratio = prepared_context.wallet_market_conviction_ratio
     raw_metrics["wallet_market_conviction_ratio"] = f"{conviction_ratio:.2f}"
     if opening_increase and conviction_ratio >= 0.85:
         subscores["wallet_behavior"] += 3
