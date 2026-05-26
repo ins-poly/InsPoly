@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsPoly Event Forensic Analyzer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+  <script src="/vendor/browser/react/18.3.1/react.development.js"></script>
+  <script src="/vendor/browser/react-dom/18.3.1/react-dom.development.js"></script>
+  <script src="/vendor/browser/babel-standalone/7.29.7/babel.min.js"></script>
   <style>
     :root {
       --bg: #08111f;
@@ -37,7 +36,7 @@
         radial-gradient(circle at bottom left, rgba(102, 198, 217, 0.08), transparent 28%),
         var(--bg);
       color: var(--text);
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: var(--font-size);
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
@@ -51,7 +50,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #35507c; }
     * { scrollbar-width: thin; scrollbar-color: #23395d transparent; }
 
-    .mono { font-family: "JetBrains Mono", monospace; }
+    .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
     .panel {
       background: rgba(13, 26, 43, 0.92);
       border: 1px solid var(--border);
@@ -123,7 +122,7 @@
       text-underline-offset: 2px;
     }
     .entity-link.wallet {
-      font-family: "JetBrains Mono", monospace;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       color: var(--cyan);
     }
     .entity-link.group {

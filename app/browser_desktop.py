@@ -14,6 +14,7 @@ from statistics import median
 from urllib.parse import parse_qs, urlparse
 
 from app.archive_scanner import ArchiveResearchScanner, default_archive_range, parse_local_datetime
+from app.browser_static_assets import is_browser_vendor_asset_path, load_browser_vendor_asset
 from app.config import AppConfig, funding_trace_mode, normalize_funding_trace_mode
 from app.polymarket import PolymarketClient, WalletPosition
 from app.scanner import ProgressEvent, Scanner
@@ -157,6 +158,14 @@ class BrowserDesktopApp:
                     parsed = urlparse(self.path)
                     if parsed.path == "/":
                         self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8")
+                        return
+                    vendor_asset = load_browser_vendor_asset(parsed.path)
+                    if vendor_asset:
+                        data, content_type = vendor_asset
+                        self._send_bytes(data, content_type)
+                        return
+                    if is_browser_vendor_asset_path(parsed.path):
+                        self.send_error(HTTPStatus.NOT_FOUND, "Not found")
                         return
                     if parsed.path == "/api/bootstrap":
                         self._send_json(app.bootstrap_payload())

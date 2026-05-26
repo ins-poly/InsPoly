@@ -16,16 +16,18 @@ class BrowserOfflineAssetPreflightTests(unittest.TestCase):
 
         self.assertFalse(payload["networkUsed"])
         self.assertFalse(payload["uiRuntimeChanged"])
-        self.assertGreaterEqual(payload["summary"]["runtimeRequiredDependencyCount"], 1)
+        self.assertEqual(payload["summary"]["runtimeRequiredMissingLocalAssetCount"], 0)
         self.assertIn(payload["gateDecision"], {"browser_offline_assets_blocked_missing_assets", "browser_offline_assets_ready_for_patch"})
 
     def test_local_asset_candidate_marks_ready_when_present(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "app/vendor").mkdir(parents=True)
-            (root / "app/vendor/react.development.js").write_text("", encoding="utf-8")
-            (root / "app/vendor/react-dom.development.js").write_text("", encoding="utf-8")
-            (root / "app/vendor/babel.min.js").write_text("", encoding="utf-8")
+            (root / "app/vendor/browser/react/18.3.1").mkdir(parents=True)
+            (root / "app/vendor/browser/react-dom/18.3.1").mkdir(parents=True)
+            (root / "app/vendor/browser/babel-standalone/7.29.7").mkdir(parents=True)
+            (root / "app/vendor/browser/react/18.3.1/react.development.js").write_text("", encoding="utf-8")
+            (root / "app/vendor/browser/react-dom/18.3.1/react-dom.development.js").write_text("", encoding="utf-8")
+            (root / "app/vendor/browser/babel-standalone/7.29.7/babel.min.js").write_text("", encoding="utf-8")
             html = root / "ui.html"
             html.write_text(
                 '<script src="https://unpkg.com/react@18/umd/react.development.js"></script>'

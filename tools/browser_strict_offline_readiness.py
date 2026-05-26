@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from collections import Counter
@@ -21,10 +22,11 @@ ATTR_RE = re.compile(r"(?P<name>[a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*(?P<quote>['\"
 INLINE_BABEL_RE = re.compile(r"<script\b[^>]*type=[\"']text/babel[\"'][^>]*>", re.IGNORECASE)
 
 LOCAL_VENDOR_CANDIDATES = {
-    "react": Path("app/vendor/react.development.js"),
-    "react_dom": Path("app/vendor/react-dom.development.js"),
-    "babel": Path("app/vendor/babel.min.js"),
+    "react": Path("app/vendor/browser/react/18.3.1/react.development.js"),
+    "react_dom": Path("app/vendor/browser/react-dom/18.3.1/react-dom.development.js"),
+    "babel": Path("app/vendor/browser/babel-standalone/7.29.7/babel.min.js"),
 }
+PROVENANCE_MANIFEST = Path("app/vendor/browser/PROVENANCE.json")
 
 
 def build_strict_offline_readiness(
@@ -62,9 +64,10 @@ def build_strict_offline_readiness(
         )
         dependencies.extend(_dependencies_for_html(base, path, source))
 
-    local_assets = _local_asset_rows(base)
-    server = _server_capabilities(base)
-    summary = _summary(html_rows, dependencies, local_assets, server)
+    provenance = _provenance_manifest(base)
+    local_assets = _local_asset_rows(base, provenance)
+    server = _server_capabilities(base, html_files)
+    summary = _summary(html_rows, dependencies, local_assets, server, provenance)
     return {
         "reportType": REPORT_TYPE,
         "schemaVersion": SCHEMA_VERSION,
@@ -80,6 +83,7 @@ def build_strict_offline_readiness(
         "htmlFiles": html_rows,
         "dependencies": dependencies,
         "localAssets": local_assets,
+        "vendorProvenance": provenance,
         "browserDesktopLauncher": server,
         "productDecisionsNeeded": _product_decisions(summary),
         "invariantsPreserved": [
@@ -88,7 +92,7 @@ def build_strict_offline_readiness(
             "no_storage_schema_changes",
             "no_ui_sorting_filtering_changes",
             "no_saved_artifact_mutation",
-            "no_external_assets_vendored",
+            "vendored_assets_are_pinned_and_provenance_recorded",
             "no_push_pr",
         ],
     }
@@ -111,15 +115,16 @@ def _dependencies_for_html(base: Path, html_path: Path, source: str) -> list[dic
             continue
         kind = _asset_kind(reference, tag, attrs)
         candidate = _replacement_candidate(kind)
-        local_path = _resolve_local_reference(base, html_path, reference) if not _is_remote(reference) else None
+        is_remote = _is_remote(reference)
+        local_path = _resolve_local_reference(base, html_path, reference) if not is_remote else None
         rows.append(
             {
                 "htmlFile": str(html_path),
                 "tag": tag,
                 "reference": reference,
-                "isRemote": _is_remote(reference),
+                "isRemote": is_remote,
                 "assetKind": kind,
-                "riskClass": _risk_class(kind),
+                "riskClass": _risk_class(kind, is_remote=is_remote),
                 "requiredForBoot": _required_for_boot(kind),
                 "requiredForReportRendering": _required_for_report_rendering(kind),
                 "optionalCosmetic": kind == "font_stylesheet",
@@ -148,6 +153,12 @@ def _asset_kind(reference: str, tag: str, attrs: Mapping[str, str]) -> str:
         return "react_runtime"
     if "babel" in lower and "unpkg.com" in lower:
         return "babel_runtime"
+    if "/vendor/browser/react-dom/" in lower:
+        return "react_dom_runtime"
+    if "/vendor/browser/react/" in lower:
+        return "react_runtime"
+    if "/vendor/browser/babel-standalone/" in lower:
+        return "babel_runtime"
     if "fonts.googleapis.com" in lower or "fonts.gstatic.com" in lower:
         return "font_stylesheet"
     if lower.startswith("http://") or lower.startswith("https://"):
@@ -169,9 +180,9 @@ def _replacement_candidate(kind: str) -> Path | None:
     return None
 
 
-def _risk_class(kind: str) -> str:
+def _risk_class(kind: str, *, is_remote: bool) -> str:
     if kind in {"react_runtime", "react_dom_runtime", "babel_runtime"}:
-        return "hard_offline_boot_blocker"
+        return "hard_offline_boot_blocker" if is_remote else "local_boot_runtime_asset"
     if kind == "font_stylesheet":
         return "cosmetic_font_remote_dependency"
     if kind == "external_navigation_link":
@@ -201,6 +212,8 @@ def _dependency_notes(kind: str) -> list[str]:
 
 def _resolve_local_reference(base: Path, html_path: Path, reference: str) -> Path:
     if reference.startswith("/"):
+        if reference.startswith("/vendor/browser/"):
+            return base / "app" / reference.lstrip("/")
         return base / reference.lstrip("/")
     return base / html_path.parent / reference
 
@@ -209,37 +222,108 @@ def _is_remote(reference: str) -> bool:
     return reference.startswith(("http://", "https://"))
 
 
-def _local_asset_rows(base: Path) -> list[dict[str, object]]:
+def _local_asset_rows(base: Path, provenance: Mapping[str, object]) -> list[dict[str, object]]:
+    manifest_assets = {
+        str(row.get("localPath") or ""): row
+        for row in provenance.get("assets", [])
+        if isinstance(row, Mapping)
+    }
     rows = []
     for name, path in LOCAL_VENDOR_CANDIDATES.items():
         resolved = base / path
+        manifest_row = manifest_assets.get(str(path))
+        digest = _sha256(resolved) if resolved.exists() else ""
+        expected_digest = str(manifest_row.get("sha256") or "") if isinstance(manifest_row, Mapping) else ""
+        expected_size = manifest_row.get("sizeBytes") if isinstance(manifest_row, Mapping) else None
+        size = resolved.stat().st_size if resolved.exists() else None
         rows.append(
             {
                 "name": name,
                 "path": str(path),
                 "exists": resolved.exists(),
-                "sizeBytes": resolved.stat().st_size if resolved.exists() else None,
-                "sourcePolicyStatus": "not_vendored" if not resolved.exists() else "present_local_review_required",
+                "sizeBytes": size,
+                "sha256": digest,
+                "manifestEntryPresent": bool(manifest_row),
+                "manifestSha256Matches": bool(expected_digest and digest == expected_digest),
+                "manifestSizeMatches": bool(size is not None and expected_size == size),
+                "sourcePolicyStatus": _asset_policy_status(resolved.exists(), bool(manifest_row), digest, expected_digest, size, expected_size),
             }
         )
     return rows
 
 
-def _server_capabilities(base: Path) -> dict[str, object]:
-    source_path = base / "app/browser_desktop.py"
+def _asset_policy_status(
+    exists: bool,
+    manifest_entry_present: bool,
+    digest: str,
+    expected_digest: str,
+    size: int | None,
+    expected_size: object,
+) -> str:
+    if not exists:
+        return "not_vendored"
+    if not manifest_entry_present:
+        return "present_missing_provenance"
+    if digest != expected_digest or size != expected_size:
+        return "present_provenance_mismatch"
+    return "present_pinned_with_provenance"
+
+
+def _provenance_manifest(base: Path) -> dict[str, object]:
+    path = base / PROVENANCE_MANIFEST
+    if not path.exists():
+        return {"path": str(PROVENANCE_MANIFEST), "exists": False, "validJson": False, "assetCount": 0}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"path": str(PROVENANCE_MANIFEST), "exists": True, "validJson": False, "assetCount": 0}
+    assets = payload.get("assets") if isinstance(payload, Mapping) else None
+    return {
+        "path": str(PROVENANCE_MANIFEST),
+        "exists": True,
+        "validJson": isinstance(payload, Mapping),
+        "schemaVersion": payload.get("schemaVersion") if isinstance(payload, Mapping) else "",
+        "assetCount": len(assets) if isinstance(assets, list) else 0,
+        "assets": assets if isinstance(assets, list) else [],
+    }
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _server_capabilities(base: Path, html_files: Sequence[str | Path]) -> dict[str, object]:
+    requires_event_server = any(str(path).endswith("browser_event_forensic_ui.html") for path in html_files)
+    browser_server = _server_row(base, Path("app/browser_desktop.py"))
+    event_server = _server_row(base, Path("app/event_forensic_desktop.py"))
+    return {
+        "servesStaticAssetPaths": bool(browser_server.get("servesStaticAssetPaths"))
+        and (not requires_event_server or bool(event_server.get("servesStaticAssetPaths"))),
+        "browserDesktop": browser_server,
+        "eventForensicDesktop": event_server,
+        "requiresEventForensicDesktop": requires_event_server,
+    }
+
+
+def _server_row(base: Path, relative_path: Path) -> dict[str, object]:
+    source_path = base / relative_path
     try:
         source = source_path.read_text(encoding="utf-8")
     except OSError:
         return {
-            "path": "app/browser_desktop.py",
+            "path": str(relative_path),
             "exists": False,
             "servesRootHtml": False,
             "servesApiJson": False,
             "servesStaticAssetPaths": False,
         }
-    serves_static = any(token in source for token in ('"/static"', '"/vendor"', "parsed.path.startswith('/static')", "parsed.path.startswith('/vendor')"))
+    serves_static = "load_browser_vendor_asset" in source and "is_browser_vendor_asset_path" in source
     return {
-        "path": "app/browser_desktop.py",
+        "path": str(relative_path),
         "exists": True,
         "servesRootHtml": 'parsed.path == "/"' in source,
         "servesApiJson": 'parsed.path == "/api/bootstrap"' in source,
@@ -252,6 +336,7 @@ def _summary(
     dependencies: Sequence[Mapping[str, object]],
     local_assets: Sequence[Mapping[str, object]],
     server: Mapping[str, object],
+    provenance: Mapping[str, object],
 ) -> dict[str, object]:
     kinds = Counter(str(row.get("assetKind") or "unknown") for row in dependencies)
     risk = Counter(str(row.get("riskClass") or "unknown") for row in dependencies)
@@ -264,7 +349,9 @@ def _summary(
         row for row in dependencies if row.get("isRemote") and row.get("riskClass") == "cosmetic_font_remote_dependency"
     ]
     missing_candidates = [row for row in local_assets if not row.get("exists")]
+    unverified_candidates = [row for row in local_assets if row.get("sourcePolicyStatus") != "present_pinned_with_provenance"]
     inline_babel_count = sum(int(row.get("inlineBabelScriptCount") or 0) for row in html_rows)
+    local_babel_ready = any(row.get("name") == "babel" and row.get("sourcePolicyStatus") == "present_pinned_with_provenance" for row in local_assets)
     return {
         "htmlFileCount": len(html_rows),
         "htmlFilesMissing": sum(1 for row in html_rows if not row.get("exists")),
@@ -275,11 +362,31 @@ def _summary(
         "remoteFontDependencyCount": len(remote_fonts),
         "localVendorCandidateCount": len(local_assets),
         "missingLocalVendorCandidateCount": len(missing_candidates),
+        "unverifiedLocalVendorCandidateCount": len(unverified_candidates),
+        "provenanceManifestExists": bool(provenance.get("exists")),
+        "provenanceManifestValid": bool(provenance.get("validJson")),
+        "provenanceAssetCount": int(provenance.get("assetCount") or 0),
         "inlineBabelScriptCount": inline_babel_count,
         "usesRuntimeBabel": inline_babel_count > 0,
         "browserDesktopServesStaticAssetPaths": bool(server.get("servesStaticAssetPaths")),
-        "strictOfflineBootPossibleNow": not hard_remote and not remote_fonts and not missing_candidates and bool(server.get("servesStaticAssetPaths")),
-        "strictOfflineBootBlockedBy": _blocked_by(hard_remote, remote_fonts, missing_candidates, server, inline_babel_count),
+        "strictOfflineBootPossibleNow": (
+            not hard_remote
+            and not remote_fonts
+            and not missing_candidates
+            and not unverified_candidates
+            and bool(server.get("servesStaticAssetPaths"))
+            and bool(provenance.get("validJson"))
+        ),
+        "strictOfflineBootBlockedBy": _blocked_by(
+            hard_remote,
+            remote_fonts,
+            missing_candidates,
+            unverified_candidates,
+            server,
+            inline_babel_count,
+            local_babel_ready,
+            provenance,
+        ),
     }
 
 
@@ -287,19 +394,26 @@ def _blocked_by(
     hard_remote: Sequence[Mapping[str, object]],
     remote_fonts: Sequence[Mapping[str, object]],
     missing_candidates: Sequence[Mapping[str, object]],
+    unverified_candidates: Sequence[Mapping[str, object]],
     server: Mapping[str, object],
     inline_babel_count: int,
+    local_babel_ready: bool,
+    provenance: Mapping[str, object],
 ) -> list[str]:
     blockers: list[str] = []
     if hard_remote:
         blockers.append("remote_react_reactdom_babel_boot_assets")
     if missing_candidates:
         blockers.append("missing_local_vendor_asset_candidates")
+    if unverified_candidates:
+        blockers.append("local_vendor_asset_provenance_missing_or_mismatch")
+    if not provenance.get("validJson"):
+        blockers.append("vendor_provenance_manifest_missing_or_invalid")
     if not server.get("servesStaticAssetPaths"):
         blockers.append("browser_desktop_static_asset_serving_not_implemented")
     if remote_fonts:
         blockers.append("remote_google_font_stylesheets")
-    if inline_babel_count:
+    if inline_babel_count and not local_babel_ready:
         blockers.append("inline_text_babel_requires_babel_runtime_or_build_pipeline")
     return blockers
 
@@ -307,7 +421,11 @@ def _blocked_by(
 def _gate(summary: Mapping[str, object]) -> str:
     if summary.get("strictOfflineBootPossibleNow"):
         return "browser_strict_offline_ready"
-    if int(summary.get("remoteHardBootDependencyCount") or 0) == 0 and int(summary.get("missingLocalVendorCandidateCount") or 0) == 0:
+    if (
+        int(summary.get("remoteHardBootDependencyCount") or 0) == 0
+        and int(summary.get("missingLocalVendorCandidateCount") or 0) == 0
+        and int(summary.get("unverifiedLocalVendorCandidateCount") or 0) == 0
+    ):
         return "browser_offline_partial_local_assets_ready"
     if summary.get("usesRuntimeBabel") and int(summary.get("remoteHardBootDependencyCount") or 0) > 0:
         return "browser_offline_blocked_requires_asset_policy"
@@ -319,7 +437,7 @@ def _strategy(summary: Mapping[str, object]) -> dict[str, object]:
     if gate == "browser_strict_offline_ready":
         return {
             "strategy": "strict_offline_ready",
-            "implementedThisCampaign": False,
+            "implementedThisCampaign": True,
             "reason": "no hard remote boot dependencies remain",
         }
     if gate == "browser_offline_partial_local_assets_ready":
@@ -339,11 +457,13 @@ def _product_decisions(summary: Mapping[str, object]) -> list[str]:
     decisions = []
     if int(summary.get("missingLocalVendorCandidateCount") or 0) > 0:
         decisions.append("approve_or_provide_exact_local_react_reactdom_babel_assets")
+    if int(summary.get("unverifiedLocalVendorCandidateCount") or 0) > 0 or not summary.get("provenanceManifestValid"):
+        decisions.append("fix_local_vendor_asset_provenance")
     if int(summary.get("remoteFontDependencyCount") or 0) > 0:
         decisions.append("choose_remote_fonts_vs_local_fonts_vs_system_font_fallback")
     if not summary.get("browserDesktopServesStaticAssetPaths"):
         decisions.append("approve_static_asset_serving_path_for_browser_desktop")
-    if summary.get("usesRuntimeBabel"):
+    if summary.get("usesRuntimeBabel") and not summary.get("strictOfflineBootPossibleNow"):
         decisions.append("choose_runtime_babel_vendoring_vs_precompiled_ui_build_pipeline")
     return decisions
 

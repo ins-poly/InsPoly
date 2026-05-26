@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "browser_vendor_provenance_v1",
+  "createdAt": "2026-05-26",
+  "approvalContext": "Browser Strict Offline Asset Implementation Campaign",
+  "strategy": "vendor_pinned_umd_assets_with_static_serving_first",
+  "remoteFallbackPolicy": "strict_local_only_for_boot",
+  "fontPolicy": "system_font_fallback_no_font_vendoring",
+  "sourceMapsIncluded": false,
+  "assets": [
+    {
+      "package": "react",
+      "version": "18.3.1",
+      "artifact": "react.development.js",
+      "localPath": "app/vendor/browser/react/18.3.1/react.development.js",
+      "browserPath": "/vendor/browser/react/18.3.1/react.development.js",
+      "sourceUrl": "https://unpkg.com/react@18.3.1/umd/react.development.js",
+      "resolvedFrom": "https://unpkg.com/react@18/umd/react.development.js",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/facebook/react/blob/v18.3.1/LICENSE",
+      "sha256": "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+      "sizeBytes": 109931
+    },
+    {
+      "package": "react-dom",
+      "version": "18.3.1",
+      "artifact": "react-dom.development.js",
+      "localPath": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "browserPath": "/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "sourceUrl": "https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js",
+      "resolvedFrom": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/facebook/react/blob/v18.3.1/LICENSE",
+      "sha256": "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+      "sizeBytes": 1080227
+    },
+    {
+      "package": "@babel/standalone",
+      "version": "7.29.7",
+      "artifact": "babel.min.js",
+      "localPath": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "browserPath": "/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "sourceUrl": "https://unpkg.com/@babel/standalone@7.29.7/babel.min.js",
+      "resolvedFrom": "https://unpkg.com/@babel/standalone/babel.min.js",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/babel/babel/blob/v7.29.7/LICENSE",
+      "sha256": "7f55bd5c3efadeaa83d4de97dc91da8bf0733789801cf28b9273c4284739798e",
+      "sizeBytes": 3140250
+    }
+  ]
+}

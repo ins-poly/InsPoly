@@ -61,7 +61,7 @@ def build_browser_offline_asset_preflight(
                     "risk": "runtime_blocking_if_offline" if runtime_required else "navigation_only_or_dynamic",
                 }
             )
-    summary = _summary(rows)
+    summary = _summary(rows, file_count=len(html_files))
     return {
         "reportType": REPORT_TYPE,
         "schemaVersion": SCHEMA_VERSION,
@@ -114,20 +114,20 @@ def _asset_kind(url: str) -> str:
 def _local_candidate(url: str) -> Path | None:
     lower = url.lower()
     if "react-dom" in lower:
-        return Path("app/vendor/react-dom.development.js")
+        return Path("app/vendor/browser/react-dom/18.3.1/react-dom.development.js")
     if "react@" in lower:
-        return Path("app/vendor/react.development.js")
+        return Path("app/vendor/browser/react/18.3.1/react.development.js")
     if "babel" in lower:
-        return Path("app/vendor/babel.min.js")
+        return Path("app/vendor/browser/babel-standalone/7.29.7/babel.min.js")
     return None
 
 
-def _summary(rows: Sequence[Mapping[str, object]]) -> dict[str, object]:
+def _summary(rows: Sequence[Mapping[str, object]], *, file_count: int) -> dict[str, object]:
     kinds = Counter(str(row.get("assetKind") or "unknown") for row in rows)
     runtime_rows = [row for row in rows if row.get("runtimeRequiredForUiBoot")]
     missing_runtime = [row for row in runtime_rows if not row.get("localAssetExists")]
     return {
-        "fileCount": len({str(row.get("file") or "") for row in rows if row.get("file")}),
+        "fileCount": file_count,
         "dependencyCount": len(rows),
         "runtimeRequiredDependencyCount": len(runtime_rows),
         "runtimeRequiredMissingLocalAssetCount": len(missing_runtime),
