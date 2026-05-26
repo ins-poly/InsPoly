@@ -1,0 +1,138 @@
+{
+  "reportType": "browser_offline_asset_policy",
+  "schemaVersion": "browser_offline_asset_policy_v1",
+  "generatedAt": "2026-05-26T00:00:00+03:00",
+  "currentStrictOfflineGate": "browser_offline_blocked_requires_asset_policy",
+  "policyGate": "browser_offline_asset_policy_ready_for_product_decision",
+  "implementationPerformed": false,
+  "networkUsed": false,
+  "runtimeBehaviorChanged": false,
+  "uiRuntimeChanged": false,
+  "storageSchemaChanged": false,
+  "recommendedStrategy": {
+    "id": "A1",
+    "name": "vendor_pinned_umd_assets_with_static_serving_first",
+    "status": "recommended_after_product_approval",
+    "summary": "Vendor exact pinned UMD React, ReactDOM, and Babel standalone assets with provenance, add narrow static serving, and keep runtime Babel for the first strict-offline patch."
+  },
+  "repoCapabilityAudit": {
+    "packageJsonPresent": false,
+    "lockfilePresent": false,
+    "frontendBuildConfigPresent": false,
+    "localJsVendorAssetsPresent": false,
+    "localFontAssetsPresent": false,
+    "browserDesktopServesStaticAssets": false,
+    "browserHtmlUsesInlineTextBabel": true,
+    "projectLicenseFilePresent": true
+  },
+  "currentBlockers": [
+    "react_loaded_from_cdn",
+    "react_dom_loaded_from_cdn",
+    "babel_loaded_from_cdn",
+    "google_fonts_remote",
+    "app_vendor_runtime_assets_absent",
+    "browser_desktop_static_asset_serving_absent",
+    "inline_text_babel_requires_runtime_babel_or_build_pipeline"
+  ],
+  "strategyEvaluations": [
+    {
+      "id": "A",
+      "name": "vendor_pinned_umd_react_reactdom_babel_and_font_policy",
+      "decision": "recommended_after_approval",
+      "pros": [
+        "closest_to_current_browser_shape",
+        "avoids_broad_ui_rewrite",
+        "testable_with_static_readiness_checks",
+        "can_be_rolled_back_by_restoring_html_references"
+      ],
+      "cons": [
+        "requires_asset_source_version_license_hash_provenance",
+        "requires_static_serving_patch",
+        "keeps_runtime_babel_for_first_patch",
+        "font_visual_parity_requires_separate_asset_policy"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "vendor_react_reactdom_only_keep_babel_remote",
+      "decision": "rejected_for_strict_offline",
+      "reason": "inline_text_babel_still_requires_babel_runtime_for_boot"
+    },
+    {
+      "id": "C",
+      "name": "remove_runtime_babel_by_precompiling_browser_scripts",
+      "decision": "defer_to_separate_rfc",
+      "reason": "repo_has_no_frontend_build_pipeline_and_extraction_would_be_a_larger_ui_refactor"
+    },
+    {
+      "id": "D",
+      "name": "introduce_minimal_build_pipeline",
+      "decision": "defer_to_separate_rfc",
+      "reason": "adds_package_lock_build_and_release_workflow_maintenance"
+    },
+    {
+      "id": "E",
+      "name": "keep_online_capable_browser_only_for_now",
+      "decision": "current_safe_default",
+      "reason": "analyst_browser_remains_usable_when_cdn_assets_are_reachable"
+    }
+  ],
+  "plannedAssets": [
+    {
+      "asset": "react_umd",
+      "plannedPath": "app/vendor/browser/react/<version>/react.development.js",
+      "exactVersionRequired": true,
+      "sourceUrlRequired": true,
+      "licenseRequired": true,
+      "sha256Required": true,
+      "sizeBytesRequired": true
+    },
+    {
+      "asset": "react_dom_umd",
+      "plannedPath": "app/vendor/browser/react-dom/<version>/react-dom.development.js",
+      "exactVersionRequired": true,
+      "sourceUrlRequired": true,
+      "licenseRequired": true,
+      "sha256Required": true,
+      "sizeBytesRequired": true
+    },
+    {
+      "asset": "babel_standalone",
+      "plannedPath": "app/vendor/browser/babel-standalone/<version>/babel.min.js",
+      "exactVersionRequired": true,
+      "sourceUrlRequired": true,
+      "licenseRequired": true,
+      "sha256Required": true,
+      "sizeBytesRequired": true
+    }
+  ],
+  "implementationPlan": [
+    "approve_exact_runtime_asset_versions_and_font_policy",
+    "create_app_vendor_browser_manifest_json",
+    "vendor_approved_assets_with_hashes_and_license_metadata",
+    "add_narrow_static_vendor_serving_to_browser_desktop",
+    "update_browser_ui_html_local_asset_references",
+    "update_browser_event_forensic_ui_html_local_asset_references",
+    "run_strict_offline_readiness_until_browser_strict_offline_ready",
+    "run_browser_label_and_event_forensic_ui_regression_tests"
+  ],
+  "approvalRequiredBeforeImplementation": [
+    "exact_react_reactdom_babel_versions",
+    "license_and_provenance_format",
+    "strict_local_only_vs_remote_fallback_mode",
+    "system_font_fallback_vs_local_font_vendoring",
+    "browser_desktop_static_vendor_route",
+    "runtime_babel_allowed_for_first_patch"
+  ],
+  "invariantsPreserved": [
+    "no_github_push_pr",
+    "no_browser_ui_runtime_patch",
+    "no_asset_vendoring",
+    "no_scoring_model_gate_changes",
+    "no_phase3_runtime",
+    "no_storage_schema_changes",
+    "no_ui_sorting_filtering_changes",
+    "no_saved_artifact_mutation",
+    "no_private_key_clob_trading_order_placement"
+  ]
+}
