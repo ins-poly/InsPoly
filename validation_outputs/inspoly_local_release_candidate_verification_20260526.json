@@ -1,0 +1,184 @@
+{
+  "generated_at": "2026-05-26",
+  "gate": "local_release_candidate_verified",
+  "workflow": "strategic-autonomy-review",
+  "classification": [
+    "release_packaging",
+    "diagnostic_probe"
+  ],
+  "verified_commit": {
+    "hash": "05d688d",
+    "title": "Add final pre-push packaging dry run"
+  },
+  "branch": "main",
+  "base": {
+    "ref": "origin/main",
+    "hash": "865b858"
+  },
+  "ahead_behind_before_report": {
+    "ahead": 40,
+    "behind": 0
+  },
+  "push_or_pr_performed": false,
+  "runtime_changed_in_campaign": false,
+  "cached_area_empty_before_report": true,
+  "docs_json_validation": {
+    "release_json_files_parsed": 7,
+    "referenced_paths_checked": 12,
+    "browser_provenance_parsed": true,
+    "vendor_hashes_match": true,
+    "strict_offline_readiness_gate": "browser_strict_offline_ready",
+    "stale_validation_output_fixed": "validation_outputs/inspoly_browser_strict_offline_readiness_20260526.json"
+  },
+  "vendor_hashes": [
+    {
+      "path": "app/vendor/browser/react/18.3.1/react.development.js",
+      "sha256": "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f"
+    },
+    {
+      "path": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "sha256": "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4"
+    },
+    {
+      "path": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "sha256": "7f55bd5c3efadeaa83d4de97dc91da8bf0733789801cf28b9273c4284739798e"
+    }
+  ],
+  "focused_tests": [
+    {
+      "area": "Side/Outcome Phase 2/4, scanner patterns, cross-mode scoring",
+      "modules": 9,
+      "tests": 245,
+      "result": "OK"
+    },
+    {
+      "area": "Archive/Event Forensic scope, weak-history, performance equivalence",
+      "modules": 11,
+      "tests": 73,
+      "result": "OK"
+    },
+    {
+      "area": "Event Forensic pagination/performance measurement/profiling sidecars",
+      "modules": 13,
+      "tests": 63,
+      "result": "OK"
+    },
+    {
+      "area": "Phase 3 guardrails, protocol/ledger, replay sidecars",
+      "modules": 9,
+      "tests": 79,
+      "result": "OK"
+    },
+    {
+      "area": "Browser strict offline, labels, known-case benchmark",
+      "modules": 9,
+      "tests": 56,
+      "result": "OK"
+    },
+    {
+      "area": "Indexer, shadow, microstructure, trader profile sidecars",
+      "modules": 23,
+      "tests": 144,
+      "result": "OK"
+    }
+  ],
+  "focused_tests_total": {
+    "modules": 74,
+    "tests": 660,
+    "result": "OK"
+  },
+  "full_suite": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "tests": 1105,
+    "seconds": 8.894,
+    "result": "OK",
+    "warnings": [
+      "existing sqlite ResourceWarning messages",
+      "known validation-interrupted terminal failure artifact message"
+    ]
+  },
+  "syntax_compilation": {
+    "command": "python3 -m compileall -q app tools tests",
+    "result": "OK"
+  },
+  "safety_scans": {
+    "uncommitted_app_runtime_diff": false,
+    "browser_remote_boot_dependencies": false,
+    "phase3_runtime_implementation_new_diff": false,
+    "storage_schema_migration_new_diff": false,
+    "ui_sorting_filtering_new_diff": false,
+    "production_pagination_expansion_new_diff": false,
+    "trading_or_order_placement_implementation_found": false,
+    "project_memory_staged": false,
+    "cached_area_empty_after_tests_before_report": true,
+    "notes": [
+      "Existing capital_at_risk_usdc fields are pre-existing runtime behavior, not new Phase 3 runtime implementation.",
+      "Private/API-key scan hits were secret-redaction keys, optional OpenAI review helper usage, tests, and safety strings."
+    ]
+  },
+  "local_only_artifacts": [
+    {
+      "path": "PROJECT_MEMORY.md",
+      "state": "ignored/local-only",
+      "classification": "expected",
+      "action": "do not stage"
+    },
+    {
+      "path": ".gitignore",
+      "state": "modified at startup",
+      "classification": "pre-existing local strategic-control change",
+      "action": "needs user decision before push"
+    },
+    {
+      "path": "AI_CONTROL/",
+      "state": "untracked at startup",
+      "classification": "local strategic-control layer",
+      "action": "needs user decision before push"
+    },
+    {
+      "path": "skills/",
+      "state": "untracked at startup",
+      "classification": "local workflow skill",
+      "action": "needs user decision before push"
+    },
+    {
+      "path": "release_manifests/",
+      "state": "22 files on disk, 12 visible untracked in status",
+      "classification": "expected local packaging metadata",
+      "action": "keep local unless owner requests"
+    },
+    {
+      "path": "shadow_review_packets/",
+      "state": "58 generated files",
+      "classification": "expected local generated packets",
+      "action": "keep local-only"
+    },
+    {
+      "path": "side_outcome_review_packets/",
+      "state": "7 generated files plus ignored .DS_Store",
+      "classification": "expected local generated packets",
+      "action": "keep local-only"
+    },
+    {
+      "path": "validation_outputs/",
+      "state": "657 files, about 5.0 GB on disk",
+      "classification": "mixed committed compact outputs and local raw evidence",
+      "action": "commit only explicit compact summaries"
+    }
+  ],
+  "remaining_blockers": [
+    "push_pr_user_decision",
+    "pre_existing_ai_control_process_files_user_decision",
+    "phase3_capital_runtime_blocked_until_new_source_fields",
+    "replay_persistence_beyond_sidecar_requires_rfc",
+    "pagination_runtime_expansion_requires_material_evidence_and_rfc",
+    "future_browser_build_pipeline_requires_separate_rfc",
+    "local_only_artifact_cleanup_requires_explicit_policy"
+  ],
+  "created_or_updated_outputs": [
+    "docs/inspoly_local_release_candidate_verification_20260526.md",
+    "validation_outputs/inspoly_local_release_candidate_verification_20260526.json",
+    "validation_outputs/inspoly_browser_strict_offline_readiness_20260526.json"
+  ],
+  "recommended_next_action": "Do not push until the owner explicitly approves grouping and staging. If push is approved, rerun or accept this verification matrix and exclude local-only artifacts."
+}

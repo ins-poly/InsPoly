@@ -1,56 +1,46 @@
 {
   "browserDesktopLauncher": {
-    "exists": true,
-    "path": "app/browser_desktop.py",
-    "servesApiJson": true,
-    "servesRootHtml": true,
-    "servesStaticAssetPaths": false
+    "browserDesktop": {
+      "exists": true,
+      "path": "app/browser_desktop.py",
+      "servesApiJson": true,
+      "servesRootHtml": true,
+      "servesStaticAssetPaths": true
+    },
+    "eventForensicDesktop": {
+      "exists": true,
+      "path": "app/event_forensic_desktop.py",
+      "servesApiJson": true,
+      "servesRootHtml": true,
+      "servesStaticAssetPaths": true
+    },
+    "requiresEventForensicDesktop": true,
+    "servesStaticAssetPaths": true
   },
   "chosenStrategy": {
-    "implementedThisCampaign": false,
-    "reason": "required local React/ReactDOM/Babel assets are not present and the desktop server does not serve static asset paths",
-    "strategy": "keep_online_boot_and_document_asset_policy_blocker"
+    "implementedThisCampaign": true,
+    "reason": "no hard remote boot dependencies remain",
+    "strategy": "strict_offline_ready"
   },
   "dependencies": [
     {
-      "assetKind": "font_stylesheet",
-      "devOnlyTranspileRuntime": false,
-      "htmlFile": "app/browser_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
-      "notes": [
-        "font_failure_can_fall_back_to_css_font_family"
-      ],
-      "optionalCosmetic": true,
-      "reference": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      "replacementCandidate": "",
-      "replacementExists": false,
-      "requiredForBoot": false,
-      "requiredForReportRendering": false,
-      "riskClass": "cosmetic_font_remote_dependency",
-      "safeFallbackExists": true,
-      "tag": "link"
-    },
-    {
       "assetKind": "react_runtime",
       "devOnlyTranspileRuntime": false,
       "htmlFile": "app/browser_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/react/18.3.1/react.development.js",
+      "localSizeBytes": 109931,
       "notes": [
         "react_runtime_required_for_current_browser_boot"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/react@18/umd/react.development.js",
-      "replacementCandidate": "app/vendor/react.development.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/react/18.3.1/react.development.js",
+      "replacementCandidate": "app/vendor/browser/react/18.3.1/react.development.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
     },
@@ -58,20 +48,20 @@
       "assetKind": "react_dom_runtime",
       "devOnlyTranspileRuntime": false,
       "htmlFile": "app/browser_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "localSizeBytes": 1080227,
       "notes": [
         "react_runtime_required_for_current_browser_boot"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
-      "replacementCandidate": "app/vendor/react-dom.development.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "replacementCandidate": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
     },
@@ -79,62 +69,41 @@
       "assetKind": "babel_runtime",
       "devOnlyTranspileRuntime": true,
       "htmlFile": "app/browser_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "localSizeBytes": 3140250,
       "notes": [
         "inline_text_babel_requires_babel_runtime_or_precompiled_build"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/@babel/standalone/babel.min.js",
-      "replacementCandidate": "app/vendor/babel.min.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "replacementCandidate": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
-    },
-    {
-      "assetKind": "font_stylesheet",
-      "devOnlyTranspileRuntime": false,
-      "htmlFile": "app/browser_event_forensic_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
-      "notes": [
-        "font_failure_can_fall_back_to_css_font_family"
-      ],
-      "optionalCosmetic": true,
-      "reference": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      "replacementCandidate": "",
-      "replacementExists": false,
-      "requiredForBoot": false,
-      "requiredForReportRendering": false,
-      "riskClass": "cosmetic_font_remote_dependency",
-      "safeFallbackExists": true,
-      "tag": "link"
     },
     {
       "assetKind": "react_runtime",
       "devOnlyTranspileRuntime": false,
       "htmlFile": "app/browser_event_forensic_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/react/18.3.1/react.development.js",
+      "localSizeBytes": 109931,
       "notes": [
         "react_runtime_required_for_current_browser_boot"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/react@18/umd/react.development.js",
-      "replacementCandidate": "app/vendor/react.development.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/react/18.3.1/react.development.js",
+      "replacementCandidate": "app/vendor/browser/react/18.3.1/react.development.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
     },
@@ -142,20 +111,20 @@
       "assetKind": "react_dom_runtime",
       "devOnlyTranspileRuntime": false,
       "htmlFile": "app/browser_event_forensic_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "localSizeBytes": 1080227,
       "notes": [
         "react_runtime_required_for_current_browser_boot"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
-      "replacementCandidate": "app/vendor/react-dom.development.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "replacementCandidate": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
     },
@@ -163,39 +132,39 @@
       "assetKind": "babel_runtime",
       "devOnlyTranspileRuntime": true,
       "htmlFile": "app/browser_event_forensic_ui.html",
-      "isRemote": true,
-      "localExists": false,
-      "localPath": "",
-      "localSizeBytes": null,
+      "isRemote": false,
+      "localExists": true,
+      "localPath": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "localSizeBytes": 3140250,
       "notes": [
         "inline_text_babel_requires_babel_runtime_or_precompiled_build"
       ],
       "optionalCosmetic": false,
-      "reference": "https://unpkg.com/@babel/standalone/babel.min.js",
-      "replacementCandidate": "app/vendor/babel.min.js",
-      "replacementExists": false,
+      "reference": "/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "replacementCandidate": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "replacementExists": true,
       "requiredForBoot": true,
       "requiredForReportRendering": true,
-      "riskClass": "hard_offline_boot_blocker",
+      "riskClass": "local_boot_runtime_asset",
       "safeFallbackExists": false,
       "tag": "script"
     }
   ],
-  "gateDecision": "browser_offline_blocked_requires_asset_policy",
-  "generatedAt": "2026-05-26T11:02:51.125169+00:00",
+  "gateDecision": "browser_strict_offline_ready",
+  "generatedAt": "2026-05-26T15:15:14.942053+00:00",
   "htmlFiles": [
     {
       "exists": true,
       "inlineBabelScriptCount": 1,
       "path": "app/browser_ui.html",
-      "sizeBytes": 64478,
+      "sizeBytes": 64394,
       "usesRuntimeBabel": true
     },
     {
       "exists": true,
       "inlineBabelScriptCount": 1,
       "path": "app/browser_event_forensic_ui.html",
-      "sizeBytes": 147436,
+      "sizeBytes": 147352,
       "usesRuntimeBabel": true
     }
   ],
@@ -205,39 +174,46 @@
     "no_storage_schema_changes",
     "no_ui_sorting_filtering_changes",
     "no_saved_artifact_mutation",
-    "no_external_assets_vendored",
+    "vendored_assets_are_pinned_and_provenance_recorded",
     "no_push_pr"
   ],
   "localAssets": [
     {
-      "exists": false,
+      "exists": true,
+      "manifestEntryPresent": true,
+      "manifestSha256Matches": true,
+      "manifestSizeMatches": true,
       "name": "react",
-      "path": "app/vendor/react.development.js",
-      "sizeBytes": null,
-      "sourcePolicyStatus": "not_vendored"
+      "path": "app/vendor/browser/react/18.3.1/react.development.js",
+      "sha256": "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+      "sizeBytes": 109931,
+      "sourcePolicyStatus": "present_pinned_with_provenance"
     },
     {
-      "exists": false,
+      "exists": true,
+      "manifestEntryPresent": true,
+      "manifestSha256Matches": true,
+      "manifestSizeMatches": true,
       "name": "react_dom",
-      "path": "app/vendor/react-dom.development.js",
-      "sizeBytes": null,
-      "sourcePolicyStatus": "not_vendored"
+      "path": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+      "sha256": "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+      "sizeBytes": 1080227,
+      "sourcePolicyStatus": "present_pinned_with_provenance"
     },
     {
-      "exists": false,
+      "exists": true,
+      "manifestEntryPresent": true,
+      "manifestSha256Matches": true,
+      "manifestSizeMatches": true,
       "name": "babel",
-      "path": "app/vendor/babel.min.js",
-      "sizeBytes": null,
-      "sourcePolicyStatus": "not_vendored"
+      "path": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+      "sha256": "7f55bd5c3efadeaa83d4de97dc91da8bf0733789801cf28b9273c4284739798e",
+      "sizeBytes": 3140250,
+      "sourcePolicyStatus": "present_pinned_with_provenance"
     }
   ],
   "networkUsed": false,
-  "productDecisionsNeeded": [
-    "approve_or_provide_exact_local_react_reactdom_babel_assets",
-    "choose_remote_fonts_vs_local_fonts_vs_system_font_fallback",
-    "approve_static_asset_serving_path_for_browser_desktop",
-    "choose_runtime_babel_vendoring_vs_precompiled_ui_build_pipeline"
-  ],
+  "productDecisionsNeeded": [],
   "reportType": "browser_strict_offline_readiness",
   "runtimeBehaviorChanged": false,
   "schemaVersion": "browser_strict_offline_readiness_v1",
@@ -246,32 +222,76 @@
   "summary": {
     "assetKindCounts": {
       "babel_runtime": 2,
-      "font_stylesheet": 2,
       "react_dom_runtime": 2,
       "react_runtime": 2
     },
-    "browserDesktopServesStaticAssetPaths": false,
-    "dependencyCount": 8,
+    "browserDesktopServesStaticAssetPaths": true,
+    "dependencyCount": 6,
     "htmlFileCount": 2,
     "htmlFilesMissing": 0,
     "inlineBabelScriptCount": 2,
     "localVendorCandidateCount": 3,
-    "missingLocalVendorCandidateCount": 3,
-    "remoteFontDependencyCount": 2,
-    "remoteHardBootDependencyCount": 6,
+    "missingLocalVendorCandidateCount": 0,
+    "provenanceAssetCount": 3,
+    "provenanceManifestExists": true,
+    "provenanceManifestValid": true,
+    "remoteFontDependencyCount": 0,
+    "remoteHardBootDependencyCount": 0,
     "riskClassCounts": {
-      "cosmetic_font_remote_dependency": 2,
-      "hard_offline_boot_blocker": 6
+      "local_boot_runtime_asset": 6
     },
-    "strictOfflineBootBlockedBy": [
-      "remote_react_reactdom_babel_boot_assets",
-      "missing_local_vendor_asset_candidates",
-      "browser_desktop_static_asset_serving_not_implemented",
-      "remote_google_font_stylesheets",
-      "inline_text_babel_requires_babel_runtime_or_build_pipeline"
-    ],
-    "strictOfflineBootPossibleNow": false,
+    "strictOfflineBootBlockedBy": [],
+    "strictOfflineBootPossibleNow": true,
+    "unverifiedLocalVendorCandidateCount": 0,
     "usesRuntimeBabel": true
   },
-  "uiRuntimeChanged": false
+  "uiRuntimeChanged": false,
+  "vendorProvenance": {
+    "assetCount": 3,
+    "assets": [
+      {
+        "artifact": "react.development.js",
+        "browserPath": "/vendor/browser/react/18.3.1/react.development.js",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/facebook/react/blob/v18.3.1/LICENSE",
+        "localPath": "app/vendor/browser/react/18.3.1/react.development.js",
+        "package": "react",
+        "resolvedFrom": "https://unpkg.com/react@18/umd/react.development.js",
+        "sha256": "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+        "sizeBytes": 109931,
+        "sourceUrl": "https://unpkg.com/react@18.3.1/umd/react.development.js",
+        "version": "18.3.1"
+      },
+      {
+        "artifact": "react-dom.development.js",
+        "browserPath": "/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/facebook/react/blob/v18.3.1/LICENSE",
+        "localPath": "app/vendor/browser/react-dom/18.3.1/react-dom.development.js",
+        "package": "react-dom",
+        "resolvedFrom": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+        "sha256": "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+        "sizeBytes": 1080227,
+        "sourceUrl": "https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js",
+        "version": "18.3.1"
+      },
+      {
+        "artifact": "babel.min.js",
+        "browserPath": "/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+        "license": "MIT",
+        "licenseUrl": "https://github.com/babel/babel/blob/v7.29.7/LICENSE",
+        "localPath": "app/vendor/browser/babel-standalone/7.29.7/babel.min.js",
+        "package": "@babel/standalone",
+        "resolvedFrom": "https://unpkg.com/@babel/standalone/babel.min.js",
+        "sha256": "7f55bd5c3efadeaa83d4de97dc91da8bf0733789801cf28b9273c4284739798e",
+        "sizeBytes": 3140250,
+        "sourceUrl": "https://unpkg.com/@babel/standalone@7.29.7/babel.min.js",
+        "version": "7.29.7"
+      }
+    ],
+    "exists": true,
+    "path": "app/vendor/browser/PROVENANCE.json",
+    "schemaVersion": "browser_vendor_provenance_v1",
+    "validJson": true
+  }
 }
