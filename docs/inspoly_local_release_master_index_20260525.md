@@ -30,6 +30,29 @@ Current policy:
 - `PROJECT_MEMORY.md` stays local-only;
 - remaining work is approval-gated, not automatic.
 
+## 2026-05-26 Current-State Addendum
+
+The 2025 master index is now historical. The current local release state is consolidated in:
+
+- `docs/inspoly_local_release_consolidation_20260526.md`
+- `validation_outputs/inspoly_local_release_consolidation_20260526.json`
+
+Current head at the addendum: `f9ec8c5` (`Document Event Forensic provider query semantics`).
+
+Current local series length: 31 commits on top of `origin/main`.
+
+Current gate: `local_release_consolidated_ready_for_next_workstream`.
+
+Important updates since this index:
+
+- Event Forensic scorer memoization, wallet/context cache, scorer-context preparation, and API-boundary trace work were committed locally.
+- Event Forensic pagination impact, granular pagination probe, and provider/query semantics RFC were committed locally.
+- Production pagination expansion remains blocked: latest gate `provider_query_semantics_rfc_ready_no_runtime_change`.
+- Phase 3 capital-at-risk runtime remains blocked.
+- Push/PR remains deferred by user.
+
+Use the 2026-05-26 consolidation report as the current source of truth for gates and local-only artifact handling.
+
 ## Commit Ledger
 
 | Commit | Title | Category | Runtime behavior changed | Tests / checks mentioned | Push status | Risk | Rollback note |
