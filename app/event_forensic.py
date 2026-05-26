@@ -10,6 +10,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from statistics import median
+from threading import Lock
 from time import perf_counter
 from urllib.parse import unquote, urlparse
 
@@ -34,6 +35,7 @@ from app.event_forensic_performance import (
     build_score_loop_memoization_metadata,
     build_score_trade_prepared_context_metadata,
     build_scorer_context_profile_metadata,
+    build_wallet_api_boundary_trace_metadata,
     build_wallet_context_reuse_metadata,
 )
 from app.models import FlaggedCase, Market, Trade
@@ -361,6 +363,20 @@ def _time_window_filter_trades(
     return filtered
 
 
+def _append_wallet_api_trace(
+    trace_records: list[dict[str, object]] | None,
+    trace_lock: Lock | None,
+    record: dict[str, object],
+) -> None:
+    if trace_records is None:
+        return
+    if trace_lock is None:
+        trace_records.append(record)
+        return
+    with trace_lock:
+        trace_records.append(record)
+
+
 def _funding_skip_reason_for_mode(mode: str, *, include_blockchain: bool) -> str:
     if not include_blockchain:
         return "blockchain_disabled"
@@ -484,6 +500,8 @@ class EventForensicAnalyzer:
             return report
 
         wallet_cache: dict[str, tuple[object, list[Trade], WalletPerformance]] = {}
+        wallet_api_trace_records: list[dict[str, object]] = []
+        wallet_api_trace_lock = Lock()
         wallet_prefetch_executor: ThreadPoolExecutor | None = None
         warm_wallet_futures: dict[str, Future] = {}
         if EVENT_FORENSIC_WALLET_PREFETCH_WORKERS > 1:
@@ -504,6 +522,8 @@ class EventForensicAnalyzer:
                     self._fetch_wallet_context,
                     wallet,
                     scope_context.analysis_markets,
+                    trace_records=wallet_api_trace_records,
+                    trace_lock=wallet_api_trace_lock,
                 )
 
         stage_started = perf_counter()
@@ -704,6 +724,8 @@ class EventForensicAnalyzer:
             stop_event=stop_event,
             prestarted_futures=warm_wallet_futures,
             executor=wallet_prefetch_executor,
+            trace_records=wallet_api_trace_records,
+            trace_lock=wallet_api_trace_lock,
         )
         performance["prefetch_wallet_context_seconds"] = round(perf_counter() - stage_started, 2)
         performance["wallet_context_count"] = len(wallet_cache)
@@ -751,8 +773,21 @@ class EventForensicAnalyzer:
             funding_trace_mode=effective_funding_trace_mode,
             progress_callback=progress_callback,
             stop_event=stop_event,
+            wallet_api_trace_records=wallet_api_trace_records,
+            wallet_api_trace_lock=wallet_api_trace_lock,
         )
         performance["prepare_candidate_context_seconds"] = round(perf_counter() - stage_started, 2)
+        performance["wallet_api_boundary_trace"] = build_wallet_api_boundary_trace_metadata(
+            trace_records=wallet_api_trace_records,
+            requested_wallet_references=len(context_pool_wallet_references),
+            unique_requested_wallets=context_pool_wallet_count,
+            wallet_context_count=len(wallet_cache),
+            prestarted_future_count=len(warm_wallet_futures),
+            prefetch_seconds=float(performance["prefetch_wallet_context_seconds"] or 0.0),
+            truncated_market_count=truncated_market_count,
+            analysis_market_count=len(scope_context.analysis_markets),
+            live_resolved_market_count=len(resolved.markets),
+        )
         performance["funding_request_count"] = len(funding_requests)
         performance["funding_prefetch_workers"] = (
             0
@@ -1729,6 +1764,8 @@ class EventForensicAnalyzer:
         stop_event: object | None,
         prestarted_futures: dict[str, Future] | None = None,
         executor: ThreadPoolExecutor | None = None,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> None:
         wallets = sorted({trade.wallet for trade in candidate_trades if trade.wallet and trade.wallet not in wallet_cache})
         if not wallets:
@@ -1748,7 +1785,15 @@ class EventForensicAnalyzer:
             for index, wallet in enumerate(remaining_wallets, start=1):
                 if _stop_requested(stop_event):
                     return
-                wallet_cache[wallet] = self._fetch_wallet_context(wallet, focus_markets)
+                if trace_records is None and trace_lock is None:
+                    wallet_cache[wallet] = self._fetch_wallet_context(wallet, focus_markets)
+                else:
+                    wallet_cache[wallet] = self._fetch_wallet_context(
+                        wallet,
+                        focus_markets,
+                        trace_records=trace_records,
+                        trace_lock=trace_lock,
+                    )
                 if index == 1 or index == total_wallets or index % progress_step == 0:
                     percent = 26 + int((index / total_wallets) * 6)
                     _emit_progress(
@@ -1768,7 +1813,18 @@ class EventForensicAnalyzer:
         futures = {future: wallet for wallet, future in warm_futures.items()}
         if active_executor is not None:
             for wallet in remaining_wallets:
-                futures[active_executor.submit(self._fetch_wallet_context, wallet, focus_markets)] = wallet
+                if trace_records is None and trace_lock is None:
+                    futures[active_executor.submit(self._fetch_wallet_context, wallet, focus_markets)] = wallet
+                else:
+                    futures[
+                        active_executor.submit(
+                            self._fetch_wallet_context,
+                            wallet,
+                            focus_markets,
+                            trace_records=trace_records,
+                            trace_lock=trace_lock,
+                        )
+                    ] = wallet
 
         if not futures:
             return
@@ -1800,11 +1856,22 @@ class EventForensicAnalyzer:
         wallet: str,
         wallet_cache: dict[str, tuple[object, list[Trade], WalletPerformance]],
         focus_markets: dict[str, Market],
+        *,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> tuple[object, list[Trade], WalletPerformance]:
         cached = wallet_cache.get(wallet)
         if cached is not None:
             return cached
-        cached = self._fetch_wallet_context(wallet, focus_markets)
+        if trace_records is None and trace_lock is None:
+            cached = self._fetch_wallet_context(wallet, focus_markets)
+        else:
+            cached = self._fetch_wallet_context(
+                wallet,
+                focus_markets,
+                trace_records=trace_records,
+                trace_lock=trace_lock,
+            )
         wallet_cache[wallet] = cached
         return cached
 
@@ -1812,8 +1879,14 @@ class EventForensicAnalyzer:
         self,
         wallet: str,
         focus_markets: dict[str, Market],
+        *,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> tuple[object, list[Trade], WalletPerformance]:
+        started = perf_counter()
+        stats_started = perf_counter()
         wallet_stats = self._client.fetch_wallet_stats(wallet, trade_limit=500)
+        wallet_stats_seconds = perf_counter() - stats_started
         wallet_inspection = _build_wallet_inspection(
             wallet,
             wallet_stats.trades,
@@ -1821,8 +1894,27 @@ class EventForensicAnalyzer:
             wallet_stats.polygon_nonce,
             focus_markets,
         )
+        positions_started = perf_counter()
         wallet_positions = self._client.fetch_wallet_positions(wallet)
+        wallet_positions_seconds = perf_counter() - positions_started
+        performance_started = perf_counter()
         wallet_performance = compute_wallet_performance(wallet_stats.trades, wallet_positions)
+        wallet_performance_seconds = perf_counter() - performance_started
+        _append_wallet_api_trace(
+            trace_records,
+            trace_lock,
+            {
+                "wallet": wallet,
+                "totalSeconds": round(perf_counter() - started, 6),
+                "walletStatsSeconds": round(wallet_stats_seconds, 6),
+                "walletPositionsSeconds": round(wallet_positions_seconds, 6),
+                "walletPerformanceSeconds": round(wallet_performance_seconds, 6),
+                "walletStatsTradeRows": len(wallet_stats.trades),
+                "walletPositionsRows": len(wallet_positions),
+                "tradedMarketCountAvailable": wallet_stats.traded_market_count is not None,
+                "polygonNonceAvailable": wallet_stats.polygon_nonce is not None,
+            },
+        )
         return wallet_inspection, wallet_stats.trades, wallet_performance
 
     def _prepare_candidate_contexts(
@@ -1839,6 +1931,8 @@ class EventForensicAnalyzer:
         funding_trace_mode: str,
         progress_callback: callable | None,
         stop_event: object | None,
+        wallet_api_trace_records: list[dict[str, object]] | None = None,
+        wallet_api_trace_lock: Lock | None = None,
     ) -> tuple[
         list[CandidateReplayContext],
         dict[tuple[str, str], tuple[str, datetime]],
@@ -1872,6 +1966,8 @@ class EventForensicAnalyzer:
                 trade.wallet,
                 wallet_cache,
                 scope_context.analysis_markets,
+                trace_records=wallet_api_trace_records,
+                trace_lock=wallet_api_trace_lock,
             )
             scoped_wallet_history_trades = scoped_wallet_history_cache.get(trade.wallet)
             if scoped_wallet_history_trades is None:

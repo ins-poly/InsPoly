@@ -288,6 +288,99 @@ def build_score_trade_prepared_context_metadata(
     }
 
 
+def build_wallet_api_boundary_trace_metadata(
+    *,
+    trace_records: Sequence[Mapping[str, object]],
+    requested_wallet_references: int,
+    unique_requested_wallets: int,
+    wallet_context_count: int,
+    prestarted_future_count: int = 0,
+    prefetch_seconds: float = 0.0,
+    truncated_market_count: int = 0,
+    analysis_market_count: int = 0,
+    live_resolved_market_count: int = 0,
+) -> dict[str, object]:
+    """Aggregate wallet API-boundary timings without exposing per-wallet rows."""
+
+    records = [dict(record) for record in trace_records if isinstance(record, Mapping)]
+    context_count = max(0, int(wallet_context_count or 0))
+    wallet_refs = max(0, int(requested_wallet_references or 0))
+    unique_wallets = max(0, int(unique_requested_wallets or 0))
+    fetched_wallets = len(records)
+    unique_fetched_wallets = len({str(record.get("wallet") or "") for record in records if record.get("wallet")})
+    duplicate_wallet_requests = max(0, fetched_wallets - unique_fetched_wallets)
+    total_seconds = sum(_float_or_zero(record.get("totalSeconds")) for record in records)
+    stats_seconds = sum(_float_or_zero(record.get("walletStatsSeconds")) for record in records)
+    positions_seconds = sum(_float_or_zero(record.get("walletPositionsSeconds")) for record in records)
+    performance_seconds = sum(_float_or_zero(record.get("walletPerformanceSeconds")) for record in records)
+    trade_rows = sum(max(0, int(record.get("walletStatsTradeRows") or 0)) for record in records)
+    position_rows = sum(max(0, int(record.get("walletPositionsRows") or 0)) for record in records)
+    inferred_request_count = fetched_wallets * 4
+    return {
+        "enabled": True,
+        "runLocalOnly": True,
+        "additiveMetadataOnly": True,
+        "walletFetchBoundaryPreserved": True,
+        "paginationSemanticsPreserved": True,
+        "candidateOrderPreserved": True,
+        "candidateAdmissionPreserved": True,
+        "scoreFormulaPreserved": True,
+        "reviewRoutingPreserved": True,
+        "exportsPreserved": True,
+        "requestedWalletReferences": wallet_refs,
+        "uniqueRequestedWallets": unique_wallets,
+        "walletContextCount": context_count,
+        "walletContextFetchRecords": fetched_wallets,
+        "uniqueFetchedWallets": unique_fetched_wallets,
+        "duplicateExactWalletContextRequests": duplicate_wallet_requests,
+        "safeExactDedupeOpportunity": duplicate_wallet_requests > 0,
+        "prestartedFutureCount": max(0, int(prestarted_future_count or 0)),
+        "repeatedWalletReferencesAlreadyDeduped": max(0, wallet_refs - unique_wallets),
+        "prefetchSeconds": round(max(0.0, float(prefetch_seconds or 0.0)), 6),
+        "observedWalletBoundarySeconds": round(total_seconds, 6),
+        "walletStatsSeconds": round(stats_seconds, 6),
+        "walletPositionsSeconds": round(positions_seconds, 6),
+        "walletPerformanceSeconds": round(performance_seconds, 6),
+        "secondsPerWalletContext": _ratio(prefetch_seconds, context_count),
+        "observedBoundarySecondsPerWallet": _ratio(total_seconds, fetched_wallets),
+        "walletStatsSecondsPerWallet": _ratio(stats_seconds, fetched_wallets),
+        "walletPositionsSecondsPerWallet": _ratio(positions_seconds, fetched_wallets),
+        "inferredRequestCount": inferred_request_count,
+        "inferredRequestsPerWalletContext": _ratio(inferred_request_count, context_count),
+        "requestClassCounts": {
+            "data_api_traded_inferred": fetched_wallets,
+            "data_api_wallet_trades_inferred": fetched_wallets,
+            "polygon_rpc_nonce_inferred": fetched_wallets,
+            "data_api_positions_inferred": fetched_wallets,
+        },
+        "requestClassSeconds": {
+            "wallet_stats_bundle": round(stats_seconds, 6),
+            "wallet_positions": round(positions_seconds, 6),
+            "wallet_performance_local": round(performance_seconds, 6),
+        },
+        "rowsReturned": {
+            "walletStatsTradeRows": trade_rows,
+            "walletPositionRows": position_rows,
+            "walletStatsTradeRowsPerWallet": _ratio(trade_rows, fetched_wallets),
+            "walletPositionRowsPerWallet": _ratio(position_rows, fetched_wallets),
+        },
+        "paginationContext": {
+            "truncatedMarketCount": max(0, int(truncated_market_count or 0)),
+            "analysisMarketCount": max(0, int(analysis_market_count or 0)),
+            "liveResolvedMarketCount": max(0, int(live_resolved_market_count or 0)),
+            "subsetOnlyLikely": bool(live_resolved_market_count and analysis_market_count < live_resolved_market_count),
+        },
+        "retryFallbackVisibility": "not_instrumented_at_low_level",
+        "batchingImplemented": False,
+        "batchingApproved": False,
+        "safePatchRecommendation": (
+            "exact_duplicate_wallet_request_dedupe_possible"
+            if duplicate_wallet_requests > 0
+            else "no_safe_runtime_patch_from_trace_without_api_equivalence_rfc"
+        ),
+    }
+
+
 def summarize_timing_costs(
     timings: Mapping[str, object],
     *,

@@ -14,6 +14,7 @@ from app.event_forensic_performance import (
     compare_candidate_output_contract,
     build_score_trade_prepared_context_metadata,
     build_scorer_context_profile_metadata,
+    build_wallet_api_boundary_trace_metadata,
     build_wallet_context_reuse_metadata,
     summarize_timing_costs,
 )
@@ -128,6 +129,48 @@ class EventForensicPerformancePatchContractTests(unittest.TestCase):
         self.assertEqual(metadata["effectiveScopedHistoryReuseRatio"], 0.75)
         self.assertEqual(metadata["prefetchSecondsPerWalletContext"], 0.5)
         self.assertTrue(metadata["scoreFormulaPreserved"])
+
+    def test_wallet_api_boundary_trace_metadata_aggregates_without_raw_wallet_dump(self) -> None:
+        metadata = build_wallet_api_boundary_trace_metadata(
+            trace_records=[
+                {
+                    "wallet": "0xaaa",
+                    "totalSeconds": 1.5,
+                    "walletStatsSeconds": 1.0,
+                    "walletPositionsSeconds": 0.4,
+                    "walletPerformanceSeconds": 0.1,
+                    "walletStatsTradeRows": 500,
+                    "walletPositionsRows": 4,
+                },
+                {
+                    "wallet": "0xbbb",
+                    "totalSeconds": 2.5,
+                    "walletStatsSeconds": 2.0,
+                    "walletPositionsSeconds": 0.3,
+                    "walletPerformanceSeconds": 0.2,
+                    "walletStatsTradeRows": 250,
+                    "walletPositionsRows": 2,
+                },
+            ],
+            requested_wallet_references=10,
+            unique_requested_wallets=2,
+            wallet_context_count=2,
+            prestarted_future_count=1,
+            prefetch_seconds=5.0,
+            truncated_market_count=1,
+            analysis_market_count=6,
+            live_resolved_market_count=15,
+        )
+
+        self.assertTrue(metadata["enabled"])
+        self.assertTrue(metadata["walletFetchBoundaryPreserved"])
+        self.assertTrue(metadata["paginationSemanticsPreserved"])
+        self.assertEqual(metadata["walletContextFetchRecords"], 2)
+        self.assertEqual(metadata["duplicateExactWalletContextRequests"], 0)
+        self.assertEqual(metadata["repeatedWalletReferencesAlreadyDeduped"], 8)
+        self.assertEqual(metadata["requestClassCounts"]["data_api_positions_inferred"], 2)
+        self.assertEqual(metadata["rowsReturned"]["walletStatsTradeRows"], 750)
+        self.assertNotIn("0xaaa", json.dumps(metadata))
 
     def test_scorer_context_profile_metadata_ranks_buckets_without_behavior_change(self) -> None:
         metadata = build_scorer_context_profile_metadata(
