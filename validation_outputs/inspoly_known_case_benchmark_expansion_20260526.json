@@ -1,0 +1,118 @@
+{
+  "baseCommit": {
+    "hash": "f2c8547",
+    "title": "Consolidate strategic control layer"
+  },
+  "caseCounts": {
+    "advisoryOnlyCaseCount": 8,
+    "after": 24,
+    "before": 16,
+    "falsePositiveControlCaseCount": 4,
+    "realOrDerivedCaseCount": 17,
+    "syntheticCaseCount": 7
+  },
+  "categoriesAdded": [
+    "true_low_probability_later_winner",
+    "weak_history_near_certainty_demotion",
+    "selected_market_vs_whole_event_scope_boundary",
+    "pagination_truncation_warning_control",
+    "false_positive_near_certainty_control",
+    "high_volume_public_user_false_positive_control",
+    "funding_unknown_control",
+    "no_independent_hard_evidence_control"
+  ],
+  "filesChanged": [
+    "tools/curate_known_case_benchmark.py",
+    "tools/run_known_case_benchmark.py",
+    "tools/run_inspoly_benchmark_suite.py",
+    "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+    "tests/fixtures/inspoly_benchmark_registry/registry.json",
+    "tests/test_known_case_benchmark.py",
+    "docs/inspoly_known_case_benchmark_schema_20260522.md",
+    "docs/inspoly_known_case_benchmark_corpus_20260522.md",
+    "docs/inspoly_known_case_benchmark_expansion_20260526.md",
+    "validation_outputs/known_case_benchmark_run_20260526.json",
+    "validation_outputs/inspoly_benchmark_suite_v2_20260526.json",
+    "validation_outputs/inspoly_known_case_benchmark_expansion_20260526.json"
+  ],
+  "gateDecision": "known_case_benchmark_expanded",
+  "generatedAt": "2026-05-26",
+  "invariantsPreserved": {
+    "networkOrRpcUsed": false,
+    "phase3RuntimeChanged": false,
+    "productionRuntimeChanged": false,
+    "pushOrPrPerformed": false,
+    "savedArtifactsMutated": false,
+    "scoringOrGateChanged": false,
+    "storageOrUiSortingChanged": false
+  },
+  "newControlExpectations": {
+    "automaticActionAllowed": false,
+    "directGateMutationAllowed": false,
+    "freshValidationRequiredForModelUse": true,
+    "safeToUseForScoringClaims": false
+  },
+  "outputs": {
+    "benchmarkRun": "validation_outputs/known_case_benchmark_run_20260526.json",
+    "benchmarkSuiteRun": "validation_outputs/inspoly_benchmark_suite_v2_20260526.json",
+    "report": "docs/inspoly_known_case_benchmark_expansion_20260526.md"
+  },
+  "rejectedOrDeferredSources": [
+    {
+      "reason": "bulky/noisy; compact fixture references only",
+      "source": "raw Event Forensic reports"
+    },
+    {
+      "reason": "generated local artifacts; not staged",
+      "source": "review packet directories"
+    },
+    {
+      "reason": "not needed for offline benchmark expansion",
+      "source": "live/RPC refresh"
+    },
+    {
+      "reason": "requires human curation and source proof",
+      "source": "exact-wallet public-case claims without strong provenance"
+    }
+  ],
+  "schemaVersion": "known_case_benchmark_expansion_v1",
+  "sourceTypeCountsAfter": {
+    "false_positive_library": 4,
+    "generated_audit_evidence": 5,
+    "real_local_artifact": 2,
+    "review_packet": 4,
+    "sidecar_measurement": 2,
+    "synthetic_fixture": 7
+  },
+  "sourcesUsed": [
+    {
+      "caseCount": 4,
+      "path": "false_positive_library/false_positive_pattern_library_20260505_151140.json",
+      "status": "local_only_source_referenced_compactly"
+    },
+    {
+      "caseCount": 2,
+      "path": "validation_outputs/event_forensic_weak_history_policy_evidence_20260524.json",
+      "status": "local_sidecar_source_referenced_compactly"
+    },
+    {
+      "caseCount": 1,
+      "path": "validation_outputs/event_forensic_scope_semantics_audit_20260525.json",
+      "status": "committed_compact_validation_output"
+    },
+    {
+      "caseCount": 1,
+      "path": "validation_outputs/event_forensic_pagination_impact_assessment_20260526.json",
+      "status": "committed_compact_validation_output"
+    }
+  ],
+  "testSummary": {
+    "fullUnittestDiscover": "1109 tests OK",
+    "focusedBenchmarkAndSchemaTests": "31 tests OK",
+    "focusedPhase3ReviewAutonomousGuardrailTests": "92 tests OK",
+    "focusedSideOutcomeEventForensicCrossModeScannerTests": "235 tests OK",
+    "knownCaseBenchmarkGate": "known_case_corpus_ready",
+    "knownCaseBenchmarkTests": "17 tests OK",
+    "unifiedBenchmarkGate": "benchmark_suite_v2_ready"
+  }
+}

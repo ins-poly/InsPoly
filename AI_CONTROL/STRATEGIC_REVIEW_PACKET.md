@@ -24,6 +24,7 @@ InsPoly is a local-first investigation toolkit for suspicious Polymarket trading
 - Verification baseline: focused matrix 660 tests OK and full unittest discovery 1105 tests OK.
 - Browser strict offline boot is ready: React, ReactDOM, and Babel are vendored locally and served by narrow static routes.
 - Side/Outcome Phase 2/4 is stable after local benchmark/drift audits.
+- Known-case benchmark v2 now has 24 compact offline cases, including false-positive and sidecar-context controls.
 - Event Forensic selected-market vs whole-event semantics are implemented and must remain explicit.
 - Event Forensic weak-history near-certainty rows are demoted from primary review while remaining exported/reviewable.
 - Event Forensic performance improved, but large whole-event runs still depend on wallet-context loading and event-wide trade collection.
@@ -92,7 +93,7 @@ The user observed that Codex can overfocus on small technical loops and asked fo
 ## 8. Known Unresolved Issues
 - Push/PR grouping is still operator-gated.
 - Whether root `AGENTS.md` should be tracked as repository policy remains a user decision.
-- Known-case benchmark coverage remains incomplete.
+- Known-case benchmark coverage has advisory false-positive controls, but exact-wallet public-case labels remain incomplete.
 - Event/archive pagination can truncate deep histories; production pagination expansion remains blocked.
 - Whole-event Event Forensic can still be expensive on large events.
 - Replay persistence is not embedded into reports or storage.
@@ -109,19 +110,19 @@ The user observed that Codex can overfocus on small technical loops and asked fo
 - External GPT may recommend generic architecture changes that conflict with repo-specific compatibility logic.
 
 ## 10. Next Strategic Directions
-- Recommended Direction: Known-case benchmark expansion.
-  - Pros: improves strategic validation, false-positive control, and future model-change confidence without changing runtime.
-  - Cons: requires careful curation and source classification; may not produce immediate UI/runtime changes.
+- Recommended Direction: Human-curated public-case benchmark labeling.
+  - Pros: builds on the expanded v2 benchmark while separating exact-wallet assertions from pattern-level controls.
+  - Cons: requires source URLs, timestamps, and final human labels before executable exact-wallet claims.
 - Alternative Direction: Push/PR packaging.
   - Pros: makes current local progress reviewable and shareable.
   - Cons: explicitly user-gated; must avoid staging generated/local-only artifacts.
 - Alternative Direction: Legacy Tk UI freeze/retire decision.
   - Pros: reduces UI confusion with docs/RFC-only work.
-  - Cons: lower validation leverage than benchmark expansion.
+  - Cons: lower validation leverage than public-case source curation.
 - Avoid repeating now: Phase 3 runtime evidence, pagination/provider probes, and performance tuning unless new evidence or operator approval appears.
 
 ## 11. Operator Decision Questions
-- Should the next Codex campaign focus on known-case benchmark expansion, or should push/PR packaging take precedence despite the current user-gated status?
+- Should the next Codex campaign focus on human-curated public-case benchmark labels, or should push/PR packaging take precedence despite the current user-gated status?
 - Should root `AGENTS.md` remain local-only, or become tracked repository policy in a future process-control commit?
 - Should any AI_CONTROL files be made part of a future public/tracked repo package, or remain local agent-control documentation?
 - Is external GPT allowed to propose approval-gated scoring/gate changes, or should it be restricted to planning and validation recommendations only?

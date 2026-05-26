@@ -11,13 +11,15 @@ Last updated: 2026-05-26 EEST.
 - Keep Strategic Operating System autonomy bounded by approval gates.
 
 ## Highest-Leverage Next Work
-- Curate or extend known-case benchmark coverage for public investigative cases and false-positive notes. This is the recommended next product workstream after strategic-control consolidation because it improves validation and false-positive control without touching runtime gates.
+- Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 24 compact cases with false-positive and sidecar-context controls.
+- If more validation work is desired, curate human-sourced public-case exact-wallet labels separately from the advisory controls. Require source URLs, catalyst/public-knowledge timestamps, and final human labels before executable exact-wallet assertions.
 - Decide push/PR grouping only when the owner explicitly wants to publish; release-candidate verification already passed at `ad27400`.
 - Use `AI_CONTROL/STRATEGIC_OPERATING_SYSTEM.md` for every open-ended strategic campaign and score candidate paths before implementation.
 - Create a ChatGPT strategic review from `AI_CONTROL/STRATEGIC_REVIEW_PACKET.md` if external review is desired before the next product campaign.
 - Run bounded Event Forensic performance/pagination work only from measured bottlenecks and explicit target selection.
 
 ## Should Do
+- Add a public-case benchmark curation packet that separates exact-wallet assertions from event/pattern-level assertions and false-positive controls.
 - Add more tests around archive visibility, browser report normalization, event eligibility, and partial/live Event Forensic modes.
 - Create a provider/query micro-probe packet for one selected truncated market before any production pagination expansion.
 - Improve analyst-facing strategic summaries and review packet freshness checks.

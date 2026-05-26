@@ -126,3 +126,20 @@ It is not sufficient for:
 Decision: `known_case_corpus_ready`.
 
 Next approval-gated step remains a bounded live/RPC or stable saved-report Event Forensic weak-history near-certainty validation run.
+
+## 2026-05-26 Expansion Addendum
+
+The corpus was expanded to `known_case_benchmark_v2` with `24` compact cases. The original `16` required categories remain covered, and `8` advisory/context categories were added:
+
+- true low-probability later-winner context;
+- weak-history near-certainty demotion;
+- selected-market vs whole-event scope boundary;
+- pagination/truncation warning control;
+- false-positive near-certainty control;
+- high-volume public-user false-positive control;
+- funding-unknown control;
+- no independent hard-evidence control.
+
+The expansion adds `4` false-positive library controls and `4` sidecar-context controls. These cases are executable regression guards for overclaiming, not production model labels. They require `automatic_action_allowed: false`, `safe_to_use_for_scoring_claims: false`, and explicit `forbidden_interpretation` text.
+
+Gate remains `known_case_corpus_ready`; the broader campaign gate is `known_case_benchmark_expanded`.

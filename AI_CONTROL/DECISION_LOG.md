@@ -3,6 +3,11 @@
 Last updated: 2026-05-26 EEST.
 
 ## Current Strategic Decisions
+- Decision: Expand known-case benchmark controls without runtime/model changes.
+  - Why: Future scoring/runtime work needs stronger regression coverage for false-positive and overclaiming boundaries, but current release state does not justify model/gate changes.
+  - Consequence: `known_case_benchmark_v2` has 24 compact offline cases, including four false-positive controls and four sidecar-context controls. These cases are advisory/regression evidence only and require `automatic_action_allowed: false` plus `safe_to_use_for_scoring_claims: false`.
+  - Reversal / revisit condition: If a future human-curated public-case corpus provides stronger exact-wallet source proof, add separate exact-case fixtures instead of widening these advisory controls.
+
 - Decision: Commit the compact AI_CONTROL layer and repo-local strategic skill as repo process infrastructure.
   - Why: The release candidate is verified, but future autonomous work needs a reviewable strategic handoff that is not dependent on long chat memory or root local-only memory.
   - Consequence: `AI_CONTROL/*.md`, `.gitignore` visibility rules, and `skills/strategic-autonomy-review/SKILL.md` are intended for commit. Root `AGENTS.md` and `PROJECT_MEMORY.md` remain local-only pending explicit owner decision.

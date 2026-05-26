@@ -22,7 +22,7 @@ from tools.curate_known_case_benchmark import REQUIRED_CATEGORIES, validate_know
 
 REPORT_TYPE = "post_side_outcome_known_case_benchmark_run"
 SCHEMA_VERSION = "known_case_benchmark_run_v1"
-DEFAULT_RUN_OUTPUT = Path("validation_outputs/known_case_benchmark_run_20260522.json")
+DEFAULT_RUN_OUTPUT = Path("validation_outputs/known_case_benchmark_run_20260526.json")
 
 
 def run_known_case_benchmark(corpus_path: str | Path = DEFAULT_CORPUS) -> dict[str, object]:
@@ -74,6 +74,7 @@ def evaluate_known_case(case: Mapping[str, object]) -> dict[str, object]:
         errors.append("phase3_blocked_case_allows_runtime")
     if expected.get("direct_gate_mutation_allowed") is not False:
         errors.append("direct_gate_mutation_allowed")
+    errors.extend(_sidecar_contract_errors(case, expected))
     status = "pass" if not errors else "fail"
     if any(row.get("model_probability") == UNKNOWN for row in evaluated_trades) and status == "pass":
         status = "unknown_pass"
@@ -88,8 +89,11 @@ def evaluate_known_case(case: Mapping[str, object]) -> dict[str, object]:
             "economic_side": primary.get("economic_side", UNKNOWN),
             "model_probability": primary.get("model_probability", UNKNOWN),
             "cluster_direction": primary.get("cluster_direction", UNKNOWN),
+            "automatic_action_allowed": False,
+            "false_positive_control": bool(expected.get("false_positive_control", False)),
             "phase3_runtime_allowed": False,
             "direct_gate_mutation_allowed": False,
+            "safe_to_use_for_scoring_claims": False,
         },
         "tradeResults": evaluated_trades,
     }
@@ -166,6 +170,8 @@ def _summarize(case_results: Sequence[Mapping[str, object]], schema_errors: Sequ
         "missingRequiredCategories": missing,
         "schemaErrors": list(schema_errors),
         "phase3BlockedCaseCount": sum(1 for row in case_results if "phase3" in str(row.get("category") or "")),
+        "advisoryOnlyCaseCount": sum(1 for row in case_results if _is_advisory_result(row)),
+        "falsePositiveControlCaseCount": sum(1 for row in case_results if _mapping(row.get("observed")).get("false_positive_control") is True),
         "syntheticCaseCount": source_types.get("synthetic_fixture", 0),
         "realOrDerivedCaseCount": len(case_results) - source_types.get("synthetic_fixture", 0),
     }
@@ -181,6 +187,41 @@ def _gate(summary: Mapping[str, object]) -> str:
 
 def _mapping(value: object) -> Mapping[str, object]:
     return value if isinstance(value, Mapping) else {}
+
+
+def _sidecar_contract_errors(case: Mapping[str, object], expected: Mapping[str, object]) -> list[str]:
+    errors: list[str] = []
+    assertion_type = str(case.get("assertion_type") or "")
+    if expected.get("automatic_action_allowed", False) is not False:
+        errors.append("automatic_action_allowed")
+    if expected.get("safe_to_use_for_scoring_claims", False) is not False:
+        errors.append("safe_to_use_for_scoring_claims")
+    if assertion_type in {"false_positive_control", "sidecar_context_control"}:
+        if not str(case.get("forbidden_interpretation") or "").strip():
+            errors.append("missing_forbidden_interpretation")
+        if expected.get("requires_fresh_validation_for_model_use") is not True:
+            errors.append("fresh_validation_not_required_for_advisory_control")
+    if assertion_type == "false_positive_control":
+        if expected.get("false_positive_control") is not True:
+            errors.append("false_positive_control_not_marked")
+        notes = case.get("false_positive_notes")
+        if not isinstance(notes, list) or not notes:
+            errors.append("false_positive_notes_missing")
+    return errors
+
+
+def _is_advisory_result(row: Mapping[str, object]) -> bool:
+    observed = _mapping(row.get("observed"))
+    return (
+        observed.get("false_positive_control") is True
+        or str(row.get("category") or "")
+        in {
+            "true_low_probability_later_winner",
+            "weak_history_near_certainty_demotion",
+            "selected_market_vs_whole_event_scope_boundary",
+            "pagination_truncation_warning_control",
+        }
+    )
 
 
 if __name__ == "__main__":

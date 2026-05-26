@@ -85,6 +85,16 @@
       "notes": "Confirms overlap is indirect only; no Strong Risk/HER/funding/candidate gate mutation."
     },
     {
+      "id": "false-positive-controls",
+      "title": "False-positive advisory controls",
+      "category": "false_positive_controls",
+      "source_type": "fixture_corpus",
+      "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "expected_gate_or_status": "known_case_corpus_ready",
+      "safe_to_use_for_scoring_claims": false,
+      "notes": "Confirms near-certainty, high-volume public-user, funding-unknown, and no-independent-hard-evidence controls remain advisory-only."
+    },
+    {
       "id": "phase3-capital-blocked",
       "title": "Phase 3 capital-at-risk remains blocked",
       "category": "phase3_capital_blocked",

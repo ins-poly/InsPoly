@@ -99,3 +99,31 @@ Review packets are acceptable stable local evidence because they were generated 
 - direct gate mutation remains forbidden.
 
 Passing this corpus means local Side/Outcome regression coverage is ready for future quick checks. It does not close the separate live/RPC validation blocker for remembered Event Forensic weak-history near-certainty cases.
+
+## 2026-05-26 V2 Addendum
+
+`known_case_benchmark_v2` keeps the original Side/Outcome contract and adds advisory-only controls. New case fields:
+
+- `assertion_type`: `side_outcome_contract`, `false_positive_control`, or `sidecar_context_control`.
+- `expected_behavior`: what the case may prove.
+- `forbidden_interpretation`: what the case must not be used to justify.
+- `false_positive_notes`: compact notes for false-positive controls.
+- `source_note`: source-quality context without importing bulky raw artifacts.
+
+Additional source types are allowed for compact controls:
+
+- `false_positive_library`
+- `sidecar_measurement`
+
+Additional required categories:
+
+- `true_low_probability_later_winner`
+- `weak_history_near_certainty_demotion`
+- `selected_market_vs_whole_event_scope_boundary`
+- `pagination_truncation_warning_control`
+- `false_positive_near_certainty_control`
+- `high_volume_public_user_false_positive_control`
+- `funding_unknown_control`
+- `no_independent_hard_evidence_control`
+
+V2 controls are still sidecar-only. They do not authorize scoring, gate, routing, Phase 3, pagination, storage, or UI behavior changes.

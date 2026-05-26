@@ -21,7 +21,7 @@ from tools.run_known_case_benchmark import run_known_case_benchmark
 REPORT_TYPE = "inspoly_benchmark_suite_v2"
 SCHEMA_VERSION = "inspoly_benchmark_suite_v2"
 DEFAULT_REGISTRY = Path("tests/fixtures/inspoly_benchmark_registry/registry.json")
-DEFAULT_OUTPUT = Path("validation_outputs/inspoly_benchmark_suite_v2_20260522.json")
+DEFAULT_OUTPUT = Path("validation_outputs/inspoly_benchmark_suite_v2_20260526.json")
 REQUIRED_CATEGORIES = {
     "side_outcome_phase2_probability",
     "side_outcome_phase4_cluster",
@@ -31,6 +31,7 @@ REQUIRED_CATEGORIES = {
     "malformed_fallback",
     "old_report_compatibility",
     "sensitive_gate_overlap_no_direct_mutation",
+    "false_positive_controls",
     "phase3_capital_blocked",
 }
 
