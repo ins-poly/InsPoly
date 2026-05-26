@@ -78,3 +78,15 @@ A future runtime pagination RFC must prove:
 ## Current Operator Decision
 
 The sidecar collector is allowed for bounded evidence only. Production pagination expansion remains blocked pending impact evidence and a separate RFC.
+
+## 2026-05-26 Granular Probe Addendum
+
+A follow-up one-market granular probe tested the highest-overlap truncated market from the approved Iran subset:
+
+- Market: `us-x-iran-permanent-peace-deal-by-april-30-2026-925`
+- Condition id: `0xceb6dfaa2cf5abc9d47ebc867b984a7715104944249274e8a483a2e17473e5f5`
+- Bounds: one market, 8 time chunks, 31 pages per window, 100 rows per page, 50,000 max unique rows, 30-minute wall time.
+- Result: baseline 5,874 rows and 3,100 candidate-floor rows; granular collection 3,593 rows and 819 candidate-floor rows; 0 rows and 0 candidate-floor rows were added beyond baseline.
+- Gate: `granular_probe_no_new_rows_provider_or_query_bound`
+
+The addendum does not prove full market completeness because the active chunk still hit the provider/page cap. It does reduce evidence for an immediate local pagination expansion: the bounded granular strategy found no material new rows and should stay monitor-only unless a future provider-semantics campaign defines a different bounded query strategy.
