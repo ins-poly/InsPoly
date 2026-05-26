@@ -12,6 +12,7 @@ from app.event_forensic_performance import (
     build_chunk_metadata,
     candidate_performance_cache_key,
     compare_candidate_output_contract,
+    build_scorer_context_profile_metadata,
     build_wallet_context_reuse_metadata,
     summarize_timing_costs,
 )
@@ -126,6 +127,34 @@ class EventForensicPerformancePatchContractTests(unittest.TestCase):
         self.assertEqual(metadata["effectiveScopedHistoryReuseRatio"], 0.75)
         self.assertEqual(metadata["prefetchSecondsPerWalletContext"], 0.5)
         self.assertTrue(metadata["scoreFormulaPreserved"])
+
+    def test_scorer_context_profile_metadata_ranks_buckets_without_behavior_change(self) -> None:
+        metadata = build_scorer_context_profile_metadata(
+            candidate_rows=100,
+            scored_case_count=98,
+            skipped_case_count=2,
+            bucket_seconds={
+                "score_trade_call": 20.0,
+                "wallet_domain_profile_annotation": 2.5,
+                "funding_context_lookup": 0.5,
+            },
+            score_loop_seconds=25.0,
+            wallet_context_reuse={
+                "repeatedWalletContextOpportunities": 70,
+                "effectiveScopedHistoryReuseRatio": 0.7,
+                "effectiveDomainProfileReuseRatio": 0.65,
+                "walletFetchBoundaryPreserved": True,
+            },
+        )
+
+        self.assertTrue(metadata["enabled"])
+        self.assertTrue(metadata["additiveMetadataOnly"])
+        self.assertEqual(metadata["topBuckets"][0]["bucket"], "score_trade_call")
+        self.assertEqual(metadata["topBuckets"][0]["shareOfScoreLoop"], 0.8)
+        self.assertEqual(metadata["topBuckets"][0]["secondsPerCandidate"], 0.2)
+        self.assertTrue(metadata["candidateAdmissionPreserved"])
+        self.assertTrue(metadata["scoreFormulaPreserved"])
+        self.assertTrue(metadata["walletContextReuseSummary"]["walletFetchBoundaryPreserved"])
 
     def test_wallet_domain_profile_cache_preserves_raw_metrics(self) -> None:
         market = _market("cond-politics", question="Will policy pass?")

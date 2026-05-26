@@ -32,6 +32,7 @@ from app.funding_context import (
 )
 from app.event_forensic_performance import (
     build_score_loop_memoization_metadata,
+    build_scorer_context_profile_metadata,
     build_wallet_context_reuse_metadata,
 )
 from app.models import FlaggedCase, Market, Trade
@@ -1003,9 +1004,21 @@ class EventForensicAnalyzer:
             "cache_hits": 0,
             "cache_misses": 0,
         }
+        scorer_profile_seconds = {
+            "funding_context_lookup": 0.0,
+            "score_input_lookup": 0.0,
+            "score_trade_call": 0.0,
+            "candidate_admission_metadata": 0.0,
+            "wallet_domain_profile_annotation": 0.0,
+            "append_case": 0.0,
+            "progress_emit": 0.0,
+        }
+        scored_case_count = 0
+        skipped_case_count = 0
         for trade_index, context in enumerate(candidate_contexts, start=1):
             if _stop_requested(stop_event):
                 break
+            profile_started = perf_counter()
             funding_context = (
                 funding_cache.get(context.funding_cache_key)
                 if context.funding_cache_key is not None
@@ -1013,14 +1026,22 @@ class EventForensicAnalyzer:
             ) or unknown_funding_context(
                 "blockchain_disabled" if not include_blockchain else "funding_trace_not_requested"
             )
+            scorer_profile_seconds["funding_context_lookup"] += perf_counter() - profile_started
 
+            profile_started = perf_counter()
+            wallet_window_trades = scoring_wallet_windows.get(context.trade.wallet, [])
+            market_notional_sample = scoring_market_notional_samples.get(context.trade.condition_id)
+            domain_notional_sample = scoring_domain_notional_samples.get(context.trade_domain)
+            scorer_profile_seconds["score_input_lookup"] += perf_counter() - profile_started
+
+            profile_started = perf_counter()
             case = _score_trade(
                 trade=context.trade,
                 market=context.market,
                 trade_domain=context.trade_domain,
                 wallet_inspection=context.wallet_inspection,
                 wallet_performance=context.wallet_performance,
-                wallet_window_trades=scoring_wallet_windows.get(context.trade.wallet, []),
+                wallet_window_trades=wallet_window_trades,
                 wallet_history_trades=context.wallet_history_trades,
                 market_window_trades=context.market_window_trades,
                 domain_window_trades=context.domain_window_trades,
@@ -1028,8 +1049,8 @@ class EventForensicAnalyzer:
                 funding_context=funding_context,
                 funding_health=scoring_funding_health,
                 include_below_threshold=True,
-                market_notional_samples=scoring_market_notional_samples.get(context.trade.condition_id),
-                domain_notional_samples=scoring_domain_notional_samples.get(context.trade_domain),
+                market_notional_samples=market_notional_sample,
+                domain_notional_samples=domain_notional_sample,
                 prior_wallet_gap_days=context.prior_wallet_gap_days,
                 observed_post_trade_gap_days=context.observed_post_trade_gap_days,
                 family_key=context.family_key,
@@ -1037,11 +1058,16 @@ class EventForensicAnalyzer:
                 prior_family_market_count=context.prior_family_market_count,
                 event_family_share=context.event_family_share,
             )
+            scorer_profile_seconds["score_trade_call"] += perf_counter() - profile_started
             if case is not None:
+                scored_case_count += 1
+                profile_started = perf_counter()
                 _apply_candidate_admission_metadata(
                     case,
                     pre_admission_metadata.get(context.trade.trade_id),
                 )
+                scorer_profile_seconds["candidate_admission_metadata"] += perf_counter() - profile_started
+                profile_started = perf_counter()
                 _annotate_wallet_domain_diversity(
                     case,
                     wallet_history_trades=context.wallet_history_trades,
@@ -1049,22 +1075,29 @@ class EventForensicAnalyzer:
                     domain_counts_cache=wallet_domain_counts_cache,
                     profile=wallet_domain_profile,
                 )
+                scorer_profile_seconds["wallet_domain_profile_annotation"] += perf_counter() - profile_started
+                profile_started = perf_counter()
                 all_cases.append(case)
+                scorer_profile_seconds["append_case"] += perf_counter() - profile_started
+            else:
+                skipped_case_count += 1
 
             percent = 25 + int((trade_index / total_candidates) * 35)
+            profile_started = perf_counter()
             _emit_progress(
                 progress_callback,
                 percent,
                 "Replaying model",
                 f"Scored trade {trade_index}/{total_candidates} with the current InsPoly logic",
             )
+            scorer_profile_seconds["progress_emit"] += perf_counter() - profile_started
         score_candidates_elapsed = perf_counter() - stage_started
         performance["score_candidates_seconds"] = round(score_candidates_elapsed, 2)
         performance["score_candidates_per_second"] = round(
             (len(candidate_contexts) / score_candidates_elapsed) if score_candidates_elapsed > 0 else 0.0,
             3,
         )
-        performance["wallet_context_reuse"] = build_wallet_context_reuse_metadata(
+        wallet_context_reuse = build_wallet_context_reuse_metadata(
             context_pool_trade_rows=len(context_pool_trades),
             candidate_rows=len(candidate_contexts),
             requested_wallet_references=len(context_pool_wallet_references),
@@ -1082,6 +1115,15 @@ class EventForensicAnalyzer:
             prefetch_seconds=float(performance["prefetch_wallet_context_seconds"] or 0.0),
             prepare_seconds=float(performance["prepare_candidate_context_seconds"] or 0.0),
             score_seconds=float(performance["score_candidates_seconds"] or 0.0),
+        )
+        performance["wallet_context_reuse"] = wallet_context_reuse
+        performance["scorer_context_profile"] = build_scorer_context_profile_metadata(
+            candidate_rows=len(candidate_contexts),
+            scored_case_count=scored_case_count,
+            skipped_case_count=skipped_case_count,
+            bucket_seconds=scorer_profile_seconds,
+            score_loop_seconds=score_candidates_elapsed,
+            wallet_context_reuse=wallet_context_reuse,
         )
 
         _annotate_domain_peer_history(all_cases, wallet_cache)

@@ -175,6 +175,78 @@ def build_wallet_context_reuse_metadata(
     }
 
 
+def build_scorer_context_profile_metadata(
+    *,
+    candidate_rows: int,
+    scored_case_count: int,
+    skipped_case_count: int,
+    bucket_seconds: Mapping[str, float | int],
+    score_loop_seconds: float,
+    wallet_context_reuse: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Summarize additive scorer-context profiling buckets."""
+
+    candidate_count = max(0, int(candidate_rows or 0))
+    scored_count = max(0, int(scored_case_count or 0))
+    skipped_count = max(0, int(skipped_case_count or 0))
+    total = max(0.0, float(score_loop_seconds or 0.0))
+    normalized = {
+        str(key): round(max(0.0, float(value or 0.0)), 6)
+        for key, value in bucket_seconds.items()
+    }
+    top_buckets = [
+        {
+            "bucket": key,
+            "seconds": value,
+            "shareOfScoreLoop": _ratio(value, total),
+            "secondsPerCandidate": _ratio(value, candidate_count),
+        }
+        for key, value in sorted(normalized.items(), key=lambda item: item[1], reverse=True)
+        if value > 0
+    ]
+    wallet_reuse = dict(wallet_context_reuse or {})
+    return {
+        "enabled": True,
+        "runLocalOnly": True,
+        "additiveMetadataOnly": True,
+        "candidateRows": candidate_count,
+        "scoredCaseCount": scored_count,
+        "skippedCaseCount": skipped_count,
+        "scoreLoopSeconds": round(total, 6),
+        "bucketSeconds": normalized,
+        "topBuckets": top_buckets[:10],
+        "candidateOrderPreserved": True,
+        "candidateAdmissionPreserved": True,
+        "scoreFormulaPreserved": True,
+        "reviewRoutingPreserved": True,
+        "exportsPreserved": True,
+        "scoreTradeCallCovers": [
+            "low_probability_checks",
+            "near_certainty_checks",
+            "cluster_timing_context",
+            "weak_history_score_reducers",
+            "market_domain_percentile_context",
+        ],
+        "externalToScoreTradeBuckets": [
+            "funding_context_lookup",
+            "score_input_lookup",
+            "candidate_admission_metadata",
+            "wallet_domain_profile_annotation",
+            "progress_emit",
+        ],
+        "walletContextReuseSummary": {
+            "repeatedWalletContextOpportunities": int(wallet_reuse.get("repeatedWalletContextOpportunities") or 0),
+            "effectiveScopedHistoryReuseRatio": _float_or_zero(wallet_reuse.get("effectiveScopedHistoryReuseRatio")),
+            "effectiveDomainProfileReuseRatio": _float_or_zero(wallet_reuse.get("effectiveDomainProfileReuseRatio")),
+            "walletFetchBoundaryPreserved": bool(wallet_reuse.get("walletFetchBoundaryPreserved", True)),
+        },
+        "profilingOverheadNote": (
+            "Buckets are coarse run-local timings around existing calls. They do not instrument inside "
+            "_score_trade() and should be interpreted as profiler evidence, not scorer semantics."
+        ),
+    }
+
+
 def summarize_timing_costs(
     timings: Mapping[str, object],
     *,
