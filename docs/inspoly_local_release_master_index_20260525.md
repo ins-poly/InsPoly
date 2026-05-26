@@ -266,3 +266,26 @@ If the owner wants one large PR, keep the commit history intact and call out blo
 - Sidecar rollback: revert the relevant sidecar commit; no storage or saved-report rollback should be needed.
 - Docs/evidence rollback: revert docs/JSON commits only.
 - Keep local-only artifacts untouched unless the owner explicitly asks for cleanup.
+
+## 2026-05-26 V2 Current-State Addendum
+
+This master index is now historical for the first local-release packaging pass. The current release-readiness source of truth is:
+
+- [Final Local Release Readiness V2](inspoly_final_local_release_readiness_v2_20260526.md)
+- [Final Local Release Readiness V2 JSON](../validation_outputs/inspoly_final_local_release_readiness_v2_20260526.json)
+
+Current head before the V2 audit: `f4e4d69` - `Finalize Event Forensic replay persistence decision`.
+
+Current local reform series count: `37` commits from `5d55158` through `f4e4d69`.
+
+Current V2 gate: `local_release_v2_ready_for_future_push_packaging`.
+
+Current blocked/product decisions:
+
+- Phase 3 capital runtime: `phase3_sidecar_only_final`, blocker `phase3_blocked_until_new_source_fields`.
+- Browser strict offline: `browser_offline_asset_policy_ready_for_product_decision`.
+- Replay persistence: `replay_keep_sidecar_only_final`.
+- Event Forensic pagination/provider: `provider_query_semantics_rfc_ready_no_runtime_change`.
+- Push/PR: user-gated and not performed.
+
+The old gate, test, and blocker summaries above should be treated as historical context where they conflict with the V2 readiness report.
