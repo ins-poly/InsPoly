@@ -1,0 +1,277 @@
+{
+  "browserDesktopLauncher": {
+    "exists": true,
+    "path": "app/browser_desktop.py",
+    "servesApiJson": true,
+    "servesRootHtml": true,
+    "servesStaticAssetPaths": false
+  },
+  "chosenStrategy": {
+    "implementedThisCampaign": false,
+    "reason": "required local React/ReactDOM/Babel assets are not present and the desktop server does not serve static asset paths",
+    "strategy": "keep_online_boot_and_document_asset_policy_blocker"
+  },
+  "dependencies": [
+    {
+      "assetKind": "font_stylesheet",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "font_failure_can_fall_back_to_css_font_family"
+      ],
+      "optionalCosmetic": true,
+      "reference": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      "replacementCandidate": "",
+      "replacementExists": false,
+      "requiredForBoot": false,
+      "requiredForReportRendering": false,
+      "riskClass": "cosmetic_font_remote_dependency",
+      "safeFallbackExists": true,
+      "tag": "link"
+    },
+    {
+      "assetKind": "react_runtime",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "react_runtime_required_for_current_browser_boot"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/react@18/umd/react.development.js",
+      "replacementCandidate": "app/vendor/react.development.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    },
+    {
+      "assetKind": "react_dom_runtime",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "react_runtime_required_for_current_browser_boot"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+      "replacementCandidate": "app/vendor/react-dom.development.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    },
+    {
+      "assetKind": "babel_runtime",
+      "devOnlyTranspileRuntime": true,
+      "htmlFile": "app/browser_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "inline_text_babel_requires_babel_runtime_or_precompiled_build"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/@babel/standalone/babel.min.js",
+      "replacementCandidate": "app/vendor/babel.min.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    },
+    {
+      "assetKind": "font_stylesheet",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_event_forensic_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "font_failure_can_fall_back_to_css_font_family"
+      ],
+      "optionalCosmetic": true,
+      "reference": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      "replacementCandidate": "",
+      "replacementExists": false,
+      "requiredForBoot": false,
+      "requiredForReportRendering": false,
+      "riskClass": "cosmetic_font_remote_dependency",
+      "safeFallbackExists": true,
+      "tag": "link"
+    },
+    {
+      "assetKind": "react_runtime",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_event_forensic_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "react_runtime_required_for_current_browser_boot"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/react@18/umd/react.development.js",
+      "replacementCandidate": "app/vendor/react.development.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    },
+    {
+      "assetKind": "react_dom_runtime",
+      "devOnlyTranspileRuntime": false,
+      "htmlFile": "app/browser_event_forensic_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "react_runtime_required_for_current_browser_boot"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+      "replacementCandidate": "app/vendor/react-dom.development.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    },
+    {
+      "assetKind": "babel_runtime",
+      "devOnlyTranspileRuntime": true,
+      "htmlFile": "app/browser_event_forensic_ui.html",
+      "isRemote": true,
+      "localExists": false,
+      "localPath": "",
+      "localSizeBytes": null,
+      "notes": [
+        "inline_text_babel_requires_babel_runtime_or_precompiled_build"
+      ],
+      "optionalCosmetic": false,
+      "reference": "https://unpkg.com/@babel/standalone/babel.min.js",
+      "replacementCandidate": "app/vendor/babel.min.js",
+      "replacementExists": false,
+      "requiredForBoot": true,
+      "requiredForReportRendering": true,
+      "riskClass": "hard_offline_boot_blocker",
+      "safeFallbackExists": false,
+      "tag": "script"
+    }
+  ],
+  "gateDecision": "browser_offline_blocked_requires_asset_policy",
+  "generatedAt": "2026-05-26T11:02:51.125169+00:00",
+  "htmlFiles": [
+    {
+      "exists": true,
+      "inlineBabelScriptCount": 1,
+      "path": "app/browser_ui.html",
+      "sizeBytes": 64478,
+      "usesRuntimeBabel": true
+    },
+    {
+      "exists": true,
+      "inlineBabelScriptCount": 1,
+      "path": "app/browser_event_forensic_ui.html",
+      "sizeBytes": 147436,
+      "usesRuntimeBabel": true
+    }
+  ],
+  "invariantsPreserved": [
+    "no_scoring_or_model_changes",
+    "no_phase3_runtime",
+    "no_storage_schema_changes",
+    "no_ui_sorting_filtering_changes",
+    "no_saved_artifact_mutation",
+    "no_external_assets_vendored",
+    "no_push_pr"
+  ],
+  "localAssets": [
+    {
+      "exists": false,
+      "name": "react",
+      "path": "app/vendor/react.development.js",
+      "sizeBytes": null,
+      "sourcePolicyStatus": "not_vendored"
+    },
+    {
+      "exists": false,
+      "name": "react_dom",
+      "path": "app/vendor/react-dom.development.js",
+      "sizeBytes": null,
+      "sourcePolicyStatus": "not_vendored"
+    },
+    {
+      "exists": false,
+      "name": "babel",
+      "path": "app/vendor/babel.min.js",
+      "sizeBytes": null,
+      "sourcePolicyStatus": "not_vendored"
+    }
+  ],
+  "networkUsed": false,
+  "productDecisionsNeeded": [
+    "approve_or_provide_exact_local_react_reactdom_babel_assets",
+    "choose_remote_fonts_vs_local_fonts_vs_system_font_fallback",
+    "approve_static_asset_serving_path_for_browser_desktop",
+    "choose_runtime_babel_vendoring_vs_precompiled_ui_build_pipeline"
+  ],
+  "reportType": "browser_strict_offline_readiness",
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "browser_strict_offline_readiness_v1",
+  "sidecarOnly": true,
+  "storageSchemaChanged": false,
+  "summary": {
+    "assetKindCounts": {
+      "babel_runtime": 2,
+      "font_stylesheet": 2,
+      "react_dom_runtime": 2,
+      "react_runtime": 2
+    },
+    "browserDesktopServesStaticAssetPaths": false,
+    "dependencyCount": 8,
+    "htmlFileCount": 2,
+    "htmlFilesMissing": 0,
+    "inlineBabelScriptCount": 2,
+    "localVendorCandidateCount": 3,
+    "missingLocalVendorCandidateCount": 3,
+    "remoteFontDependencyCount": 2,
+    "remoteHardBootDependencyCount": 6,
+    "riskClassCounts": {
+      "cosmetic_font_remote_dependency": 2,
+      "hard_offline_boot_blocker": 6
+    },
+    "strictOfflineBootBlockedBy": [
+      "remote_react_reactdom_babel_boot_assets",
+      "missing_local_vendor_asset_candidates",
+      "browser_desktop_static_asset_serving_not_implemented",
+      "remote_google_font_stylesheets",
+      "inline_text_babel_requires_babel_runtime_or_build_pipeline"
+    ],
+    "strictOfflineBootPossibleNow": false,
+    "usesRuntimeBabel": true
+  },
+  "uiRuntimeChanged": false
+}
