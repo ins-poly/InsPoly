@@ -1,0 +1,83 @@
+{
+  "reportType": "indexer_warehouse_w1_manual_command_summary",
+  "schemaVersion": "indexer_warehouse_w1_manual_command_summary_v1",
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "tool": "tools/indexer_warehouse_manual_command.py",
+  "runs": [
+    {
+      "label": "first_one_target",
+      "dbPath": ".inspoly_indexer/bounded_live_20260527/indexer.sqlite3",
+      "rawSummaryPath": ".inspoly_indexer/bounded_live_20260527/raw_run_summary.json",
+      "gateDecision": "ready_for_local_warehouse_review",
+      "marketCount": 1,
+      "tradeCount": 200,
+      "cursorCount": 2,
+      "malformedRawJsonCount": 0,
+      "duplicateIndicatorCount": 0,
+      "warehouseW0Ready": true,
+      "collectionMetadataStatus": "external_summary_required",
+      "warnings": [
+        "stale_cursor_count:2",
+        "aggregate_public_trade_cursor_only",
+        "collection_metadata_not_stored_in_sidecar_db"
+      ]
+    },
+    {
+      "label": "same_slug_repeat",
+      "dbPath": ".inspoly_indexer/bounded_live_repeat_20260527/indexer.sqlite3",
+      "rawSummaryPath": ".inspoly_indexer/bounded_live_repeat_20260527/raw_run_summary.json",
+      "gateDecision": "ready_for_local_warehouse_review",
+      "marketCount": 1,
+      "tradeCount": 200,
+      "cursorCount": 2,
+      "malformedRawJsonCount": 0,
+      "duplicateIndicatorCount": 0,
+      "warehouseW0Ready": true,
+      "collectionMetadataStatus": "external_summary_required",
+      "warnings": [
+        "stale_cursor_count:2",
+        "aggregate_public_trade_cursor_only",
+        "collection_metadata_not_stored_in_sidecar_db"
+      ]
+    },
+    {
+      "label": "per_target_multitarget",
+      "dbPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+      "rawSummaryPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/raw_run_summary.json",
+      "gateDecision": "ready_for_local_warehouse_review",
+      "marketCount": 3,
+      "tradeCount": 180,
+      "cursorCount": 2,
+      "malformedRawJsonCount": 0,
+      "duplicateIndicatorCount": 0,
+      "warehouseW0Ready": true,
+      "collectionMetadataStatus": "per_target_metadata_ready",
+      "rowsByTarget": {
+        "khamenei-out-as-supreme-leader-of-iran-by-february-28": 60,
+        "maduro-in-us-custody-by-january-31": 60,
+        "russia-x-ukraine-ceasefire-by-january-31-2026": 60
+      },
+      "warnings": [
+        "stale_cursor_count:2",
+        "aggregate_public_trade_cursor_only"
+      ]
+    }
+  ],
+  "aggregateSummary": {
+    "dbsReviewed": 3,
+    "readyForLocalWarehouseReview": 3,
+    "blocked": 0,
+    "totalMarkets": 5,
+    "totalTrades": 580,
+    "totalCursors": 6,
+    "malformedRawJsonCount": 0,
+    "duplicateIndicatorCount": 0,
+    "perTargetMetadataReadyDbs": 1,
+    "externalSummaryRequiredDbs": 2
+  },
+  "finalW1EvidenceGate": "all_selected_local_dbs_ready_for_local_warehouse_review",
+  "rawDbCommitPolicy": "do_not_commit_raw_inspoly_indexer_dbs",
+  "runtimeChanged": false,
+  "liveNetworkUsed": false,
+  "productionIntegration": false
+}

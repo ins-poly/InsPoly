@@ -1,0 +1,61 @@
+{
+  "reportType": "indexer_warehouse_w2_registry_retention_packet",
+  "schemaVersion": "indexer_warehouse_w2_registry_retention_packet_v1",
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "packetStatus": "ready_for_owner_review",
+  "implementationStatus": "not_implemented",
+  "objective": "define_local_warehouse_registry_retention_without_scheduler_or_production_integration",
+  "allowedScope": [
+    "target_registry_format",
+    "local_db_inventory_format",
+    "compact_retained_run_manifest",
+    "raw_db_local_only_policy",
+    "max_retained_db_count",
+    "max_retained_byte_warning",
+    "manual_deletion_guidance",
+    "rollback_rules",
+    "readiness_w1_summary_requirements",
+    "no_network_fixture_tests"
+  ],
+  "forbiddenScope": [
+    "live_ingestion",
+    "automatic_repeat_runs",
+    "scheduler_background_daemon",
+    "report_browser_integration",
+    "production_storage_schema_migration",
+    "production_runtime_imports",
+    "saved_report_mutation",
+    "scoring_gate_funding_phase3_use",
+    "clob_auth_private_keys_trading",
+    "push_pr"
+  ],
+  "registryRequiredFields": [
+    "target_slug",
+    "canonical_market_slug",
+    "condition_id",
+    "target_classification",
+    "approved_cap_profile",
+    "source_provenance",
+    "last_reviewed_w1_summary_path",
+    "last_readiness_gate",
+    "per_target_collection_metadata_present",
+    "operator_approval_status"
+  ],
+  "retentionRequiredFields": [
+    "raw_db_root",
+    "compact_summary_root",
+    "max_raw_db_count",
+    "max_raw_db_bytes_or_warning_threshold",
+    "stale_db_warning_policy",
+    "deletion_guidance",
+    "rollback_policy",
+    "raw_db_commit_default_false"
+  ],
+  "exitGateOptions": [
+    "indexer_warehouse_w2_registry_retention_ready_for_sidecar_packets",
+    "indexer_warehouse_w2_needs_retention_policy_revision",
+    "indexer_warehouse_w2_blocked_by_registry_quality",
+    "indexer_warehouse_w2_not_needed"
+  ],
+  "recommendedDefault": "fixture_no_network_w2_registry_and_retention_manifest_first"
+}

@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat warehouse W1 manual command as ready for local DB review, not live ingestion or warehouse writing.
+  - Why: W1 added a manual read-only sidecar command that opens existing SQLite DBs in read-only mode, runs W0/readiness checks, summarizes table/market/trade/cursor/raw JSON/duplicate/retention state, and writes only compact review JSON/Markdown. It reviewed three existing local sidecar DBs successfully: 5 market rows, 580 public trade rows, 6 cursors, 0 malformed raw JSON rows, and 0 duplicate indicators; all three returned `ready_for_local_warehouse_review`.
+  - Consequence: Current warehouse W1 gate is `indexer_warehouse_w1_manual_command_ready`. The next safe campaign is W2 registry/retention, still no scheduler/background mode. Live ingestion, warehouse writer/copy behavior, append-mode retention, production imports, report/browser integration, storage schema migration, saved report mutation, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
+  - Reversal / revisit condition: If W2 needs append-mode writes, production storage migration, report/browser wiring, or live scheduling to be useful, stop and downgrade to an RFC-only blocker before implementing those paths.
+
 - Decision: Treat warehouse W0 as ready for a future W1 manual-command approval/RFC, not a warehouse implementation.
   - Why: W0 now has a pure sidecar contract helper, explicit W0 fields in the read-only readiness audit, tests for table/cursor/raw JSON/collection metadata/retention/no-network behavior, and docs/JSON describing W0 boundaries. Old sidecar DBs remain readable without migration, and collection metadata remains an external run-summary requirement rather than a forced schema change.
   - Consequence: Current warehouse W0 gate is `indexer_warehouse_w0_ready_for_w1_manual_command_rfc`. A future W1 campaign may propose one manual local warehouse command, but warehouse writes, live ingestion, append-mode retention, production imports, report/browser integration, storage schema migration, scheduling/background mode, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
