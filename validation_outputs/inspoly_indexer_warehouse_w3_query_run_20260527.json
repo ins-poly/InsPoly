@@ -1,0 +1,214 @@
+{
+  "aggregate": {
+    "activeReviewCandidates": 1,
+    "advisoryOnly": true,
+    "blockedNotW0Ready": 0,
+    "cleanupCandidates": 0,
+    "duplicateIndicatorCount": 0,
+    "localOnlyRawDbReferences": true,
+    "malformedRawJsonCount": 0,
+    "retainedReferences": 2,
+    "runCount": 3,
+    "scoringSignal": false,
+    "totalCursors": 6,
+    "totalMarkets": 5,
+    "totalTrades": 580
+  },
+  "blockedScopes": [
+    "clob_auth_private_keys_trading_order_placement_external_writes",
+    "live_ingestion",
+    "production_runtime_imports",
+    "production_storage_schema_migration",
+    "report_browser_integration",
+    "saved_report_mutation",
+    "scheduler_background_daemon",
+    "scoring_gate_funding_phase3_changes",
+    "warehouse_writer_copy_pipeline"
+  ],
+  "errors": [],
+  "generatedAt": "2026-05-27T14:51:26.237905+00:00",
+  "health": {
+    "collectionMetadataDistribution": {
+      "external_summary_required": 2,
+      "per_target_metadata_ready": 1
+    },
+    "duplicateIndicatorCount": 0,
+    "healthStatus": "ready_with_stale_historical_warning",
+    "malformedRawJsonCount": 0,
+    "staleDataWarning": "Registry is historical and does not perform live refresh.",
+    "staleWarningRuns": [
+      "per_target_multitarget",
+      "first_one_target",
+      "same_slug_repeat"
+    ],
+    "w0NotReadyRuns": 0,
+    "w0ReadyRuns": 3,
+    "w1GateDistribution": {
+      "ready_for_local_warehouse_review": 3
+    }
+  },
+  "inputDbsMutated": false,
+  "inputRegistryMutated": false,
+  "networkUsed": false,
+  "productionIntegration": false,
+  "queryMode": "aggregate",
+  "queryResult": {
+    "activeReviewCandidates": 1,
+    "advisoryOnly": true,
+    "blockedNotW0Ready": 0,
+    "cleanupCandidates": 0,
+    "duplicateIndicatorCount": 0,
+    "localOnlyRawDbReferences": true,
+    "malformedRawJsonCount": 0,
+    "retainedReferences": 2,
+    "runCount": 3,
+    "scoringSignal": false,
+    "totalCursors": 6,
+    "totalMarkets": 5,
+    "totalTrades": 580
+  },
+  "readOnly": true,
+  "registryProvenance": {
+    "generatedAt": "2026-05-27T14:32:56.608580+00:00",
+    "inputSummaryPaths": [
+      "validation_outputs/inspoly_indexer_warehouse_w1_manual_command_summary_20260527.json"
+    ],
+    "registryGate": "indexer_warehouse_registry_ready",
+    "reportType": "indexer_warehouse_registry",
+    "schemaVersion": "indexer_warehouse_registry_v1",
+    "tool": "tools/indexer_warehouse_registry.py"
+  },
+  "reportBrowserIntegration": false,
+  "reportType": "indexer_warehouse_query",
+  "retentionStatus": {
+    "artifactDeletionPerformed": false,
+    "classificationDistribution": {
+      "active_review_candidate": 1,
+      "retained_reference": 2
+    },
+    "manualCleanupOnly": true,
+    "recommendations": [
+      {
+        "classification": "active_review_candidate",
+        "label": "per_target_multitarget",
+        "recommendation": "preserve_raw_db_locally_as_current_review_candidate_until_w3_or_newer_per_target_run",
+        "runId": "per_target_multitarget-15300b70c82d",
+        "sourceDbPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+        "sourceDbPathLocalOnly": true
+      },
+      {
+        "classification": "retained_reference",
+        "label": "first_one_target",
+        "recommendation": "retain_compact_summary_and_keep_raw_db_local_only_as_reference_until_superseded",
+        "runId": "first_one_target-8865943775de",
+        "sourceDbPath": ".inspoly_indexer/bounded_live_20260527/indexer.sqlite3",
+        "sourceDbPathLocalOnly": true
+      },
+      {
+        "classification": "retained_reference",
+        "label": "same_slug_repeat",
+        "recommendation": "retain_compact_summary_and_keep_raw_db_local_only_as_reference_until_superseded",
+        "runId": "same_slug_repeat-95ae10ecf7e4",
+        "sourceDbPath": ".inspoly_indexer/bounded_live_repeat_20260527/indexer.sqlite3",
+        "sourceDbPathLocalOnly": true
+      }
+    ]
+  },
+  "runs": [],
+  "runtimeImplementationAllowed": false,
+  "savedReportsMutated": false,
+  "schemaVersion": "indexer_warehouse_query_v1",
+  "scoringSignal": false,
+  "selectedRun": {},
+  "sidecarOnly": true,
+  "sourceRegistry": "validation_outputs/inspoly_indexer_warehouse_registry_20260527.json",
+  "summary": {
+    "activeReviewCandidates": 1,
+    "blockedNotW0Ready": 0,
+    "blockedScopeCount": 9,
+    "cleanupCandidates": 0,
+    "duplicateIndicatorCount": 0,
+    "gateDecision": "indexer_warehouse_query_ready",
+    "malformedRawJsonCount": 0,
+    "nextAllowedAction": "use_query_output_as_sidecar_advisory_summary_only",
+    "queryMode": "aggregate",
+    "retainedReferences": 2,
+    "runCount": 3,
+    "targetCoverageCount": 3,
+    "totalCursors": 6,
+    "totalMarkets": 5,
+    "totalTrades": 580
+  },
+  "targetCoverage": {
+    "coveredTargetCount": 3,
+    "notes": [
+      "Target coverage is derived from compact registry rowsByTarget fields.",
+      "Runs without rowsByTarget cannot prove target-level distribution from W3 alone."
+    ],
+    "runsMissingTargetMetadata": [
+      "first_one_target",
+      "same_slug_repeat"
+    ],
+    "targetMetadataCoverageStatus": "target_metadata_present",
+    "targets": [
+      {
+        "retentionClassifications": [
+          "active_review_candidate"
+        ],
+        "runIds": [
+          "per_target_multitarget-15300b70c82d"
+        ],
+        "runLabels": [
+          "per_target_multitarget"
+        ],
+        "targetSlug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+        "totalRows": 60
+      },
+      {
+        "retentionClassifications": [
+          "active_review_candidate"
+        ],
+        "runIds": [
+          "per_target_multitarget-15300b70c82d"
+        ],
+        "runLabels": [
+          "per_target_multitarget"
+        ],
+        "targetSlug": "maduro-in-us-custody-by-january-31",
+        "totalRows": 60
+      },
+      {
+        "retentionClassifications": [
+          "active_review_candidate"
+        ],
+        "runIds": [
+          "per_target_multitarget-15300b70c82d"
+        ],
+        "runLabels": [
+          "per_target_multitarget"
+        ],
+        "targetSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+        "totalRows": 60
+      }
+    ]
+  },
+  "unsupportedQueryModes": [
+    "score_ranking",
+    "insider_verdicts",
+    "funding_conclusions",
+    "trading_order_data",
+    "private_auth_data",
+    "report_embedding",
+    "browser_ui_panel",
+    "live_refresh",
+    "raw_db_mutation"
+  ],
+  "warnings": [
+    "sidecar_only",
+    "advisory_only",
+    "not_scoring_signal",
+    "not_report_integrated",
+    "local_paths_may_be_machine_specific",
+    "stale_data_possible_no_live_refresh"
+  ]
+}

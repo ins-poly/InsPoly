@@ -1,0 +1,30 @@
+{
+  "advisoryOnly": true,
+  "gateDecision": "w3_analyst_query_rfc_ready",
+  "liveNetworkUsed": false,
+  "productionIntegration": false,
+  "reportType": "indexer_warehouse_w3_analyst_query_rfc",
+  "schemaMigration": false,
+  "schemaVersion": "indexer_warehouse_w3_analyst_query_rfc_v1",
+  "supportedQueryModes": [
+    "list-runs",
+    "summarize-run",
+    "aggregate",
+    "target-coverage",
+    "health",
+    "retention-status",
+    "blocked-scopes"
+  ],
+  "unsupportedQueryModes": [
+    "score_ranking",
+    "insider_verdicts",
+    "funding_conclusions",
+    "trading_order_data",
+    "private_auth_data",
+    "report_embedding",
+    "browser_ui_panel",
+    "live_refresh",
+    "raw_db_mutation"
+  ],
+  "w3InputBoundary": "w2_registry_json_preferred_no_raw_db_reads"
+}

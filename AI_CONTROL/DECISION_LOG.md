@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat warehouse W3 analyst query as ready for sidecar review, not report/browser integration.
+  - Why: W3 added a no-network sidecar query command that reads compact W2 registry JSON, supports list-runs/summarize-run/aggregate/target-coverage/health/retention-status/blocked-scopes modes, and emits advisory JSON/Markdown only. The current query run reported 3 runs, 1 active review candidate, 2 retained references, 5 markets, 580 trades, 6 cursors, 3 covered targets, 0 malformed raw JSON rows, and 0 duplicate indicators.
+  - Consequence: Current warehouse W3 gate is `indexer_warehouse_w3_analyst_query_ready`. The next safe campaign is W4 report-pointer product decision, but only as pointer metadata if separately approved. Live ingestion, warehouse writer/copy behavior, raw DB mutation, copied report metrics, production imports, report/browser integration, storage schema migration, saved report mutation, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
+  - Reversal / revisit condition: If W4 needs copied metrics, UI panels, report sorting/filtering changes, production imports, or scoring/gate effects to be useful, stop and downgrade to `indexer_warehouse_w4_keep_sidecar_only` or an RFC-only blocker.
+
 - Decision: Treat warehouse W2 registry/retention as ready for future sidecar analyst query packets, not ingestion or cleanup automation.
   - Why: W2 added a no-network sidecar registry tool that consumes compact W1 summaries only, records local-only DB references, classifies retention state, and writes compact registry JSON. The current registry has 3 runs, 1 active review candidate, 2 retained references, 5 markets, 580 trades, 6 cursors, 0 malformed raw JSON rows, and 0 duplicate indicators.
   - Consequence: Current warehouse W2 gate is `indexer_warehouse_w2_registry_retention_ready`. The next safe campaign is W3 analyst sidecar query/read command over compact registry/W1 summaries. Live ingestion, warehouse writer/copy behavior, append-mode retention, automatic deletion/move/compaction, production imports, report/browser integration, storage schema migration, saved report mutation, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
