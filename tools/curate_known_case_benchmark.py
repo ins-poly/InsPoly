@@ -41,12 +41,60 @@ ALLOWED_SOURCE_TYPES = {
 
 ALLOWED_ASSERTION_LEVELS = {
     "exact_wallet_supported",
+    "defer_needs_human_label",
+    "insufficient_source_evidence",
     "local_artifact_supported",
     "market_level_only",
+    "named_user_local_wallet_candidate",
     "named_user_only",
     "pattern_level_only",
     "sidecar_context_only",
     "synthetic_control",
+}
+
+PUBLIC_EXACT_WALLET_DEFERRED_REASON = (
+    "Public sources and local artifacts do not link this public case to a "
+    "fixture-grade exact wallet/user/market identity. Keep the case non-exact "
+    "until a source or human review label proves the identity bridge."
+)
+
+PUBLIC_LOCAL_ARTIFACT_REFS: dict[str, list[dict[str, object]]] = {
+    "public_maduro_enforcement_named_user_control": [
+        {
+            "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+            "match": "eventSlug=maduro-in-us-custody-by-january-31; eventSlug=maduro-out-in-2025",
+            "confidence": "market_family_only",
+            "proves_wallet_identity": False,
+        },
+        {
+            "path": "validation_outputs/event_forensic_performance_expansion_resolution_20260525.json",
+            "match": "bounded target resolution found Maduro event scopes, not named-user wallet identity",
+            "confidence": "market_family_only",
+            "proves_wallet_identity": False,
+        },
+    ],
+    "public_maduro_pre_charge_market_timing_control": [
+        {
+            "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+            "match": "local candidate pool contains Maduro event families",
+            "confidence": "market_family_only",
+            "proves_wallet_identity": False,
+        },
+    ],
+    "public_iran_military_cluster_pattern_control": [
+        {
+            "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+            "match": "eventSlug=us-x-iran-permanent-peace-deal-by; eventSlug=us-strikes-iran-by",
+            "confidence": "event_family_only",
+            "proves_wallet_identity": False,
+        },
+        {
+            "path": "validation_outputs/event_forensic_granular_pagination_probe_20260526.json",
+            "match": "conditionId=0xceb6dfaa2cf5abc9d47ebc867b984a7715104944249274e8a483a2e17473e5f5",
+            "confidence": "market_condition_only",
+            "proves_wallet_identity": False,
+        },
+    ],
 }
 
 REQUIRED_CATEGORIES = (
@@ -115,6 +163,10 @@ REQUIRED_CASE_FIELDS = (
     "catalyst_timing",
     "requires_fresh_validation",
     "source_note",
+    "local_artifact_refs",
+    "identity_confidence",
+    "deferred_reason",
+    "human_review_needed",
     "notes",
     "provenance_quality",
 )
@@ -147,8 +199,14 @@ def curate_known_case_benchmark(root: str | Path = ".") -> dict[str, object]:
             "reviewPacketCaseCount": counts.get("review_packet", 0),
             "publicCaseCount": sum(1 for case in cases if case.get("assertion_type") == "public_case_control"),
             "exactWalletPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "exact_wallet_supported"),
+            "namedUserLocalWalletCandidatePublicCaseCount": sum(
+                1 for case in cases if case.get("assertion_level") == "named_user_local_wallet_candidate"
+            ),
             "namedUserPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "named_user_only"),
             "patternLevelPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "pattern_level_only"),
+            "marketLevelPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "market_level_only"),
+            "insufficientSourcePublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "insufficient_source_evidence"),
+            "deferNeedsHumanLabelPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "defer_needs_human_label"),
             "publicSourceUrlCount": len(
                 {
                     str(url)
@@ -210,16 +268,44 @@ def validate_known_case_corpus(payload: Mapping[str, object]) -> list[str]:
                     errors.append(f"{case.get('case_id', index)} public case must include {field}")
             if not str(case.get("source_note") or "").strip():
                 errors.append(f"{case.get('case_id', index)} public case must include source_note")
+            if not str(case.get("identity_confidence") or "").strip():
+                errors.append(f"{case.get('case_id', index)} public case must include identity_confidence")
+            local_refs = case.get("local_artifact_refs")
+            if not isinstance(local_refs, list):
+                errors.append(f"{case.get('case_id', index)} public case local_artifact_refs must be a list")
+                local_refs = []
+            for ref_index, ref in enumerate(local_refs):
+                if not isinstance(ref, Mapping):
+                    errors.append(f"{case.get('case_id', index)} local_artifact_refs[{ref_index}] must be an object")
+                    continue
+                ref_path = str(ref.get("path") or "")
+                if not ref_path or ref_path.startswith("/") or len(ref_path) > 180:
+                    errors.append(f"{case.get('case_id', index)} local_artifact_refs[{ref_index}] must be a compact relative path")
+                if not str(ref.get("match") or "").strip():
+                    errors.append(f"{case.get('case_id', index)} local_artifact_refs[{ref_index}] must describe the matched field")
             if assertion_level == "exact_wallet_supported":
                 if str(case.get("wallet") or "") in {"", "unknown", "pattern-level"}:
                     errors.append(f"{case.get('case_id', index)} exact-wallet case requires explicit wallet")
                 if str(case.get("market") or "") in {"", "unknown", "pattern-level"}:
                     errors.append(f"{case.get('case_id', index)} exact-wallet case requires explicit market")
+            elif case.get("assertion_type") == "public_case_control":
+                if not str(case.get("deferred_reason") or "").strip():
+                    errors.append(f"{case.get('case_id', index)} non-exact public case must include deferred_reason")
             if assertion_level == "pattern_level_only":
                 if str(case.get("wallet") or "") != "pattern-level":
                     errors.append(f"{case.get('case_id', index)} pattern-level public case must not assert a wallet")
                 if isinstance(expected, Mapping) and expected.get("exact_wallet_detection_allowed") is not False:
                     errors.append(f"{case.get('case_id', index)} pattern-level public case must forbid exact-wallet detection")
+            if assertion_level == "named_user_local_wallet_candidate":
+                if case.get("human_review_needed") is not True:
+                    errors.append(f"{case.get('case_id', index)} named-user local wallet candidate must require human review")
+                if not local_refs:
+                    errors.append(f"{case.get('case_id', index)} named-user local wallet candidate must include local artifact refs")
+                if isinstance(expected, Mapping) and expected.get("exact_wallet_detection_allowed") is not False:
+                    errors.append(f"{case.get('case_id', index)} local wallet candidate must forbid exact-wallet detection")
+            if assertion_level in {"insufficient_source_evidence", "defer_needs_human_label"}:
+                if case.get("human_review_needed") is not True:
+                    errors.append(f"{case.get('case_id', index)} deferred/insufficient public case must require human review")
     missing_categories = sorted(set(REQUIRED_CATEGORIES) - categories)
     if missing_categories:
         errors.append("missing required categories: " + ", ".join(missing_categories))
@@ -1003,6 +1089,10 @@ def _public_case_control(
     catalyst_timing: Mapping[str, object],
     false_positive_notes: Sequence[str],
     evidence_quality: str,
+    local_artifact_refs: Sequence[Mapping[str, object]] | None = None,
+    identity_confidence: str | None = None,
+    deferred_reason: str = PUBLIC_EXACT_WALLET_DEFERRED_REASON,
+    human_review_needed: bool = True,
 ) -> dict[str, object]:
     case = _make_case(
         case_id=f"known-{category}",
@@ -1041,6 +1131,10 @@ def _public_case_control(
         public_knowledge_timing=public_knowledge_timing,
         catalyst_timing=catalyst_timing,
         requires_fresh_validation=True,
+        local_artifact_refs=local_artifact_refs or PUBLIC_LOCAL_ARTIFACT_REFS.get(category, []),
+        identity_confidence=identity_confidence or assertion_level,
+        deferred_reason=deferred_reason if assertion_level != "exact_wallet_supported" else "",
+        human_review_needed=human_review_needed,
     )
     case["expected_result"].update(
         {
@@ -1135,6 +1229,10 @@ def _make_case(
     catalyst_timing: Mapping[str, object] | None = None,
     requires_fresh_validation: bool | None = None,
     source_note: str = "",
+    local_artifact_refs: Sequence[Mapping[str, object]] | None = None,
+    identity_confidence: str | None = None,
+    deferred_reason: str = "",
+    human_review_needed: bool = False,
 ) -> dict[str, object]:
     normalized = normalize_side_outcome(raw_side, raw_outcome, raw_price)
     cluster = normalize_cluster_direction(raw_side, raw_outcome, raw_price)
@@ -1181,6 +1279,10 @@ def _make_case(
         "catalyst_timing": dict(catalyst_timing or {"status": "not_applicable"}),
         "requires_fresh_validation": resolved_requires_fresh_validation,
         "source_note": source_note,
+        "local_artifact_refs": [dict(ref) for ref in (local_artifact_refs or [])],
+        "identity_confidence": identity_confidence or resolved_assertion_level,
+        "deferred_reason": deferred_reason,
+        "human_review_needed": bool(human_review_needed),
         "notes": notes,
         "quality_notes": list(quality_notes or []),
         "provenance_quality": provenance_quality,
@@ -1192,7 +1294,7 @@ def _ensure_case(case: Mapping[str, object]) -> dict[str, object]:
     for field in REQUIRED_CASE_FIELDS:
         if field == "sensitive_context":
             ensured.setdefault(field, False)
-        elif field == "false_positive_notes":
+        elif field in {"false_positive_notes", "local_artifact_refs"}:
             ensured.setdefault(field, [])
         elif field in {"source_urls", "source_titles", "source_dates"}:
             ensured.setdefault(field, [])
@@ -1210,6 +1312,10 @@ def _ensure_case(case: Mapping[str, object]) -> dict[str, object]:
             )
         elif field == "evidence_quality":
             ensured.setdefault(field, ensured.get("provenance_quality", "unknown"))
+        elif field == "identity_confidence":
+            ensured.setdefault(field, ensured.get("assertion_level", "unknown"))
+        elif field == "human_review_needed":
+            ensured.setdefault(field, False)
         else:
             ensured.setdefault(field, "")
     return ensured

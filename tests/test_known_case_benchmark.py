@@ -189,6 +189,11 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
             self.assertEqual(len(case["source_urls"]), len(case["source_dates"]))
             self.assertTrue(case["source_note"])
             self.assertTrue(case["evidence_quality"])
+            self.assertIn("identity_confidence", case)
+            self.assertTrue(case["identity_confidence"])
+            self.assertIsInstance(case["local_artifact_refs"], list)
+            self.assertTrue(case["deferred_reason"])
+            self.assertTrue(case["human_review_needed"])
             self.assertTrue(case["requires_fresh_validation"])
             self.assertEqual(case["expected_result"]["public_case_control"], True)
             self.assertFalse(case["expected_result"]["exact_wallet_detection_allowed"])
@@ -225,6 +230,26 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
         errors = validate_known_case_corpus(copied)
 
         self.assertTrue(any("exact-wallet case requires explicit wallet" in error for error in errors))
+
+    def test_named_user_local_wallet_candidate_requires_review_warning(self) -> None:
+        payload = json.loads(CORPUS.read_text(encoding="utf-8"))
+        template = next(
+            case
+            for case in payload["cases"]
+            if case.get("assertion_type") == "public_case_control"
+        )
+        bad = dict(template)
+        bad["case_id"] = "bad-local-wallet-candidate"
+        bad["assertion_level"] = "named_user_local_wallet_candidate"
+        bad["human_review_needed"] = False
+        bad["local_artifact_refs"] = []
+        copied = dict(payload)
+        copied["cases"] = [bad]
+
+        errors = validate_known_case_corpus(copied)
+
+        self.assertTrue(any("named-user local wallet candidate must require human review" in error for error in errors))
+        self.assertTrue(any("named-user local wallet candidate must include local artifact refs" in error for error in errors))
 
     def test_no_duplicate_case_ids_and_fixture_remains_compact(self) -> None:
         payload = json.loads(CORPUS.read_text(encoding="utf-8"))

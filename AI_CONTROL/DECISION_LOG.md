@@ -1,8 +1,13 @@
 # Decision Log
 
-Last updated: 2026-05-26 EEST.
+Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Keep public-case exact-wallet assertions blocked until a fixture-grade identity bridge exists.
+  - Why: The 2026-05-27 evidence bridge rechecked public sources and local artifacts. It found useful named-user, market-level, and pattern-level evidence, plus compact local event/market refs for Maduro and Iran, but no source/local-artifact chain that proves public identity to exact wallet identity.
+  - Consequence: The known-case corpus remains at 30 cases with 6 public controls, 0 exact-wallet public cases, 0 named-user local wallet candidates, 2 named-user-only cases, 2 pattern-level-only cases, and 2 market-level-only cases. All public controls now carry `identity_confidence`, `local_artifact_refs`, `deferred_reason`, and `human_review_needed` metadata.
+  - Reversal / revisit condition: Add exact-wallet public cases only after a public source, local artifact reconciliation, or human label proves the wallet/user/market bridge without inference.
+
 - Decision: Keep public-case benchmark labels assertion-level scoped.
   - Why: Public sources found in this campaign support named-user, market-level, or pattern-level controls, but not fixture-grade exact wallet identity.
   - Consequence: `known_case_benchmark_v3` has 30 compact cases, including 6 public-source metadata controls with 9 unique source URLs, 2 named-user-only cases, 2 pattern-level-only cases, 2 market-level-only cases, and 0 exact-wallet public cases. Public controls require fresh validation and forbid exact-wallet detection, automatic action, and scoring/gate/routing use.

@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-05-26 EEST.
+Last updated: 2026-05-27 EEST.
 
 ## Repository State
 - Branch inspected: `main`.
@@ -28,6 +28,7 @@ Last updated: 2026-05-26 EEST.
 - The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `/Users/Root1/.codex/skills/strategic-autonomy-review/`.
 - The test suite has broad local regression coverage compared with early project state; the latest full suite after public-case benchmark labeling passed 1112 tests.
 - The known-case benchmark has been expanded to `known_case_benchmark_v3` with 30 compact cases, including false-positive, sidecar-context, and public-source metadata controls.
+- Public-case evidence bridge tooling now enforces exact-wallet source discipline: 6 public controls remain non-exact, with 0 exact-wallet-supported public cases, 0 named-user local wallet candidates, 2 named-user-only, 2 pattern-level-only, and 2 market-level-only cases.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
 - Weak-history near-certainty rows are demoted out of primary Event Forensic review buckets while remaining exported/reviewable.
 - Side/Outcome reform Phase 2/4 is stable according to local benchmark/drift audits.
@@ -43,7 +44,7 @@ Last updated: 2026-05-26 EEST.
 - Push/PR/release grouping requires explicit operator decision.
 - Whether to include root `AGENTS.md` in a future public repo package remains an explicit user decision; for now it remains local-only.
 - Future strategic cycles must use ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD and score candidate campaigns before implementation.
-- Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0` and still need source/local-artifact proof before becoming executable assertions.
+- Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0`; the 2026-05-27 evidence bridge records compact local refs where available, but none prove wallet identity.
 - Archive/event pagination completeness needs provider/query proof before runtime changes.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.

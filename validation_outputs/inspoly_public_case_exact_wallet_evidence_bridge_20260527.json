@@ -1,0 +1,257 @@
+{
+  "caseResults": [
+    {
+      "assertionLevel": "named_user_only",
+      "case_id": "known-public_maduro_enforcement_named_user_control",
+      "category": "public_maduro_enforcement_named_user_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "maduro-and-venezuela-related-contracts",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "named_user_only",
+      "localArtifactRefs": [
+        {
+          "confidence": "market_family_only",
+          "match": "eventSlug=maduro-in-us-custody-by-january-31; eventSlug=maduro-out-in-2025",
+          "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+          "pathExists": true,
+          "proves_wallet_identity": false
+        },
+        {
+          "confidence": "market_family_only",
+          "match": "bounded target resolution found Maduro event scopes, not named-user wallet identity",
+          "path": "validation_outputs/event_forensic_performance_expansion_resolution_20260525.json",
+          "pathExists": true,
+          "proves_wallet_identity": false
+        }
+      ],
+      "market": "maduro-out-by-january-31-2026",
+      "sourceUrlCount": 2,
+      "wallet": "named-user-only"
+    },
+    {
+      "assertionLevel": "market_level_only",
+      "case_id": "known-public_maduro_pre_charge_market_timing_control",
+      "category": "public_maduro_pre_charge_market_timing_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "maduro-capture-public-market-timing",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "market_level_only",
+      "localArtifactRefs": [
+        {
+          "confidence": "market_family_only",
+          "match": "local candidate pool contains Maduro event families",
+          "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+          "pathExists": true,
+          "proves_wallet_identity": false
+        }
+      ],
+      "market": "maduro-related-contracts",
+      "sourceUrlCount": 2,
+      "wallet": "unknown"
+    },
+    {
+      "assertionLevel": "pattern_level_only",
+      "case_id": "known-public_iran_military_cluster_pattern_control",
+      "category": "public_iran_military_cluster_pattern_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "iran-war-polymarket-cluster",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "pattern_level_only",
+      "localArtifactRefs": [
+        {
+          "confidence": "event_family_only",
+          "match": "eventSlug=us-x-iran-permanent-peace-deal-by; eventSlug=us-strikes-iran-by",
+          "path": "validation_outputs/event_forensic_performance_expansion_candidates_20260525.json",
+          "pathExists": true,
+          "proves_wallet_identity": false
+        },
+        {
+          "confidence": "market_condition_only",
+          "match": "conditionId=0xceb6dfaa2cf5abc9d47ebc867b984a7715104944249274e8a483a2e17473e5f5",
+          "path": "validation_outputs/event_forensic_granular_pagination_probe_20260526.json",
+          "pathExists": true,
+          "proves_wallet_identity": false
+        }
+      ],
+      "market": "iran-military-operation-contracts",
+      "sourceUrlCount": 2,
+      "wallet": "pattern-level"
+    },
+    {
+      "assertionLevel": "pattern_level_only",
+      "case_id": "known-public_zachxbt_axiom_pattern_control",
+      "category": "public_zachxbt_axiom_pattern_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "zachxbt-company-named-investigation",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "pattern_level_only",
+      "localArtifactRefs": [],
+      "market": "zachxbt-axiom-investigation-market",
+      "sourceUrlCount": 2,
+      "wallet": "pattern-level"
+    },
+    {
+      "assertionLevel": "market_level_only",
+      "case_id": "known-public_google_year_in_search_retrospective_control",
+      "category": "public_google_year_in_search_retrospective_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "google-year-in-search-2025",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "market_level_only",
+      "localArtifactRefs": [],
+      "market": "google-year-in-search-related-contracts",
+      "sourceUrlCount": 1,
+      "wallet": "unknown"
+    },
+    {
+      "assertionLevel": "named_user_only",
+      "case_id": "known-public_trump_whale_high_volume_control",
+      "category": "public_trump_whale_high_volume_control",
+      "deferredReason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "event": "2024-us-presidential-election",
+      "exactWalletDetectionAllowed": false,
+      "humanReviewNeeded": true,
+      "identityConfidence": "named_user_only",
+      "localArtifactRefs": [],
+      "market": "presidential-election-winner-2024",
+      "sourceUrlCount": 1,
+      "wallet": "named-user-only"
+    }
+  ],
+  "corpusPath": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+  "deferredExactWalletCandidates": [
+    {
+      "assertion_level": "named_user_only",
+      "case_id": "known-public_maduro_enforcement_named_user_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    },
+    {
+      "assertion_level": "market_level_only",
+      "case_id": "known-public_maduro_pre_charge_market_timing_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    },
+    {
+      "assertion_level": "pattern_level_only",
+      "case_id": "known-public_iran_military_cluster_pattern_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    },
+    {
+      "assertion_level": "pattern_level_only",
+      "case_id": "known-public_zachxbt_axiom_pattern_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    },
+    {
+      "assertion_level": "market_level_only",
+      "case_id": "known-public_google_year_in_search_retrospective_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    },
+    {
+      "assertion_level": "named_user_only",
+      "case_id": "known-public_trump_whale_high_volume_control",
+      "deferred_reason": "Public sources and local artifacts do not link this public case to a fixture-grade exact wallet/user/market identity. Keep the case non-exact until a source or human review label proves the identity bridge.",
+      "human_review_needed": true
+    }
+  ],
+  "gateDecision": "public_case_evidence_bridge_no_safe_upgrade",
+  "generatedAt": "2026-05-27T07:40:09.721643+00:00",
+  "networkUsed": false,
+  "productionIntegration": false,
+  "publicSourceUrls": [
+    "https://cointelegraph.com/news/bubblemaps-polymarket-cluster-win-military-bets",
+    "https://cointelegraph.com/news/suspected-insider-1-2m-zachxbt-axiom-expose",
+    "https://www.axios.com/2026/01/05/venezuela-polymarket-prediction-insider-trading",
+    "https://www.cbsnews.com/news/betting-on-iran-war-insider-trading-concerns-prediction-markets-60-minutes/",
+    "https://www.cftc.gov/media/13761/EnfGannonKenVanDykeComplaint042326/download",
+    "https://www.coindesk.com/markets/2026/02/27/polymarket-bettors-appear-to-have-insider-traded-on-a-market-designed-to-catch-insider-traders",
+    "https://www.investing.com/news/world-news/polymarket-says-mystery-trump-bettor-is-french-national-3680928",
+    "https://www.justice.gov/usao-sdny/media/1437781/dl",
+    "https://www.theatlantic.com/technology/2026/01/venezuela-maduro-polymarket-prediction-markets/685526/"
+  ],
+  "reportType": "public_case_exact_wallet_evidence_bridge",
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaErrors": [],
+  "schemaVersion": "public_case_evidence_bridge_v1",
+  "sidecarOnly": true,
+  "sourceRecheck": {
+    "articleTextPersisted": false,
+    "boundedWebResearchUsed": true,
+    "exactWalletEvidenceFound": false,
+    "findings": [
+      {
+        "case_id": "known-public_maduro_enforcement_named_user_control",
+        "exact_wallet_supported": false,
+        "finding": "DOJ/CFTC/Axios sources support named-user Maduro trading and proceeds, but do not publish a fixture-grade wallet address."
+      },
+      {
+        "case_id": "known-public_maduro_pre_charge_market_timing_control",
+        "exact_wallet_supported": false,
+        "finding": "Axios/Atlantic sources support suspicious timing and public-knowledge context, not wallet identity."
+      },
+      {
+        "case_id": "known-public_iran_military_cluster_pattern_control",
+        "exact_wallet_supported": false,
+        "finding": "CBS/Cointelegraph/CoinDesk reporting supports connected-account pattern evidence; inspected text does not provide exact wallet labels suitable for fixture truth."
+      },
+      {
+        "case_id": "known-public_zachxbt_axiom_pattern_control",
+        "exact_wallet_supported": false,
+        "finding": "CoinDesk/Cointelegraph sources describe concentrated wallets and Dune/source screenshots, but the fixture keeps this pattern-level without importing partial or image-only wallet labels."
+      },
+      {
+        "case_id": "known-public_google_year_in_search_retrospective_control",
+        "exact_wallet_supported": false,
+        "finding": "Atlantic source supports a retrospective public example only; no primary wallet/source bridge was found."
+      },
+      {
+        "case_id": "known-public_trump_whale_high_volume_control",
+        "exact_wallet_supported": false,
+        "finding": "Reuters-mirrored source names account handles/French national context but says Polymarket did not identify manipulation evidence and does not publish exact wallet identity."
+      }
+    ],
+    "fixtureSourceUrlsRechecked": 9,
+    "supplementaryFindings": [
+      {
+        "finding": "Mentions a partial Iran wallet/user handle, but partial wallet evidence is not enough for exact-wallet fixture truth.",
+        "url": "https://ambcrypto.com/bubblemaps-trace-polymarket-accounts-linked-to-iran-strike-bets/",
+        "used_for_fixture_upgrade": false
+      },
+      {
+        "finding": "Lists a Fredi9999 wallet, but this third-party blog is not the fixture source and was not reconciled to local artifacts; kept out of exact-wallet assertions.",
+        "url": "https://cointrenches.io/fredi9999-polymarket-trump-election-whale-85m/",
+        "used_for_fixture_upgrade": false
+      }
+    ],
+    "supplementarySourcesConsidered": 2
+  },
+  "summary": {
+    "casesRequiringHumanReview": 6,
+    "deferNeedsHumanLabelCount": 0,
+    "exactWalletSupportedCount": 0,
+    "insufficientSourceEvidenceCount": 0,
+    "localArtifactRefCount": 5,
+    "localArtifactRefsThatProveWalletIdentity": 0,
+    "marketLevelOnlyCount": 2,
+    "namedUserLocalWalletCandidateCount": 0,
+    "namedUserOnlyCount": 2,
+    "patternLevelOnlyCount": 2,
+    "publicCaseCount": 6,
+    "publicSourceUrlCount": 9,
+    "schemaErrorCount": 0,
+    "tierCounts": {
+      "market_level_only": 2,
+      "named_user_only": 2,
+      "pattern_level_only": 2
+    }
+  }
+}
