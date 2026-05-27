@@ -84,15 +84,21 @@ def run_bounded_live_sidecar(
         _finish_report(report, gate=gate, started=started)
         return _write_report(report, summary_json)
 
-    target = _single_exact_target(config)
-    if target is None:
-        report["failures"].append("Config must contain exactly one marketSlugs or eventSlugs value.")
+    targets, target_error = _bounded_targets(config)
+    if target_error:
+        report["failures"].append(target_error)
         _finish_report(report, gate=GATE_BLOCKED_MISSING_TARGET, started=started)
         return _write_report(report, summary_json)
 
     limit_error = _narrow_limit_error(config)
     if limit_error:
         report["failures"].append(limit_error)
+        _finish_report(report, gate=GATE_BLOCKED_NO_SAFE_PATH, started=started)
+        return _write_report(report, summary_json)
+
+    limits = _limits(config)
+    if len(targets) > limits["maxMarkets"]:
+        report["failures"].append(f"Target count {len(targets)} exceeds configured maxMarkets {limits['maxMarkets']}.")
         _finish_report(report, gate=GATE_BLOCKED_NO_SAFE_PATH, started=started)
         return _write_report(report, summary_json)
 
@@ -103,43 +109,79 @@ def run_bounded_live_sidecar(
 
     db_path = _sqlite_path(config)
     storage = IndexerStorage(db_path)
-    market_rows: list[dict[str, object]] = []
     trade_rows: list[dict[str, object]] = []
     malformed = {
         "marketsNonMapping": 0,
         "tradesNonMapping": 0,
         "orderbooksNonMapping": 0,
     }
-    limits = _limits(config)
-    target_key, slug = target
     report["networkUsed"] = True
     report["liveIngestionStarted"] = True
-    report["target"] = {"type": target_key, "slug": slug}
+    report["target"] = {"type": targets[0][0], "slug": ",".join(slug for _, slug in targets), "count": len(targets)}
+    target_results: list[dict[str, object]] = [
+        {
+            "targetType": target_key,
+            "slug": slug,
+            "status": "pending",
+            "marketRows": 0,
+            "conditionIds": [],
+            "tradeRows": 0,
+            "warnings": [],
+            "failures": [],
+        }
+        for target_key, slug in targets
+    ]
+    report["targetResults"] = target_results
 
     try:
-        market_rows, market_warnings, market_failures, malformed_markets = _fetch_market_rows(
-            target_key=target_key,
-            slug=slug,
-            max_markets=limits["maxMarkets"],
-            client=client or PolymarketClient(),
-        )
-        malformed["marketsNonMapping"] = malformed_markets
-        report["warnings"].extend(market_warnings)
-        report["failures"].extend(market_failures)
-        if market_failures and not market_rows:
+        market_entries: list[tuple[dict[str, object], int]] = []
+        client_instance = client or PolymarketClient()
+        for target_index, (target_key, slug) in enumerate(targets):
+            if len(market_entries) >= limits["maxMarkets"]:
+                warning = "Skipped because configured maxMarkets was already reached."
+                target_results[target_index]["status"] = "skipped"
+                target_results[target_index]["warnings"].append(warning)
+                report["warnings"].append(f"{slug}: {warning}")
+                continue
+            remaining_markets = limits["maxMarkets"] - len(market_entries)
+            market_rows, market_warnings, market_failures, malformed_markets = _fetch_market_rows(
+                target_key=target_key,
+                slug=slug,
+                max_markets=remaining_markets,
+                client=client_instance,
+            )
+            malformed["marketsNonMapping"] += malformed_markets
+            target_results[target_index]["warnings"].extend(market_warnings)
+            target_results[target_index]["failures"].extend(market_failures)
+            report["warnings"].extend(f"{slug}: {warning}" for warning in market_warnings)
+            report["failures"].extend(f"{slug}: {failure}" for failure in market_failures)
+            if market_rows:
+                target_results[target_index]["status"] = "completed"
+                target_results[target_index]["marketRows"] = len(market_rows)
+                market_entries.extend((row, target_index) for row in market_rows)
+            else:
+                target_results[target_index]["status"] = "failed"
+        if report["failures"] and not market_entries:
             report["summary"]["malformedPayloadCounts"] = malformed
             _finish_report(report, gate=GATE_BLOCKED_PROVIDER, started=started)
+            return _write_report(report, summary_json)
+        if not market_entries:
+            report["summary"]["malformedPayloadCounts"] = malformed
+            _finish_report(report, gate=GATE_LOW_VALUE, started=started)
             return _write_report(report, summary_json)
 
         storage.init()
         condition_ids: list[str] = []
+        condition_to_target: dict[str, int] = {}
         token_ids: dict[str, str] = {}
         timestamp = generated_at.replace(microsecond=0).isoformat()
-        for row in market_rows[: limits["maxMarkets"]]:
+        for row, target_index in market_entries[: limits["maxMarkets"]]:
             market = normalize_gamma_market(row, updated_at=timestamp)
             storage.upsert_market(market)
             if market.condition_id != "unknown":
                 condition_ids.append(market.condition_id)
+                condition_to_target[market.condition_id] = target_index
+                target_results[target_index]["conditionIds"].append(market.condition_id)
             token_mapping = token_condition_mapping_from_gamma_market(row)
             for token_id, mapping in token_mapping.items():
                 condition_id = str(getattr(mapping, "condition_id", "") or "")
@@ -149,26 +191,31 @@ def run_bounded_live_sidecar(
         storage.upsert_cursor(
             source=SOURCE_NAME,
             cursor_key="markets",
-            cursor_value=f"{target_key}:{slug}:{len(market_rows)}",
-            status="ok" if market_rows else "warn",
-            last_error="" if market_rows else "no_market_rows",
+            cursor_value=_market_cursor_value(targets, len(market_entries)),
+            status="ok" if market_entries else "warn",
+            last_error="" if market_entries else "no_market_rows",
             updated_at=timestamp,
         )
 
         trade_rows, trade_warnings, malformed_trades = _fetch_public_trade_rows(
             condition_ids=condition_ids,
             max_pages=limits["maxPages"],
-            max_rows=limits["maxRows"] - len(market_rows),
+            max_rows=limits["maxRows"] - len(market_entries),
             trade_fetcher=trade_fetcher or _default_trade_fetcher,
         )
         malformed["tradesNonMapping"] = malformed_trades
         report["warnings"].extend(trade_warnings)
 
         stored_trades = 0
-        remaining_rows = max(0, limits["maxRows"] - len(market_rows))
+        remaining_rows = max(0, limits["maxRows"] - len(market_entries))
+        trade_counts_by_condition: dict[str, int] = {}
         for row in trade_rows[:remaining_rows]:
-            storage.upsert_trade(normalize_data_trade(row, source=SOURCE_NAME))
+            trade = normalize_data_trade(row, source=SOURCE_NAME)
+            storage.upsert_trade(trade)
             stored_trades += 1
+            trade_counts_by_condition[trade.condition_id] = trade_counts_by_condition.get(trade.condition_id, 0) + 1
+        for condition_id, target_index in condition_to_target.items():
+            target_results[target_index]["tradeRows"] = int(target_results[target_index]["tradeRows"]) + trade_counts_by_condition.get(condition_id, 0)
 
         storage.upsert_cursor(
             source=SOURCE_NAME,
@@ -189,13 +236,18 @@ def run_bounded_live_sidecar(
 
         report["output"]["dbCreated"] = db_path.exists()
         report["output"]["dbAuditJson"] = str(db_audit_json or "")
-        report["summary"]["marketsAttempted"] = 1
+        report["summary"]["marketsAttempted"] = len(targets)
         report["summary"]["marketsCompleted"] = int(table_counts.get("indexed_markets", 0))
+        report["summary"]["targetsAttempted"] = len(targets)
+        report["summary"]["targetsCompleted"] = sum(1 for result in target_results if result.get("status") == "completed")
+        report["summary"]["targetsFailed"] = sum(1 for result in target_results if result.get("status") == "failed")
+        report["summary"]["targetsSkipped"] = sum(1 for result in target_results if result.get("status") == "skipped")
         report["summary"]["storedRows"] = sum(int(value) for value in table_counts.values())
         report["summary"]["tableCounts"] = table_counts
         report["summary"]["cursorStates"] = _cursor_states(storage)
         report["summary"]["malformedPayloadCounts"] = malformed
         report["summary"]["readinessGate"] = audit.get("summary", {}).get("readinessGate", "")
+        report["summary"]["targetResults"] = target_results
         gate = GATE_SUCCESS_HARDENING if table_counts.get("indexed_markets", 0) or stored_trades else GATE_LOW_VALUE
     except Exception as exc:
         report["failures"].append(f"{type(exc).__name__}: {exc}")
@@ -203,7 +255,7 @@ def run_bounded_live_sidecar(
             storage.upsert_cursor(
                 source=SOURCE_NAME,
                 cursor_key="run",
-                cursor_value=f"{target_key}:{slug}",
+                cursor_value=",".join(slug for _, slug in targets),
                 status="error",
                 last_error=str(exc),
             )
@@ -246,7 +298,8 @@ def _base_report(
         "authUsed": False,
         "tradingUsed": False,
         "savedArtifactsMutated": False,
-        "target": {"type": "", "slug": ""},
+        "target": {"type": "", "slug": "", "count": 0},
+        "targetResults": [],
         "bounds": _limits(config),
         "output": {
             "sqlitePath": str(db_path),
@@ -259,9 +312,14 @@ def _base_report(
             "elapsedSeconds": 0.0,
             "marketsAttempted": 0,
             "marketsCompleted": 0,
+            "targetsAttempted": 0,
+            "targetsCompleted": 0,
+            "targetsFailed": 0,
+            "targetsSkipped": 0,
             "storedRows": 0,
             "tableCounts": {},
             "cursorStates": [],
+            "targetResults": [],
             "malformedPayloadCounts": {
                 "marketsNonMapping": 0,
                 "tradesNonMapping": 0,
@@ -320,6 +378,49 @@ def _single_exact_target(config: Mapping[str, object]) -> tuple[str, str] | None
     if slug.lower() in {"*", "all", "any"}:
         return None
     return key, slug
+
+
+def _bounded_targets(config: Mapping[str, object]) -> tuple[list[tuple[str, str]], str]:
+    targets = config.get("targets")
+    if not isinstance(targets, Mapping):
+        return [], "Config must contain one to three explicit marketSlugs or one explicit eventSlugs value."
+    unsupported = [
+        key
+        for key in ("conditionIds", "tokenIds")
+        if isinstance(targets.get(key), list) and any(str(item or "").strip() for item in targets.get(key, []))
+    ]
+    if unsupported:
+        return [], f"Runner supports only explicit marketSlugs or eventSlugs, not {', '.join(unsupported)}."
+    market_slugs = _target_values(targets.get("marketSlugs"))
+    event_slugs = _target_values(targets.get("eventSlugs"))
+    if market_slugs and event_slugs:
+        return [], "Runner does not support mixed marketSlugs and eventSlugs in one invocation."
+    values = market_slugs or event_slugs
+    if not values:
+        return [], "Config must contain one to three explicit marketSlugs or one explicit eventSlugs value."
+    if any(value.lower() in {"*", "all", "any"} for value in values):
+        return [], "Runner rejects wildcard target values before network access."
+    if market_slugs:
+        if len(market_slugs) > NARROW_LIMITS["maxMarkets"]:
+            return [], "Runner supports at most three explicit marketSlugs in one bounded invocation."
+        return [("marketSlugs", slug) for slug in market_slugs], ""
+    if len(event_slugs) != 1:
+        return [], "Runner preserves one explicit eventSlugs target per invocation."
+    return [("eventSlugs", event_slugs[0])], ""
+
+
+def _target_values(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item or "").strip()]
+
+
+def _market_cursor_value(targets: Sequence[tuple[str, str]], stored_markets: int) -> str:
+    if len(targets) == 1:
+        target_key, slug = targets[0]
+        return f"{target_key}:{slug}:{stored_markets}"
+    joined_slugs = ",".join(slug for _, slug in targets)
+    return f"marketSlugs:{joined_slugs}:{stored_markets}"
 
 
 def _narrow_limit_error(config: Mapping[str, object]) -> str:

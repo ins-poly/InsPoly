@@ -110,19 +110,86 @@ class IndexerBoundedLiveSidecarRunTests(unittest.TestCase):
         self.assertFalse(report["output"]["dbCreated"])
         self.assertTrue(report["failures"])
 
-    def test_multiple_targets_are_rejected_for_this_operator_run(self) -> None:
+    def test_multiple_market_targets_write_expected_sidecar_rows(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             config_path = _write_config(
                 tmp,
-                targets={"marketSlugs": ["market-a", "market-b"]},
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
+                limits={"maxMarkets": 3, "maxPages": 1, "maxRows": 20, "timeoutSeconds": 120},
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                _market_payload("cond-b", "market-b"),
+                _market_payload("cond-c", "market-c"),
+            ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=lambda _params: [
+                    _trade_payload("0xtx-a", "cond-a"),
+                    _trade_payload("0xtx-b", "cond-b"),
+                    _trade_payload("0xtx-c", "cond-c"),
+                ],
+            )
+
+        self.assertEqual(report["summary"]["gateDecision"], GATE_SUCCESS_HARDENING)
+        self.assertEqual(client.fetch_market_by_slug.call_count, 3)
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_markets"], 3)
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 3)
+        self.assertEqual(report["summary"]["targetsAttempted"], 3)
+        self.assertEqual(report["summary"]["targetsCompleted"], 3)
+        self.assertEqual(report["summary"]["targetsFailed"], 0)
+        self.assertEqual([item["tradeRows"] for item in report["summary"]["targetResults"]], [1, 1, 1])
+
+    def test_target_count_above_max_markets_stops_before_network(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
                 limits={"maxMarkets": 2, "maxPages": 1, "maxRows": 20, "timeoutSeconds": 120},
             )
             client = Mock()
 
             report = run_bounded_live_sidecar(config_path, allow_live_network=True, client=client)
 
-        self.assertEqual(report["summary"]["gateDecision"], GATE_BLOCKED_MISSING_TARGET)
+        self.assertEqual(report["summary"]["gateDecision"], GATE_BLOCKED_NO_SAFE_PATH)
+        self.assertFalse(report["networkUsed"])
         client.fetch_market_by_slug.assert_not_called()
+
+    def test_partial_target_provider_failure_is_captured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
+                limits={"maxMarkets": 3, "maxPages": 1, "maxRows": 20, "timeoutSeconds": 120},
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                None,
+                _market_payload("cond-c", "market-c"),
+            ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=lambda _params: [
+                    _trade_payload("0xtx-a", "cond-a"),
+                    _trade_payload("0xtx-c", "cond-c"),
+                ],
+            )
+
+        self.assertEqual(report["summary"]["gateDecision"], GATE_SUCCESS_HARDENING)
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_markets"], 2)
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 2)
+        self.assertEqual(report["summary"]["targetsCompleted"], 2)
+        self.assertEqual(report["summary"]["targetsFailed"], 1)
+        self.assertEqual([item["status"] for item in report["summary"]["targetResults"]], ["completed", "failed", "completed"])
+        self.assertTrue(report["failures"])
 
     def test_runner_is_not_imported_by_production_runtime_paths(self) -> None:
         for relative_path in (
@@ -164,10 +231,10 @@ def _write_config(
     return config_path
 
 
-def _market_payload() -> dict[str, object]:
+def _market_payload(condition_id: str = "cond-a", slug: str = "market-a") -> dict[str, object]:
     return {
-        "conditionId": "cond-a",
-        "slug": "market-a",
+        "conditionId": condition_id,
+        "slug": slug,
         "eventSlug": "event-a",
         "question": "Fixture?",
         "active": True,
@@ -177,10 +244,10 @@ def _market_payload() -> dict[str, object]:
     }
 
 
-def _trade_payload(transaction_hash: str = "0xtx") -> dict[str, object]:
+def _trade_payload(transaction_hash: str = "0xtx", condition_id: str = "cond-a") -> dict[str, object]:
     return {
         "transactionHash": transaction_hash,
-        "conditionId": "cond-a",
+        "conditionId": condition_id,
         "asset": "yes-token",
         "proxyWallet": "0xABCDEF",
         "side": "BUY",
