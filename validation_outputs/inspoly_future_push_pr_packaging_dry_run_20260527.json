@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "future_push_pr_packaging_dry_run_v1",
+  "generatedAt": "2026-05-27",
+  "baseHead": {
+    "hash": "fd12c0b",
+    "title": "Add release candidate V3 strategic state",
+    "branch": "main"
+  },
+  "remote": {
+    "name": "origin",
+    "url": "git@github.com:ins-poly/InsPoly.git",
+    "networkOperationPerformed": false
+  },
+  "aheadBehind": {
+    "ahead": 49,
+    "behind": 0
+  },
+  "gateDecision": "push_pr_dry_run_ready",
+  "pushPerformed": false,
+  "prCreated": false,
+  "branchCreated": false,
+  "runtimeChangedInCampaign": false,
+  "commitCount": 49,
+  "groupedCommitCounts": {
+    "runtimeBehaviorAndBrowserBoot": 7,
+    "sidecarToolingValidation": 15,
+    "evidenceMeasurementRfcReleaseDocs": 17,
+    "processBenchmarkPublicCaseReleaseState": 10
+  },
+  "recommendedPushStrategy": {
+    "strategy": "create_feature_branch_from_current_head_then_open_draft_pr_after_owner_approval",
+    "proposedBranch": "codex/inspoly-local-release-candidate-v3",
+    "proposedPrTitle": "InsPoly local release candidate V3",
+    "pushDirectlyToMain": false,
+    "squashOrRebase": false,
+    "preserveHistoryUnlessOwnerRequestsOtherwise": true
+  },
+  "checksRequiredBeforePush": [
+    "confirm owner approval",
+    "confirm branch name and draft PR mode",
+    "confirm PROJECT_MEMORY.md is not staged",
+    "confirm local-only artifact dirs are not staged",
+    "rerun or accept RC V3 verification freshness",
+    "validate JSON/provenance/path references",
+    "verify browser vendor hashes",
+    "run safety scans",
+    "confirm no secrets or runtime env files staged"
+  ],
+  "latestVerificationBaseline": {
+    "focusedMatrixTests": 586,
+    "fullSuiteTests": 1122,
+    "compileall": "passed",
+    "jsonProvenancePathValidation": "passed",
+    "browserVendorSha256": "passed",
+    "safetyScans": "passed"
+  },
+  "localOnlyExclusions": [
+    "PROJECT_MEMORY.md",
+    "AGENTS.md unless owner changes policy",
+    "release_manifests/",
+    "shadow_review_packets/",
+    "side_outcome_review_packets/",
+    "raw live/RPC output directories",
+    "bulky/generated validation evidence",
+    ".inspoly*/ runtime directories",
+    ".inspoly_runtime.env or credentials"
+  ],
+  "outputs": {
+    "draftPrKit": "docs/inspoly_future_pr_draft_20260527.md",
+    "reviewerRiskMap": "docs/inspoly_reviewer_risk_map_v3_20260527.md",
+    "pushApprovalChecklist": "docs/inspoly_push_approval_checklist_v3_20260527.md"
+  }
+}

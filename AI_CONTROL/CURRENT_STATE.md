@@ -6,11 +6,13 @@ Last updated: 2026-05-27 EEST.
 - Branch inspected: `main`.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
 - Latest Release Candidate V3 head verified: `2dd851f Freeze legacy Tk UI as reference-only`.
+- Latest future push/PR packaging dry-run base inspected: `fd12c0b Add release candidate V3 strategic state`.
 - Latest known-case maintenance base commit inspected: `90e2434 Add public-case human labeling packet`.
 - Latest pre-push dry-run commit inspected: `05d688d Add final pre-push packaging dry run`.
 - Latest runtime-affecting commit inspected: `0ce05da Add local browser offline runtime assets`.
 - Current release-candidate gate: `local_release_candidate_verified`.
 - Current Release Candidate V3 gate: `release_candidate_v3_state_ready`.
+- Current future push/PR dry-run gate: `push_pr_dry_run_ready`.
 - Full verification matrix at `ad27400`: focused matrix 660 tests OK, full unittest discovery 1105 tests OK.
 - Release Candidate V3 verification at `2dd851f`: focused matrix 586 tests OK, full unittest discovery 1122 tests OK.
 - Untracked local artifacts were present before this AI_CONTROL work:
@@ -37,6 +39,7 @@ Last updated: 2026-05-27 EEST.
 - Public-case human labeling packet and intake schema now define the only safe path for future exact-wallet public benchmark upgrades. No labels are accepted yet.
 - Known-case benchmark maintenance is documented by `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md`; future fixture changes should follow that checklist and remain validation-only unless a separate approved runtime/model campaign exists.
 - Release Candidate V3 is documented by `docs/inspoly_release_candidate_v3_state_20260527.md` and future push preparation by `docs/inspoly_future_push_pr_checklist_v3_20260527.md`.
+- Future push/PR packaging has a dry-run kit: `docs/inspoly_future_pr_draft_20260527.md`, `docs/inspoly_reviewer_risk_map_v3_20260527.md`, `docs/inspoly_push_approval_checklist_v3_20260527.md`, and `validation_outputs/inspoly_future_push_pr_packaging_dry_run_20260527.json`.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
 - Weak-history near-certainty rows are demoted out of primary Event Forensic review buckets while remaining exported/reviewable.
 - Side/Outcome reform Phase 2/4 is stable according to local benchmark/drift audits.
@@ -51,6 +54,7 @@ Last updated: 2026-05-27 EEST.
 ## What Is Open
 - Push/PR/release grouping requires explicit operator decision.
 - Current branch is locally verified at V3 but still push/PR user-gated.
+- Recommended future publication path is an owner-approved draft PR branch `codex/inspoly-local-release-candidate-v3` from current local `main`; no branch or push has been created.
 - Whether to include root `AGENTS.md` in a future public repo package remains an explicit user decision; for now it remains local-only.
 - Future strategic cycles must use ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD and score candidate campaigns before implementation.
 - Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0`; the 2026-05-27 evidence bridge records compact local refs where available, but none prove wallet identity. Future upgrades require an accepted `public_case_label_intake_v1` label.

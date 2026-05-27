@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Prepare a future push/PR kit but keep publication approval-gated.
+  - Why: Release Candidate V3 is verified and ready for review, but the owner explicitly has not approved push/PR or branch creation.
+  - Consequence: `docs/inspoly_future_pr_draft_20260527.md`, `docs/inspoly_reviewer_risk_map_v3_20260527.md`, `docs/inspoly_push_approval_checklist_v3_20260527.md`, and `validation_outputs/inspoly_future_push_pr_packaging_dry_run_20260527.json` are the current PR preparation references. Recommended future strategy is to create `codex/inspoly-local-release-candidate-v3` from local `main` and open a draft PR only after explicit owner approval. No branch, push, PR, squash, rebase, or remote git operation was performed.
+  - Reversal / revisit condition: If the owner wants direct `main` push, multiple PRs, squashing, or continued local-only work, run a new approval-gated packaging campaign before remote actions.
+
 - Decision: Treat Release Candidate V3 as the current verified local state.
   - Why: The earlier `ad27400` verification was stale after strategic control, benchmark, public-case intake, maintenance, and Tk launch-path commits.
   - Consequence: `docs/inspoly_release_candidate_v3_state_20260527.md` and `validation_outputs/inspoly_release_candidate_v3_state_20260527.json` are the current release-candidate state references. V3 verification passed 586 focused tests and 1122 full-suite tests at head `2dd851f` before the V3 report commit. Push/PR remains user-gated.

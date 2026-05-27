@@ -11,6 +11,7 @@ Last updated: 2026-05-27 EEST.
 - Keep Strategic Operating System autonomy bounded by approval gates.
 
 ## Highest-Leverage Next Work
+- Await explicit owner approval before any remote publication. The current recommended future path is a draft PR from branch `codex/inspoly-local-release-candidate-v3`, using `docs/inspoly_push_approval_checklist_v3_20260527.md` and `docs/inspoly_future_pr_draft_20260527.md`.
 - Use Release Candidate V3 as the current local baseline. Before any push/PR, follow `docs/inspoly_future_push_pr_checklist_v3_20260527.md` and rerun/accept the V3 verification matrix.
 - Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 30 compact cases with false-positive, sidecar-context, and public-source metadata controls.
 - If more validation work is desired, use the public-case human labeling packet and `public_case_label_intake_v1` schema for exact-wallet candidates. The current evidence bridge found no safe exact-wallet upgrades and no named-user local wallet candidates.
@@ -21,7 +22,7 @@ Last updated: 2026-05-27 EEST.
 - Run bounded Event Forensic performance/pagination work only from measured bottlenecks and explicit target selection.
 
 ## Should Do
-- If the owner asks to publish, run a dedicated future push/PR packaging campaign with staged-file audit and draft PR description. Do not push from a general maintenance campaign.
+- If the owner asks to publish, use the prepared V3 PR kit and still rerun/accept the push approval checklist before any branch creation or push. Do not push from a general maintenance campaign.
 - Add exact-wallet public-case benchmark rows only after a future intake label passes validation and is accepted for benchmark use. Current public cases are named-user, market-level, or pattern-level controls only, with compact local refs that explicitly do not prove wallet identity.
 - Add more tests around archive visibility, browser report normalization, event eligibility, and partial/live Event Forensic modes.
 - Create a provider/query micro-probe packet for one selected truncated market before any production pagination expansion.
