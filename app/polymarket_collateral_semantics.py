@@ -23,9 +23,29 @@ REJECTED_SOURCE_TYPES = {
 }
 
 ROLE_PUSD_TOKEN = "pusd_token"
+ROLE_PUSD_TOKEN_IMPL = "pusd_token_impl"
 ROLE_CLOB_COLLATERAL = "clob_collateral"
 ROLE_EXCHANGE_OR_ONRAMP = "exchange_or_onramp"
-KNOWN_ROLES = {ROLE_PUSD_TOKEN, ROLE_CLOB_COLLATERAL, ROLE_EXCHANGE_OR_ONRAMP}
+ROLE_COLLATERAL_ONRAMP = "collateral_onramp"
+ROLE_COLLATERAL_OFFRAMP = "collateral_offramp"
+ROLE_PERMISSIONED_RAMP = "permissioned_ramp"
+ROLE_CTF_COLLATERAL_ADAPTER = "ctf_collateral_adapter"
+ROLE_NEG_RISK_CTF_COLLATERAL_ADAPTER = "neg_risk_ctf_collateral_adapter"
+ROLE_CTF_EXCHANGE = "ctf_exchange"
+ROLE_NEG_RISK_CTF_EXCHANGE = "neg_risk_ctf_exchange"
+KNOWN_ROLES = {
+    ROLE_PUSD_TOKEN,
+    ROLE_PUSD_TOKEN_IMPL,
+    ROLE_CLOB_COLLATERAL,
+    ROLE_EXCHANGE_OR_ONRAMP,
+    ROLE_COLLATERAL_ONRAMP,
+    ROLE_COLLATERAL_OFFRAMP,
+    ROLE_PERMISSIONED_RAMP,
+    ROLE_CTF_COLLATERAL_ADAPTER,
+    ROLE_NEG_RISK_CTF_COLLATERAL_ADAPTER,
+    ROLE_CTF_EXCHANGE,
+    ROLE_NEG_RISK_CTF_EXCHANGE,
+}
 
 ADDRESS_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
 
@@ -38,6 +58,9 @@ def classify_collateral_source_fact(fact: Mapping[str, object]) -> dict[str, obj
     address = _text(fact.get("address") or fact.get("contractAddress") or fact.get("tokenAddress"))
     symbol = _text(fact.get("symbol") or fact.get("tokenSymbol"))
     source_url = _text(fact.get("sourceUrl") or fact.get("source_url"))
+    source_name = _text(fact.get("sourceName") or fact.get("source_name"))
+    chain_id = _text(fact.get("chainId") or fact.get("chain_id"))
+    claim = _text(fact.get("claim"))
     notes: list[str] = []
 
     source_status = UNKNOWN
@@ -87,12 +110,17 @@ def classify_collateral_source_fact(fact: Mapping[str, object]) -> dict[str, obj
 
     return {
         "sourceType": source_type or UNKNOWN,
+        "sourceName": source_name or UNKNOWN,
         "role": role or UNKNOWN,
         "symbol": symbol or UNKNOWN,
+        "chainId": chain_id or UNKNOWN,
         "address": address or UNKNOWN,
         "sourceUrl": source_url,
+        "claim": claim or UNKNOWN,
         "sourceStatus": source_status,
         "factStatus": fact_status,
+        "fixtureGrade": fact_status in {"known_static_fixture", "verified_static_source"},
+        "runtimeGrade": False,
         "productionTruth": production_truth,
         "sidecarOnly": True,
         "runtimeIntegrationAllowed": False,

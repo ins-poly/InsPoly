@@ -39,14 +39,36 @@ class PusdCollateralSemanticsTests(unittest.TestCase):
         self.assertIn("source_type_not_acceptable_for_collateral_truth", fact["qualityNotes"])
 
     def test_static_fixture_fact_can_match_without_becoming_production_truth(self) -> None:
-        facts = json.loads(FIXTURE.read_text(encoding="utf-8"))["facts"]
-
-        row = classify_trade_collateral_semantics({"collateralTokenSymbol": "pUSD"}, source_facts=facts)
+        row = classify_trade_collateral_semantics(
+            {"collateralTokenSymbol": "pUSD"},
+            source_facts=[
+                {
+                    "sourceType": "static_fixture",
+                    "role": "pusd_token",
+                    "symbol": "pUSD",
+                    "address": "0x1111111111111111111111111111111111111111",
+                }
+            ],
+        )
 
         self.assertEqual(row["collateralStatus"], "known_static_fixture_only")
         self.assertFalse(row["matchedSourceFact"]["productionTruth"])
         self.assertFalse(row["runtimeIntegrationAllowed"])
         self.assertIn("fixture_collateral_context_not_production_truth", row["qualityNotes"])
+
+    def test_official_docs_fixture_facts_are_not_runtime_truth(self) -> None:
+        facts = json.loads(FIXTURE.read_text(encoding="utf-8"))["facts"]
+        classified = [classify_collateral_source_fact(fact) for fact in facts]
+        official_pusd = next(fact for fact in classified if fact["role"] == "pusd_token")
+
+        row = classify_trade_collateral_semantics({"collateralTokenSymbol": "pUSD"}, source_facts=facts)
+
+        self.assertEqual(official_pusd["factStatus"], "verified_static_source")
+        self.assertTrue(official_pusd["fixtureGrade"])
+        self.assertFalse(official_pusd["runtimeGrade"])
+        self.assertFalse(official_pusd["productionTruth"])
+        self.assertEqual(row["collateralStatus"], "unknown")
+        self.assertIn("missing_verified_collateral_source", row["qualityNotes"])
 
     def test_verified_source_still_requires_explicit_runtime_approval(self) -> None:
         row = classify_trade_collateral_semantics(

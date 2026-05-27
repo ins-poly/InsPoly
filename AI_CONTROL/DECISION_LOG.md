@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Prepare operator approval packets for the three remaining post-donor gates without runtime changes.
+  - Why: The prior donor campaign made the branches decision-ready but left the owner-facing approval layer ambiguous. The next safe step was to make the approval decisions explicit, not to start live ingestion, report/UI integration, or funding/Phase 3 runtime work.
+  - Consequence: Final combined gate is `operator_approval_readiness_packets_ready_no_runtime`. Branch A is `indexer_bounded_live_approval_packet_ready` with a no-network config validator; Branch B is `sidecar_report_pointer_keep_sidecar_only` with a static pointer example only; Branch C is `pusd_collateral_fixture_grade_sources_added` with static official-docs facts only. No live worker, report/browser wiring, funding runtime, Phase 3 runtime, scoring/gate changes, storage schema changes, trading, push, or PR was performed.
+  - Reversal / revisit condition: Revisit only through explicit owner approval for one of three future campaigns: bounded live indexer operator run, pointer-only report metadata RFC/implementation, or pUSD collateral trace-policy/source reconciliation RFC.
+
 - Decision: Complete the remaining donor-derived branches as sidecar/RFC work with no runtime integration.
   - Why: The indexer/warehouse, sidecar-to-analyst-surface, and pUSD/CLOB collateral branches all remain valuable, but each crosses approval-gated runtime, report/UI, live-network, or funding semantics boundaries if implemented directly.
   - Consequence: Final combined gate is `three_branch_execplan_no_safe_runtime_changes`. Added current-state reports, compact JSON summaries, a read-only indexer DB readiness audit, and static unknown-safe collateral semantics fixtures/tests. Live indexing, report-copying, UI panels, pUSD funding runtime, Phase 3 capital runtime, storage migration, CLOB auth/trading, push, and PR remain blocked.

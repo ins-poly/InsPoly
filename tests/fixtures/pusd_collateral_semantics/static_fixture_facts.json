@@ -1,16 +1,64 @@
 {
   "facts": [
     {
-      "address": "0x1111111111111111111111111111111111111111",
+      "address": "0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB",
+      "chainId": 137,
+      "claim": "Polymarket pUSD CollateralToken proxy address on Polygon mainnet.",
       "role": "pusd_token",
-      "sourceType": "static_fixture",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
       "symbol": "pUSD"
     },
     {
-      "address": "0x2222222222222222222222222222222222222222",
-      "role": "clob_collateral",
-      "sourceType": "static_fixture",
-      "symbol": "USDC"
+      "address": "0x6bBCef9f7ef3B6C592c99e0f206a0DE94Ad0925f",
+      "chainId": 137,
+      "claim": "Polymarket pUSD CollateralToken implementation address on Polygon mainnet.",
+      "role": "pusd_token_impl",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
+      "symbol": "pUSD"
+    },
+    {
+      "address": "0x93070a847efEf7F70739046A929D47a521F5B8ee",
+      "chainId": 137,
+      "claim": "Polymarket collateral onramp address on Polygon mainnet.",
+      "role": "collateral_onramp",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
+      "symbol": "pUSD"
+    },
+    {
+      "address": "0x2957922Eb93258b93368531d39fAcCA3B4dC5854",
+      "chainId": 137,
+      "claim": "Polymarket collateral offramp address on Polygon mainnet.",
+      "role": "collateral_offramp",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
+      "symbol": "pUSD"
+    },
+    {
+      "address": "0xebC2459Ec962869ca4c0bd1E06368272732BCb08",
+      "chainId": 137,
+      "claim": "Polymarket permissioned ramp address on Polygon mainnet.",
+      "role": "permissioned_ramp",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
+      "symbol": "pUSD"
+    },
+    {
+      "address": "0xE111180000d2663C0091e4f400237545B87B996B",
+      "chainId": 137,
+      "claim": "Polymarket CTF Exchange V2 address on Polygon mainnet.",
+      "role": "ctf_exchange",
+      "sourceName": "Polymarket contracts documentation",
+      "sourceType": "official_docs",
+      "sourceUrl": "https://docs.polymarket.com/resources/contracts",
+      "symbol": "pUSD"
     },
     {
       "address": "0x3333333333333333333333333333333333333333",
