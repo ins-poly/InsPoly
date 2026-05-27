@@ -313,3 +313,38 @@ Current blocked/product decisions:
 - Push/PR: user-gated and not performed.
 
 The old gate, test, and blocker summaries above should be treated as historical context where they conflict with the V2 readiness report.
+
+## 2026-05-27 Known-Case Benchmark Maintenance Addendum
+
+The current known-case benchmark maintenance source of truth is:
+
+- [Known-Case Benchmark Maintenance Checklist](inspoly_known_case_benchmark_maintenance_checklist_20260527.md)
+- [Known-Case Benchmark Maintenance JSON](../validation_outputs/inspoly_known_case_benchmark_maintenance_20260527.json)
+- [Public-Case Human Labeling Packet](inspoly_public_case_human_labeling_packet_20260527.md)
+- [Public-Case Benchmark Update Policy](inspoly_public_case_benchmark_update_policy_20260527.md)
+
+Current head before this maintenance refresh: `90e2434` - `Add public-case human labeling packet`.
+
+Current benchmark state:
+
+- total known-case corpus: 30 compact cases;
+- public controls: 6;
+- exact-wallet public labels accepted: 0;
+- named-user local wallet candidates: 0;
+- named-user-only public cases: 2;
+- pattern-level-only public cases: 2;
+- market-level-only public cases: 2;
+- public cases awaiting human/source labels: 6;
+- false-positive controls: 4;
+- sidecar/context controls: 4.
+
+Current benchmark maintenance gate: `known_case_benchmark_maintenance_ready`.
+
+Important constraints:
+
+- public exact-wallet upgrades require accepted source-backed intake through `tests/fixtures/known_case_benchmark/public_case_label_intake_schema.json` and `tools/public_case_label_intake_validator.py`;
+- passing intake validation does not automatically change the fixture;
+- fixture updates require a separate campaign with tests and rollback notes;
+- benchmark maintenance is validation-only and does not authorize runtime, model, scoring, routing, gate, Phase 3, storage, UI sorting/filtering, or saved-artifact changes.
+
+Push/PR remains deferred by user. `PROJECT_MEMORY.md` remains local-only and must not be staged.

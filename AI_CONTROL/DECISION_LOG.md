@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Maintain known-case benchmark changes through the maintenance checklist and accepted-label intake path.
+  - Why: The corpus is now broad enough to guard future model/runtime-adjacent work, but public exact-wallet evidence remains unproven and should not drift through ad hoc edits.
+  - Consequence: `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md` and `validation_outputs/inspoly_known_case_benchmark_maintenance_20260527.json` are the current maintenance references. The 30-case fixture remains unchanged by this maintenance campaign, with 0 accepted exact-wallet public labels and 6 public controls awaiting human/source labels.
+  - Reversal / revisit condition: If an accepted intake label proves exact wallet/user/market identity, run a separate benchmark fixture update campaign with tests and rollback notes.
+
 - Decision: Route future public exact-wallet benchmark upgrades through a human-label intake schema.
   - Why: The public-case evidence bridge found no safe exact-wallet upgrade, but future source-backed evidence should have a precise acceptance path rather than ad hoc fixture edits.
   - Consequence: `tests/fixtures/known_case_benchmark/public_case_label_intake_schema.json` and `tools/public_case_label_intake_validator.py` define the intake contract. The human labeling packet covers all 6 deferred public controls. No exact-wallet labels are accepted by this campaign.

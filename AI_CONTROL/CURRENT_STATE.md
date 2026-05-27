@@ -5,6 +5,7 @@ Last updated: 2026-05-27 EEST.
 ## Repository State
 - Branch inspected: `main`.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
+- Latest known-case maintenance base commit inspected: `90e2434 Add public-case human labeling packet`.
 - Latest pre-push dry-run commit inspected: `05d688d Add final pre-push packaging dry run`.
 - Latest runtime-affecting commit inspected: `0ce05da Add local browser offline runtime assets`.
 - Current release-candidate gate: `local_release_candidate_verified`.
@@ -26,10 +27,11 @@ Last updated: 2026-05-27 EEST.
 - Browser UIs now boot from vendored local React/ReactDOM/Babel assets through narrow static serving.
 - Strategic Operating System files are present and wired into repo/global agent guidance for non-trivial work.
 - The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `/Users/Root1/.codex/skills/strategic-autonomy-review/`.
-- The test suite has broad local regression coverage compared with early project state; the latest full suite after public-case benchmark labeling passed 1112 tests.
+- The test suite has broad local regression coverage compared with early project state; the latest full suite after public-case human-label packet work passed 1116 tests.
 - The known-case benchmark has been expanded to `known_case_benchmark_v3` with 30 compact cases, including false-positive, sidecar-context, and public-source metadata controls.
 - Public-case evidence bridge tooling now enforces exact-wallet source discipline: 6 public controls remain non-exact, with 0 exact-wallet-supported public cases, 0 named-user local wallet candidates, 2 named-user-only, 2 pattern-level-only, and 2 market-level-only cases.
 - Public-case human labeling packet and intake schema now define the only safe path for future exact-wallet public benchmark upgrades. No labels are accepted yet.
+- Known-case benchmark maintenance is documented by `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md`; future fixture changes should follow that checklist and remain validation-only unless a separate approved runtime/model campaign exists.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
 - Weak-history near-certainty rows are demoted out of primary Event Forensic review buckets while remaining exported/reviewable.
 - Side/Outcome reform Phase 2/4 is stable according to local benchmark/drift audits.
@@ -46,6 +48,7 @@ Last updated: 2026-05-27 EEST.
 - Whether to include root `AGENTS.md` in a future public repo package remains an explicit user decision; for now it remains local-only.
 - Future strategic cycles must use ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD and score candidate campaigns before implementation.
 - Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0`; the 2026-05-27 evidence bridge records compact local refs where available, but none prove wallet identity. Future upgrades require an accepted `public_case_label_intake_v1` label.
+- Benchmark maintenance now has an explicit checklist and machine-readable summary; future exact-wallet fixture updates require accepted intake plus a separate fixture update campaign.
 - Archive/event pagination completeness needs provider/query proof before runtime changes.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.

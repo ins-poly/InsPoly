@@ -13,6 +13,7 @@ Last updated: 2026-05-27 EEST.
 ## Highest-Leverage Next Work
 - Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 30 compact cases with false-positive, sidecar-context, and public-source metadata controls.
 - If more validation work is desired, use the public-case human labeling packet and `public_case_label_intake_v1` schema for exact-wallet candidates. The current evidence bridge found no safe exact-wallet upgrades and no named-user local wallet candidates.
+- Use the known-case benchmark maintenance checklist before adding or changing cases. Exact-wallet upgrades require accepted intake plus a separate fixture update campaign; maintenance work alone must not alter model/runtime behavior.
 - Decide push/PR grouping only when the owner explicitly wants to publish; release-candidate verification already passed at `ad27400`.
 - Use `AI_CONTROL/STRATEGIC_OPERATING_SYSTEM.md` for every open-ended strategic campaign and score candidate paths before implementation.
 - Create a ChatGPT strategic review from `AI_CONTROL/STRATEGIC_REVIEW_PACKET.md` if external review is desired before the next product campaign.
