@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat warehouse W2 registry/retention as ready for future sidecar analyst query packets, not ingestion or cleanup automation.
+  - Why: W2 added a no-network sidecar registry tool that consumes compact W1 summaries only, records local-only DB references, classifies retention state, and writes compact registry JSON. The current registry has 3 runs, 1 active review candidate, 2 retained references, 5 markets, 580 trades, 6 cursors, 0 malformed raw JSON rows, and 0 duplicate indicators.
+  - Consequence: Current warehouse W2 gate is `indexer_warehouse_w2_registry_retention_ready`. The next safe campaign is W3 analyst sidecar query/read command over compact registry/W1 summaries. Live ingestion, warehouse writer/copy behavior, append-mode retention, automatic deletion/move/compaction, production imports, report/browser integration, storage schema migration, saved report mutation, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
+  - Reversal / revisit condition: If W3 needs report/browser wiring, DB mutation, production imports, or copied report metrics to be useful, stop and downgrade to an RFC-only blocker before implementing those paths.
+
 - Decision: Treat warehouse W1 manual command as ready for local DB review, not live ingestion or warehouse writing.
   - Why: W1 added a manual read-only sidecar command that opens existing SQLite DBs in read-only mode, runs W0/readiness checks, summarizes table/market/trade/cursor/raw JSON/duplicate/retention state, and writes only compact review JSON/Markdown. It reviewed three existing local sidecar DBs successfully: 5 market rows, 580 public trade rows, 6 cursors, 0 malformed raw JSON rows, and 0 duplicate indicators; all three returned `ready_for_local_warehouse_review`.
   - Consequence: Current warehouse W1 gate is `indexer_warehouse_w1_manual_command_ready`. The next safe campaign is W2 registry/retention, still no scheduler/background mode. Live ingestion, warehouse writer/copy behavior, append-mode retention, production imports, report/browser integration, storage schema migration, saved report mutation, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.

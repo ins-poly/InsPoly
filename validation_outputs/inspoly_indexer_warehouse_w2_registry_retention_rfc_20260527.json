@@ -1,0 +1,41 @@
+{
+  "allowedMetadataFields": [
+    "runId",
+    "label",
+    "sourceDbPath",
+    "rawSummaryPath",
+    "sourceSummaryPath",
+    "createdOrObservedAt",
+    "targetSlugs",
+    "targetSetIdentity",
+    "marketCount",
+    "tradeCount",
+    "cursorCount",
+    "warehouseW0Ready",
+    "w1GateDecision",
+    "malformedRawJsonCount",
+    "duplicateIndicatorCount",
+    "collectionMetadataStatus",
+    "rowsByTarget",
+    "retentionClassification",
+    "retentionRecommendation",
+    "blockedScopes"
+  ],
+  "forbiddenMetadataFields": [
+    "privateKeys",
+    "apiSecrets",
+    "authTokens",
+    "orderPlacementPayloads",
+    "tradingInstructions",
+    "walletPrivateData",
+    "copiedReportMetrics"
+  ],
+  "gateDecision": "w2_registry_retention_rfc_ready",
+  "liveNetworkUsed": false,
+  "productionIntegration": false,
+  "reportType": "indexer_warehouse_w2_registry_retention_rfc",
+  "rollback": "remove_compact_w2_registry_docs_json_leave_raw_local_dbs_untouched",
+  "schemaMigration": false,
+  "schemaVersion": "indexer_warehouse_w2_registry_retention_rfc_v1",
+  "w2Scope": "compact_registry_and_retention_metadata_only"
+}
