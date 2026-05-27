@@ -1,0 +1,23 @@
+{
+  "gateDecision": "sidecar_context_report_pointer_rfc_ready",
+  "options": {
+    "keep_sidecar_only": {
+      "status": "current_final_path"
+    },
+    "manual_preview_index": {
+      "status": "not_implemented_existing_tools_sufficient"
+    },
+    "report_pointer": {
+      "status": "rfc_ready_needs_product_approval"
+    },
+    "ui_panel": {
+      "status": "blocked_needs_product_approval"
+    }
+  },
+  "reportCopyingImplemented": false,
+  "reportPointerImplemented": false,
+  "reportType": "sidecar_context_analyst_integration_rfc",
+  "schemaVersion": "sidecar_context_analyst_integration_rfc_v1",
+  "scoringRoutingEffectAllowed": false,
+  "uiPanelImplemented": false
+}

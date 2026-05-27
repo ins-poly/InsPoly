@@ -1,0 +1,22 @@
+{
+  "facts": [
+    {
+      "address": "0x1111111111111111111111111111111111111111",
+      "role": "pusd_token",
+      "sourceType": "static_fixture",
+      "symbol": "pUSD"
+    },
+    {
+      "address": "0x2222222222222222222222222222222222222222",
+      "role": "clob_collateral",
+      "sourceType": "static_fixture",
+      "symbol": "USDC"
+    },
+    {
+      "address": "0x3333333333333333333333333333333333333333",
+      "role": "pusd_token",
+      "sourceType": "blog",
+      "symbol": "pUSD"
+    }
+  ]
+}

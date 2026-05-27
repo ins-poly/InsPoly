@@ -11,6 +11,10 @@ Last updated: 2026-05-27 EEST.
 - Keep Strategic Operating System autonomy bounded by approval gates.
 
 ## Highest-Leverage Next Work
+- For the remaining donor-derived integration branches, use `docs/inspoly_donor_remaining_three_branch_decision_20260527.md` as the current gate reference. Final combined gate: `three_branch_execplan_no_safe_runtime_changes`.
+- If indexer work continues, prepare a bounded live-indexer approval packet first; do not start live ingestion, background workers, or warehouse mode from the readiness audit alone.
+- If analyst context work continues, decide whether pointer-only report metadata is product-approved; do not copy sidecar metrics into reports or add UI panels without explicit approval.
+- If pUSD/CLOB collateral work continues, collect verified official/contract/explorer/local-chain source facts into static fixtures before any funding runtime or Phase 3 runtime RFC.
 - Await explicit owner approval before any remote publication. The current recommended future path is a draft PR from branch `codex/inspoly-local-release-candidate-v3`, using `docs/inspoly_push_approval_checklist_v3_20260527.md` and `docs/inspoly_future_pr_draft_20260527.md`.
 - Use Release Candidate V3 as the current local baseline. Before any push/PR, follow `docs/inspoly_future_push_pr_checklist_v3_20260527.md` and rerun/accept the V3 verification matrix.
 - Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 30 compact cases with false-positive, sidecar-context, and public-source metadata controls.
@@ -35,7 +39,7 @@ Last updated: 2026-05-27 EEST.
 - Consider report-embedded replay metadata only after a top-slice vs all-candidate size-budget RFC.
 - Consider storage-backed replay only after a storage schema/retention RFC.
 - Consider replacing runtime Babel only after a build-pipeline/precompile RFC and UI equivalence proof.
-- Consider pUSD/on-chain collateral tracing only after canonical token/onramp/exchange addresses and tracing semantics are decided.
+- Consider pUSD/on-chain collateral tracing only after canonical token/onramp/exchange addresses, source quality, production-truth policy, and tracing semantics are decided.
 
 ## RFC-Only / Approval-Gated
 - Phase 3 capital-at-risk runtime implementation.

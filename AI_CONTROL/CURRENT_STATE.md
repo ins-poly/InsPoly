@@ -40,6 +40,10 @@ Last updated: 2026-05-27 EEST.
 - Known-case benchmark maintenance is documented by `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md`; future fixture changes should follow that checklist and remain validation-only unless a separate approved runtime/model campaign exists.
 - Release Candidate V3 is documented by `docs/inspoly_release_candidate_v3_state_20260527.md` and future push preparation by `docs/inspoly_future_push_pr_checklist_v3_20260527.md`.
 - Future push/PR packaging has a dry-run kit: `docs/inspoly_future_pr_draft_20260527.md`, `docs/inspoly_reviewer_risk_map_v3_20260527.md`, `docs/inspoly_push_approval_checklist_v3_20260527.md`, and `validation_outputs/inspoly_future_push_pr_packaging_dry_run_20260527.json`.
+- Remaining donor-derived integration branches have been assessed as sidecar/RFC-only in `docs/inspoly_donor_remaining_three_branch_decision_20260527.md`. Final combined gate: `three_branch_execplan_no_safe_runtime_changes`.
+- Indexer/warehouse branch: read-only DB readiness audit tool exists, but live indexing remains `indexer_live_blocked_needs_operator_approval`.
+- Sidecar context report/UI branch: current final path remains sidecar-only; pointer-only report metadata is RFC-ready but not approved.
+- pUSD/CLOB collateral branch: static unknown-safe semantics helper exists for fixtures only; funding runtime and Phase 3 runtime remain blocked pending verified addresses/source fields and explicit approval.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
 - Weak-history near-certainty rows are demoted out of primary Event Forensic review buckets while remaining exported/reviewable.
 - Side/Outcome reform Phase 2/4 is stable according to local benchmark/drift audits.
@@ -50,6 +54,7 @@ Last updated: 2026-05-27 EEST.
 - Phase 3 capital-at-risk has sidecar/source-quality evidence, but runtime implementation remains blocked.
 - Funding traces can work with cache/RPC settings, but unavailable traces must remain `unknown`.
 - Pagination/truncation has probes and RFCs, but production pagination expansion remains blocked.
+- The new indexer readiness audit and collateral semantics helper are sidecar/static support only and are not production runtime integrations.
 
 ## What Is Open
 - Push/PR/release grouping requires explicit operator decision.
@@ -63,6 +68,9 @@ Last updated: 2026-05-27 EEST.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.
 - Phase 3 capital-at-risk runtime needs stronger real source-field evidence and explicit product/accounting decisions.
+- Live indexer/warehouse work needs an operator-approved bounded run plan before any network ingestion.
+- Sidecar context report pointers or UI panels need product approval before report/browser implementation.
+- pUSD/CLOB collateral work needs verified source facts before funding runtime or Phase 3 runtime changes.
 - Legacy Tk retirement or support would need a separate RFC/campaign; current state is freeze/reference-only.
 
 ## Validation Baseline

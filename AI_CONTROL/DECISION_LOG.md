@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Complete the remaining donor-derived branches as sidecar/RFC work with no runtime integration.
+  - Why: The indexer/warehouse, sidecar-to-analyst-surface, and pUSD/CLOB collateral branches all remain valuable, but each crosses approval-gated runtime, report/UI, live-network, or funding semantics boundaries if implemented directly.
+  - Consequence: Final combined gate is `three_branch_execplan_no_safe_runtime_changes`. Added current-state reports, compact JSON summaries, a read-only indexer DB readiness audit, and static unknown-safe collateral semantics fixtures/tests. Live indexing, report-copying, UI panels, pUSD funding runtime, Phase 3 capital runtime, storage migration, CLOB auth/trading, push, and PR remain blocked.
+  - Reversal / revisit condition: Revisit only through one of three future approval campaigns: bounded live indexer run approval, sidecar report-pointer/product approval, or verified pUSD/CLOB source research followed by a separate runtime RFC.
+
 - Decision: Prepare a future push/PR kit but keep publication approval-gated.
   - Why: Release Candidate V3 is verified and ready for review, but the owner explicitly has not approved push/PR or branch creation.
   - Consequence: `docs/inspoly_future_pr_draft_20260527.md`, `docs/inspoly_reviewer_risk_map_v3_20260527.md`, `docs/inspoly_push_approval_checklist_v3_20260527.md`, and `validation_outputs/inspoly_future_push_pr_packaging_dry_run_20260527.json` are the current PR preparation references. Recommended future strategy is to create `codex/inspoly-local-release-candidate-v3` from local `main` and open a draft PR only after explicit owner approval. No branch, push, PR, squash, rebase, or remote git operation was performed.
@@ -93,3 +98,6 @@ Last updated: 2026-05-27 EEST.
 - Whether replay should ever be embedded in reports or persisted in storage.
 - Whether Phase 3 capital-at-risk should remain permanently sidecar-only or get a future runtime RFC after stronger evidence.
 - Whether future sessions should treat the repo-local skill copy, the user-level installed skill copy, or both as the canonical skill source.
+- Whether to approve a bounded live indexer run against explicit target markets/events and SQLite output.
+- Whether to approve pointer-only report metadata for sidecar artifacts.
+- Which verified source types and addresses should become fixture-grade pUSD/CLOB collateral facts.
