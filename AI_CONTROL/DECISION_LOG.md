@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat Release Candidate V3 as the current verified local state.
+  - Why: The earlier `ad27400` verification was stale after strategic control, benchmark, public-case intake, maintenance, and Tk launch-path commits.
+  - Consequence: `docs/inspoly_release_candidate_v3_state_20260527.md` and `validation_outputs/inspoly_release_candidate_v3_state_20260527.json` are the current release-candidate state references. V3 verification passed 586 focused tests and 1122 full-suite tests at head `2dd851f` before the V3 report commit. Push/PR remains user-gated.
+  - Reversal / revisit condition: Rerun RC verification if runtime files, fixtures, benchmark tooling, browser assets, or release packaging state changes before push.
+
 - Decision: Freeze legacy Tk UI as historical/reference-only.
   - Why: The active `python3 -m app desktop`, archive, and Event Forensic desktop commands route to browser-backed local UIs, while `app/desktop.py` carries older Tk labels and duplicated UI logic that can mislead future edits.
   - Consequence: `app/desktop.py` remains in the tree for historical context and direct import compatibility, but it is not the release UI or supported fallback. Future support or deletion requires a separate RFC/retirement campaign.

@@ -11,15 +11,17 @@ Last updated: 2026-05-27 EEST.
 - Keep Strategic Operating System autonomy bounded by approval gates.
 
 ## Highest-Leverage Next Work
+- Use Release Candidate V3 as the current local baseline. Before any push/PR, follow `docs/inspoly_future_push_pr_checklist_v3_20260527.md` and rerun/accept the V3 verification matrix.
 - Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 30 compact cases with false-positive, sidecar-context, and public-source metadata controls.
 - If more validation work is desired, use the public-case human labeling packet and `public_case_label_intake_v1` schema for exact-wallet candidates. The current evidence bridge found no safe exact-wallet upgrades and no named-user local wallet candidates.
 - Use the known-case benchmark maintenance checklist before adding or changing cases. Exact-wallet upgrades require accepted intake plus a separate fixture update campaign; maintenance work alone must not alter model/runtime behavior.
-- Decide push/PR grouping only when the owner explicitly wants to publish; release-candidate verification already passed at `ad27400`.
+- Decide push/PR grouping only when the owner explicitly wants to publish; Release Candidate V3 verification passed at `2dd851f` before the V3 report commit.
 - Use `AI_CONTROL/STRATEGIC_OPERATING_SYSTEM.md` for every open-ended strategic campaign and score candidate paths before implementation.
 - Create a ChatGPT strategic review from `AI_CONTROL/STRATEGIC_REVIEW_PACKET.md` if external review is desired before the next product campaign.
 - Run bounded Event Forensic performance/pagination work only from measured bottlenecks and explicit target selection.
 
 ## Should Do
+- If the owner asks to publish, run a dedicated future push/PR packaging campaign with staged-file audit and draft PR description. Do not push from a general maintenance campaign.
 - Add exact-wallet public-case benchmark rows only after a future intake label passes validation and is accepted for benchmark use. Current public cases are named-user, market-level, or pattern-level controls only, with compact local refs that explicitly do not prove wallet identity.
 - Add more tests around archive visibility, browser report normalization, event eligibility, and partial/live Event Forensic modes.
 - Create a provider/query micro-probe packet for one selected truncated market before any production pagination expansion.

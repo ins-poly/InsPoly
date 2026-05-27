@@ -367,3 +367,37 @@ Current launch path:
 - `python3 -m app event-desktop` launches `app.event_forensic_desktop.launch_event_forensic_browser_app()`.
 
 `app/desktop.py` remains in the tree as historical/reference-only Tk UI code. It is not the release UI or a supported fallback. Future support or deletion requires a separate RFC/retirement campaign.
+
+## 2026-05-27 Release Candidate V3 Addendum
+
+The current Release Candidate V3 source of truth is:
+
+- [Release Candidate V3 State](inspoly_release_candidate_v3_state_20260527.md)
+- [Release Candidate V3 State JSON](../validation_outputs/inspoly_release_candidate_v3_state_20260527.json)
+- [Future Push/PR Checklist V3](inspoly_future_push_pr_checklist_v3_20260527.md)
+
+Current head before the V3 report: `2dd851f` - `Freeze legacy Tk UI as reference-only`.
+
+Current local series count before the V3 report: `48` commits ahead of `origin/main`.
+
+Current gate: `release_candidate_v3_state_ready`.
+
+Important updates since the prior release-candidate verification:
+
+- strategic control layer is committed;
+- known-case benchmark is at 30 compact cases;
+- public exact-wallet labels remain `0`, with human-label intake required;
+- known-case benchmark maintenance checklist is ready;
+- legacy Tk UI is frozen as reference-only;
+- browser strict offline remains ready;
+- Phase 3 runtime, replay persistence, and pagination/provider expansion remain blocked/RFC-only;
+- push/PR remains user-gated.
+
+V3 verification results:
+
+- focused matrix: 586 tests OK;
+- full unittest discovery: 1122 tests OK;
+- compileall passed for `app`, `tools`, and `tests`;
+- browser vendor hashes matched provenance;
+- no live/RPC used;
+- no push/PR performed.

@@ -82,7 +82,7 @@ source .venv/bin/activate
 python3 -m pip install -e .
 ```
 
-The project currently relies mostly on the Python standard library. The browser UIs load React/Babel and fonts from public CDNs at runtime.
+The project currently relies mostly on the Python standard library. The browser UIs boot from pinned local React, ReactDOM, and Babel runtime assets under `app/vendor/browser/`; fonts use local system stacks rather than remote font services.
 
 All documented commands assume you are running them from the repository root.
 
