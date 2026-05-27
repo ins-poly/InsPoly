@@ -38,6 +38,7 @@ from app.event_forensic_performance import (
     build_wallet_api_boundary_trace_metadata,
     build_wallet_context_reuse_metadata,
 )
+from app.report_pointer import POINTER_FIELD, attach_indexer_warehouse_pointer
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import MAX_TRADES_OFFSET, PolymarketClient
 from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_side_outcome
@@ -417,6 +418,7 @@ class EventForensicAnalyzer:
         selected_market_slug: str | None = None,
         start_at: datetime | None = None,
         end_at: datetime | None = None,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
         progress_callback: callable | None = None,
         stop_event: object | None = None,
     ) -> dict[str, object]:
@@ -1499,6 +1501,7 @@ class EventForensicAnalyzer:
             related_markets=related_market_rows,
             candidate_audit_rows=candidate_audit_rows,
             raw_bundle=raw_bundle,
+            indexer_warehouse_pointer=indexer_warehouse_pointer,
         )
         report["export_files"] = export_files
         report["report_json_path"] = export_files["report_json_path"]
@@ -4419,6 +4422,7 @@ class EventForensicAnalyzer:
         related_markets: list[dict[str, object]],
         candidate_audit_rows: list[dict[str, object]],
         raw_bundle: dict[str, object],
+        indexer_warehouse_pointer: dict[str, object] | None = None,
     ) -> dict[str, str]:
         suffix = "_stopped" if report.get("status") == "stopped" else ""
         base_name = started_at.strftime("event_forensic_%Y%m%d_%H%M%S") + suffix
@@ -4470,6 +4474,14 @@ class EventForensicAnalyzer:
         persisted_report["report_json_path"] = str(report_json_path)
         persisted_report["report_md_path"] = str(event_report_md_path)
         persisted_report["report_txt_path"] = str(event_report_md_path)
+        if indexer_warehouse_pointer is not None:
+            persisted_report = attach_indexer_warehouse_pointer(
+                persisted_report,
+                indexer_warehouse_pointer,
+                source_report_id=str(report_json_path),
+                generated_at=started_at,
+            )
+            report[POINTER_FIELD] = persisted_report[POINTER_FIELD]
 
         report_json = json.dumps(persisted_report, ensure_ascii=False, indent=2)
         report_json_path.write_text(report_json, encoding="utf-8")

@@ -15,6 +15,7 @@ from app.event_forensic import (
     _scope_product_metadata,
 )
 from app.event_forensic_desktop import EventForensicBrowserApp
+from app.report_pointer import POINTER_FIELD
 from app.models import Market
 from tools.event_forensic_scope_semantics_audit import (
     REPORT_TYPE,
@@ -184,6 +185,112 @@ class EventForensicScopeSemanticsTests(unittest.TestCase):
         self.assertIn("event_report_markdown", prepared)
         self.assertIn("Primary scoring scope: selected_market", prepared["event_report_markdown"])
         self.assertNotIn("analysisScope", old_report)
+
+    def test_old_event_report_with_indexer_pointer_loads_without_ui_contract_change(self) -> None:
+        app = EventForensicBrowserApp.__new__(EventForensicBrowserApp)
+        app.analyzer = EventForensicAnalyzer(
+            client=object(),
+            storage=object(),
+            config=AppConfig(
+                data_dir=Path("."),
+                db_path=Path("./ignored.sqlite3"),
+                reports_dir=Path("."),
+                outputs_dir=Path("."),
+            ),
+        )
+        app.config = app.analyzer._config
+        old_report = {
+            "generated_at": "2026-05-25T00:00:00+00:00",
+            "status": "completed",
+            "event": {
+                "title": "Old report",
+                "canonicalUrl": "https://polymarket.com/event/old",
+                "slug": "old-event",
+                "marketCount": 2,
+                "analysisMarketCount": 1,
+                "completed": True,
+            },
+            "analysis_scope": "market",
+            "selected_market_title": "Old selected market",
+            "selected_condition_id": "cond-old",
+            "selected_market_slug": "old-market",
+            "summary": {"candidate_trade_count": 0, "analysis_market_count": 1, "unique_wallet_count": 0},
+            "scope_note": "Old selected-market scope note.",
+            "eligibility": {"eligible": True},
+            "markets": [],
+            "display_trades": [],
+            "suspicious_trades": [],
+            "display_wallets": [],
+            "wallet_clusters": [],
+            "related_markets": [],
+            "model_gap": {},
+            "funding_resolver_health": {},
+            "performance": {},
+            POINTER_FIELD: {
+                "artifactType": "indexer_warehouse_query",
+                "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+                "artifactId": "w3-query-run",
+                "metricsCopied": False,
+                "scoringEffect": False,
+                "routingEffect": False,
+            },
+        }
+
+        prepared = app._prepare_report(old_report)
+
+        self.assertIn(POINTER_FIELD, prepared)
+        self.assertIn("event_report_markdown", prepared)
+        self.assertNotIn("analysisScope", old_report)
+
+    def test_event_forensic_report_bundle_persists_explicit_indexer_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports_dir = root / "reports"
+            outputs_dir = root / "outputs"
+            reports_dir.mkdir()
+            outputs_dir.mkdir()
+            analyzer = EventForensicAnalyzer(
+                client=object(),
+                storage=object(),
+                config=AppConfig(
+                    data_dir=root,
+                    db_path=root / "db.sqlite3",
+                    reports_dir=reports_dir,
+                    outputs_dir=outputs_dir,
+                ),
+            )
+            report = {
+                "generated_at": "2026-05-27T00:00:00+00:00",
+                "status": "completed",
+                "event_report_markdown": "# report\n",
+                "model_gap_markdown": "# gap\n",
+                "candidate_admission_funnel": {},
+            }
+
+            export_files = analyzer._write_report_bundle(
+                datetime(2026, 5, 27, 10, 0, 0, tzinfo=UTC),
+                reports_dir,
+                report,
+                suspicious_trades=[],
+                suspicious_wallets=[],
+                ranked_wallets=[],
+                wallet_clusters=[],
+                wallet_graph={},
+                related_markets=[],
+                candidate_audit_rows=[],
+                raw_bundle={},
+                indexer_warehouse_pointer={
+                    "artifactType": "indexer_warehouse_query",
+                    "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+                    "artifactId": "w3-query-run",
+                },
+            )
+            payload = json.loads(Path(export_files["report_json_path"]).read_text(encoding="utf-8"))
+            bundle_payload = json.loads(Path(export_files["event_analysis_json_path"]).read_text(encoding="utf-8"))
+
+        self.assertIn(POINTER_FIELD, payload)
+        self.assertEqual(payload[POINTER_FIELD], bundle_payload[POINTER_FIELD])
+        self.assertFalse(payload[POINTER_FIELD]["metricsCopied"])
 
     def test_scope_semantics_audit_reads_local_artifacts_offline(self) -> None:
         report = build_scope_semantics_audit(ROOT, max_files=12, max_bytes=6_000_000)

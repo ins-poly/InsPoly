@@ -19,12 +19,12 @@
     ],
     "rawDbReadRequired": false,
     "registryPath": "validation_outputs/inspoly_indexer_warehouse_registry_20260527.json",
-    "reportUiRequired": false,
     "routingEffect": false,
     "scoringEffect": false,
     "sidecarOnly": true,
     "sourceReportId": "example-report-id",
-    "staleDataWarning": "The referenced registry/query output is historical and does not refresh live data."
+    "staleDataWarning": "The referenced registry/query output is historical and does not refresh live data.",
+    "uiRequired": false
   },
   "cases": []
 }

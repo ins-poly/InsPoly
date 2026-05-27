@@ -2,9 +2,9 @@
 
 ## Status
 
-Packet status: `ready_for_future_product_approval`.
+Packet status: `superseded_by_rc_v4_implementation`.
 
-Implementation status: not approved and not implemented.
+Implementation status: implemented in RC V4 as optional, pointer-only report metadata with no UI panel and no copied metrics.
 
 ## Future Campaign Objective
 

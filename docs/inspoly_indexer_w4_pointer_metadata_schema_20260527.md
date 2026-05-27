@@ -4,7 +4,7 @@
 
 Schema status: static draft only.
 
-Implementation status: not implemented.
+Implementation status: implemented in RC V4 as optional, absent-by-default metadata.
 
 ## Top-Level Field
 
@@ -33,7 +33,7 @@ Required fields:
 - `metricsCopied`: `false`
 - `scoringEffect`: `false`
 - `routingEffect`: `false`
-- `reportUiRequired`: `false`
+- `uiRequired`: `false`
 - `liveRefresh`: `false`
 - `rawDbReadRequired`: `false`
 - `localOnlyWarning`: human-readable warning
@@ -65,7 +65,7 @@ Example fixture:
 
 - `tests/fixtures/indexer_w4_report_pointer_example.json`
 
-The fixture is not imported by runtime code and is not wired into report writers.
+The fixture is validated by focused tests. Report writers only emit the pointer when an explicit pointer payload is supplied.
 
 ## Compatibility Rules
 

@@ -13,18 +13,20 @@
     "clob_auth_private_keys_trading_external_writes",
     "push_pr"
   ],
-  "futureApprovalRequired": true,
-  "implementationApproved": false,
-  "implementationStatus": "not_implemented",
+  "futureApprovalRequired": false,
+  "implementationApproved": true,
+  "implementationStatus": "implemented_in_rc_v4_pointer_only_absent_by_default",
   "likelyFilesTouchedIfApproved": [
     "app/scanner.py",
     "app/archive_scanner.py",
     "app/event_forensic.py",
     "tests/test_app_workflow_contracts.py",
     "tests/test_event_forensic_scope_semantics.py",
-    "tests/fixtures/indexer_w4_report_pointer_example.json"
+    "tests/fixtures/indexer_w4_report_pointer_example.json",
+    "app/report_pointer.py",
+    "tests/test_indexer_report_pointer.py"
   ],
-  "packetStatus": "ready_for_future_product_approval",
+  "packetStatus": "superseded_by_rc_v4_implementation",
   "reportType": "indexer_w4_pointer_metadata_implementation_packet",
   "requiredTests": [
     "old_report_absent_safe_load",

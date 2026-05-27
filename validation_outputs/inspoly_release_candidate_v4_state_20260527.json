@@ -1,0 +1,41 @@
+{
+  "browserUiPanelAdded": false,
+  "commitStartHead": "564eea4c556bfe0127138f47575fbcb2375d7072",
+  "copiedWarehouseMetrics": false,
+  "expectedAheadAfterCampaignCommit": 67,
+  "finalGate": "local_release_candidate_v4_complete_no_push_pr",
+  "liveNetworkUsed": false,
+  "localOnlyArtifacts": [
+    ".inspoly_indexer/",
+    "PROJECT_MEMORY.md",
+    "release_manifests/",
+    "shadow_review_packets/",
+    "side_outcome_review_packets/"
+  ],
+  "pushPrStatus": "not_performed_owner_gated",
+  "reportType": "release_candidate_v4_state",
+  "rowLevelSidecarContextInReports": false,
+  "schemaVersion": "release_candidate_v4_state_v1",
+  "startingAheadOfOriginMain": 66,
+  "validationResults": {
+    "browserFocused": "14 tests passed",
+    "compileall": "passed app tools tests",
+    "focusedIndexerWarehouseAndReport": "86 tests passed",
+    "focusedW4Isolation": "55 tests passed",
+    "fullUnittestDiscovery": "1240 tests passed",
+    "jsonValidation": "passed for new/changed compact outputs and fixture",
+    "scoringBenchmarkFocused": "225 tests passed",
+    "runtimeImportScan": "passed",
+    "copiedMetricsScan": "passed",
+    "diffChecks": "git diff --check passed; git diff --cached --check passed"
+  },
+  "validationStatus": "passed",
+  "w4Gate": "indexer_w4_pointer_metadata_implemented_no_ui_no_metrics",
+  "warehouseChain": {
+    "w0": "ready",
+    "w1": "manual_local_command_ready",
+    "w2": "registry_retention_ready",
+    "w3": "analyst_sidecar_query_ready",
+    "w4": "pointer_metadata_implemented_no_ui_no_metrics"
+  }
+}

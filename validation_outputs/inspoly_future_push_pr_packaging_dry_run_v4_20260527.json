@@ -1,0 +1,21 @@
+{
+  "branchCreated": false,
+  "commitRecommended": true,
+  "draftPrRecommendedAfterOwnerApproval": true,
+  "localOnlyDoNotStage": [
+    "PROJECT_MEMORY.md",
+    ".inspoly_indexer/",
+    "release_manifests/",
+    "shadow_review_packets/",
+    "side_outcome_review_packets/",
+    "raw DBs",
+    "bulky generated evidence"
+  ],
+  "noPushNoPr": true,
+  "recommendedBranch": "codex/inspoly-local-release-candidate-v4",
+  "recommendedCommitTitle": "Complete local release candidate V4 readiness",
+  "recommendedPrTitle": "Complete InsPoly local release candidate V4 readiness",
+  "reportType": "future_push_pr_packaging_dry_run_v4",
+  "schemaVersion": "future_push_pr_packaging_dry_run_v4_v1",
+  "w4PointerIncludedInPrDescription": true
+}

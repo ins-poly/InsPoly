@@ -1,0 +1,18 @@
+{
+  "chosenDesign": "helper_plus_explicit_absent_by_default_writer_support",
+  "copiedMetricsAllowed": false,
+  "helperModule": "app/report_pointer.py",
+  "implementationDate": "2026-05-27",
+  "normalReportsPointerAbsent": true,
+  "pointerField": "indexerWarehousePointer",
+  "reportType": "rc_v4_w4_pointer_implementation_design",
+  "rowLevelContextAllowed": false,
+  "schemaVersion": "rc_v4_w4_pointer_implementation_design_v1",
+  "sidecarToolProductionImportsAllowed": false,
+  "uiPanelAllowed": false,
+  "writerSupport": {
+    "archive": "explicit_optional_keyword_only",
+    "eventForensic": "explicit_optional_keyword_only",
+    "scanner": "explicit_optional_keyword_only"
+  }
+}

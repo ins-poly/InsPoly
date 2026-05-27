@@ -17,6 +17,7 @@ from app.config import (
 )
 from app.event_context import EventContextResolver
 from app.funding_context import FundingContext, FundingResolver, unknown_funding_context
+from app.report_pointer import attach_indexer_warehouse_pointer
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import PolymarketClient
 from app.side_outcome import normalize_cluster_direction, normalize_side_outcome
@@ -91,6 +92,7 @@ class ArchiveResearchScanner:
         include_blockchain: bool = True,
         funding_trace_mode: str | None = None,
         include_related_markets: bool = True,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
         progress_callback: callable | None = None,
         stop_event: object | None = None,
     ) -> dict[str, object]:
@@ -547,6 +549,7 @@ class ArchiveResearchScanner:
                 candidate_cases,
                 near_miss_records=_candidate_admission_near_miss_records(candidate_admission_funnel),
             ),
+            indexer_warehouse_pointer=indexer_warehouse_pointer,
         )
         report["export_files"] = export_files
         report["report_json_path"] = export_files["report_json_path"]
@@ -589,6 +592,7 @@ class ArchiveResearchScanner:
         market_rollups: list[dict[str, object]],
         candidate_admission_funnel: dict[str, object] | None = None,
         candidate_admission_records: list[dict[str, object]] | None = None,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
     ) -> dict[str, str]:
         suffix = "_stopped" if report.get("status") == "stopped" else ""
         base_name = started_at.strftime("archive_research_%Y%m%d_%H%M%S") + suffix
@@ -642,6 +646,15 @@ class ArchiveResearchScanner:
             "candidate_admission_records_json_path": str(admission_records_json_path),
         }
         report["export_files"] = export_files
+        if indexer_warehouse_pointer is not None:
+            report_with_pointer = attach_indexer_warehouse_pointer(
+                report,
+                indexer_warehouse_pointer,
+                source_report_id=str(json_path),
+                generated_at=started_at,
+            )
+            report.clear()
+            report.update(report_with_pointer)
 
         json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         md_path.write_text(_to_markdown(report), encoding="utf-8")
