@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Route future public exact-wallet benchmark upgrades through a human-label intake schema.
+  - Why: The public-case evidence bridge found no safe exact-wallet upgrade, but future source-backed evidence should have a precise acceptance path rather than ad hoc fixture edits.
+  - Consequence: `tests/fixtures/known_case_benchmark/public_case_label_intake_schema.json` and `tools/public_case_label_intake_validator.py` define the intake contract. The human labeling packet covers all 6 deferred public controls. No exact-wallet labels are accepted by this campaign.
+  - Reversal / revisit condition: If an accepted intake label proves exact wallet/user/market identity, run a separate benchmark fixture update campaign with tests and rollback notes.
+
 - Decision: Keep public-case exact-wallet assertions blocked until a fixture-grade identity bridge exists.
   - Why: The 2026-05-27 evidence bridge rechecked public sources and local artifacts. It found useful named-user, market-level, and pattern-level evidence, plus compact local event/market refs for Maduro and Iran, but no source/local-artifact chain that proves public identity to exact wallet identity.
   - Consequence: The known-case corpus remains at 30 cases with 6 public controls, 0 exact-wallet public cases, 0 named-user local wallet candidates, 2 named-user-only cases, 2 pattern-level-only cases, and 2 market-level-only cases. All public controls now carry `identity_confidence`, `local_artifact_refs`, `deferred_reason`, and `human_review_needed` metadata.

@@ -12,14 +12,14 @@ Last updated: 2026-05-27 EEST.
 
 ## Highest-Leverage Next Work
 - Preserve and use the expanded known-case benchmark before any future runtime/model/scoring-adjacent work. The current corpus covers 30 compact cases with false-positive, sidecar-context, and public-source metadata controls.
-- If more validation work is desired, create a human-label evidence worksheet for exact-wallet public-case candidates. The current evidence bridge found no safe exact-wallet upgrades and no named-user local wallet candidates.
+- If more validation work is desired, use the public-case human labeling packet and `public_case_label_intake_v1` schema for exact-wallet candidates. The current evidence bridge found no safe exact-wallet upgrades and no named-user local wallet candidates.
 - Decide push/PR grouping only when the owner explicitly wants to publish; release-candidate verification already passed at `ad27400`.
 - Use `AI_CONTROL/STRATEGIC_OPERATING_SYSTEM.md` for every open-ended strategic campaign and score candidate paths before implementation.
 - Create a ChatGPT strategic review from `AI_CONTROL/STRATEGIC_REVIEW_PACKET.md` if external review is desired before the next product campaign.
 - Run bounded Event Forensic performance/pagination work only from measured bottlenecks and explicit target selection.
 
 ## Should Do
-- Add exact-wallet public-case benchmark rows only if source proof becomes available; current public cases are named-user, market-level, or pattern-level controls only, with compact local refs that explicitly do not prove wallet identity.
+- Add exact-wallet public-case benchmark rows only after a future intake label passes validation and is accepted for benchmark use. Current public cases are named-user, market-level, or pattern-level controls only, with compact local refs that explicitly do not prove wallet identity.
 - Add more tests around archive visibility, browser report normalization, event eligibility, and partial/live Event Forensic modes.
 - Create a provider/query micro-probe packet for one selected truncated market before any production pagination expansion.
 - Improve analyst-facing strategic summaries and review packet freshness checks.
