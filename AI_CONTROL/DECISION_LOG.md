@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat the same-slug bounded indexer repeat probe as successful and ready for a small multi-target approval packet.
+  - Why: The owner approved exactly one second live/network probe for the same market slug into a fresh local-only DB, and the manual sidecar runner completed without provider failure, production integration, or scope expansion.
+  - Consequence: Current repeat-probe gate is `indexer_repeat_probe_success_ready_for_small_multitarget_run`. The fresh DB contains 1 market row, 200 public trade rows, and 2 cursors; readiness gate is `indexer_sidecar_readiness_ready_no_runtime`; first-vs-repeat compare gate is `indexer_sidecar_compare_ready_for_repeat_run` with no table-count, cursor, market identity, trade identity, provider, storage, or market/trade raw-hash drift. No daemon, scheduler, warehouse mode, scanner/archive/Event Forensic/browser/report integration, storage schema change, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.
+  - Reversal / revisit condition: Revisit only through an explicit small multi-target operator packet with fresh local DB output, strict caps, and immediate readiness/compare review; warehouse mode and production runtime integration remain separately blocked.
+
 - Decision: Prepare bounded indexer repeat-run approval without running a second live probe.
   - Why: The first approved sidecar DB was useful but only proved a single narrow live slice. Before another run, the project needed explicit idempotence, fresh-DB comparison, drift tolerance, duplicate, malformed JSON, cursor, and retention policies.
   - Consequence: Current repeat-run gate is `indexer_repeat_run_ready_for_operator_approval`. Added `tools/indexer_sidecar_db_compare.py`, focused tests, repeat-run RFC/decision docs, compact JSON outputs, and read-only re-audit/self-compare evidence. The existing DB re-audit remains `indexer_sidecar_readiness_ready_no_runtime`, and self-compare is `indexer_sidecar_compare_ready_for_repeat_run`. No second live/network run, daemon, scheduler, warehouse mode, production import, report/browser change, storage schema change, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.
