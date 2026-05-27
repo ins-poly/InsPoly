@@ -25,6 +25,7 @@ Last updated: 2026-05-27 EEST.
 ## What Works
 - Recent Scanner, Archive Researcher, and Event Forensic Analyzer have active browser/CLI paths.
 - Browser UIs now boot from vendored local React/ReactDOM/Babel assets through narrow static serving.
+- The active release launch path is browser-backed. The legacy Tk module `app/desktop.py` is frozen as historical/reference-only and is not used by `python3 -m app desktop`.
 - Strategic Operating System files are present and wired into repo/global agent guidance for non-trivial work.
 - The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `/Users/Root1/.codex/skills/strategic-autonomy-review/`.
 - The test suite has broad local regression coverage compared with early project state; the latest full suite after public-case human-label packet work passed 1116 tests.
@@ -53,6 +54,7 @@ Last updated: 2026-05-27 EEST.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.
 - Phase 3 capital-at-risk runtime needs stronger real source-field evidence and explicit product/accounting decisions.
+- Legacy Tk retirement or support would need a separate RFC/campaign; current state is freeze/reference-only.
 
 ## Validation Baseline
 - Use `python3 -m unittest discover -s tests -p 'test_*.py'` for full regression coverage.

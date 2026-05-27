@@ -87,6 +87,14 @@ class AppWorkflowContractTests(unittest.TestCase):
         archive_cls.assert_called_once_with()
         archive_cls.return_value.launch.assert_called_once_with()
 
+    def test_cli_desktop_command_stays_on_browser_launch_path(self) -> None:
+        source = Path(app_cli.__file__).read_text(encoding="utf-8")
+
+        self.assertIn("from app.browser_desktop import launch_browser_desktop_app", source)
+        self.assertIn("launch_browser_desktop_app()", source)
+        self.assertNotIn("from app.desktop import launch_desktop_app", source)
+        self.assertNotIn("launch_desktop_app()", source)
+
     def test_legacy_tk_launch_function_delegates_without_opening_window(self) -> None:
         with patch.object(desktop, "DesktopApp") as desktop_cls:
             desktop.launch_desktop_app()

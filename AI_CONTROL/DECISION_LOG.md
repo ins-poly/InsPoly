@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Freeze legacy Tk UI as historical/reference-only.
+  - Why: The active `python3 -m app desktop`, archive, and Event Forensic desktop commands route to browser-backed local UIs, while `app/desktop.py` carries older Tk labels and duplicated UI logic that can mislead future edits.
+  - Consequence: `app/desktop.py` remains in the tree for historical context and direct import compatibility, but it is not the release UI or supported fallback. Future support or deletion requires a separate RFC/retirement campaign.
+  - Reversal / revisit condition: If the owner wants Tk supported or removed, first prove launch/test/doc dependencies and define UI equivalence or rollback requirements.
+
 - Decision: Maintain known-case benchmark changes through the maintenance checklist and accepted-label intake path.
   - Why: The corpus is now broad enough to guard future model/runtime-adjacent work, but public exact-wallet evidence remains unproven and should not drift through ad hoc edits.
   - Consequence: `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md` and `validation_outputs/inspoly_known_case_benchmark_maintenance_20260527.json` are the current maintenance references. The 30-case fixture remains unchanged by this maintenance campaign, with 0 accepted exact-wallet public labels and 6 public controls awaiting human/source labels.

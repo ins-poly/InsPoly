@@ -348,3 +348,22 @@ Important constraints:
 - benchmark maintenance is validation-only and does not authorize runtime, model, scoring, routing, gate, Phase 3, storage, UI sorting/filtering, or saved-artifact changes.
 
 Push/PR remains deferred by user. `PROJECT_MEMORY.md` remains local-only and must not be staged.
+
+## 2026-05-27 Legacy Tk UI Launch Path Addendum
+
+The current launch-path decision source of truth is:
+
+- [Legacy Tk UI Launch Path Decision](inspoly_legacy_tk_ui_launch_path_decision_20260527.md)
+- [Legacy Tk UI Launch Path Decision JSON](../validation_outputs/inspoly_legacy_tk_ui_launch_path_decision_20260527.json)
+
+Current head before this launch-path refresh: `a8af847` - `Add known-case benchmark maintenance checklist`.
+
+Current gate: `legacy_tk_ui_frozen_reference_only`.
+
+Current launch path:
+
+- `python3 -m app desktop` launches `app.browser_desktop.launch_browser_desktop_app()`;
+- `python3 -m app archive-desktop` launches `app.browser_desktop.launch_archive_research_browser_app()`;
+- `python3 -m app event-desktop` launches `app.event_forensic_desktop.launch_event_forensic_browser_app()`.
+
+`app/desktop.py` remains in the tree as historical/reference-only Tk UI code. It is not the release UI or a supported fallback. Future support or deletion requires a separate RFC/retirement campaign.

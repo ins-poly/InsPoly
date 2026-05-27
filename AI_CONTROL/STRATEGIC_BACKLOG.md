@@ -26,6 +26,7 @@ Last updated: 2026-05-27 EEST.
 - Improve analyst-facing strategic summaries and review packet freshness checks.
 - Validate the weak-history near-certainty demotion on fresh live single-market and whole-event outputs when the operator wants confirmation.
 - Decide whether root `AGENTS.md` should remain local-only or become tracked repository policy in a separate process-control campaign.
+- If desired, run a future Tk UI retirement RFC. Current decision freezes `app/desktop.py` as historical/reference-only; do not treat it as release UI or update it as a supported fallback without approval.
 
 ## Later
 - Consider report-embedded replay metadata only after a top-slice vs all-candidate size-budget RFC.
