@@ -13,7 +13,7 @@ Last updated: 2026-05-27 EEST.
 ## Highest-Leverage Next Work
 - For the remaining donor-derived integration branches, use `docs/inspoly_donor_remaining_three_branch_decision_20260527.md` as the current gate reference. Final combined gate: `three_branch_execplan_no_safe_runtime_changes`.
 - For the next post-donor approval layer, use `docs/inspoly_operator_approval_readiness_campaign_summary_20260527.md` as the current gate reference. Final combined gate: `operator_approval_readiness_packets_ready_no_runtime`.
-- If indexer work continues, use the bounded live-indexer approval packet, config validator, and manual sidecar runner first; do not start live ingestion, background workers, or warehouse mode without exactly one owner-supplied market/event slug, caps, timeout, and local SQLite output path.
+- If indexer work continues, use the bounded live-indexer approval packet, config validator, manual sidecar runner, and first-run report first. Do not start repeat ingestion, background workers, warehouse mode, target expansion, or production integration without a hardening/repeat-run RFC.
 - If analyst context work continues, decide whether pointer-only report metadata is product-approved; current decision remains `sidecar_report_pointer_keep_sidecar_only`, and metrics must not be copied into reports.
 - If pUSD/CLOB collateral work continues, reconcile adapter address discrepancies and define pUSD/wrap/exchange-fill tracing policy before any funding runtime or Phase 3 runtime RFC.
 - Await explicit owner approval before any remote publication. The current recommended future path is a draft PR from branch `codex/inspoly-local-release-candidate-v3`, using `docs/inspoly_push_approval_checklist_v3_20260527.md` and `docs/inspoly_future_pr_draft_20260527.md`.
@@ -31,7 +31,7 @@ Last updated: 2026-05-27 EEST.
 - Add exact-wallet public-case benchmark rows only after a future intake label passes validation and is accepted for benchmark use. Current public cases are named-user, market-level, or pattern-level controls only, with compact local refs that explicitly do not prove wallet identity.
 - Add more tests around archive visibility, browser report normalization, event eligibility, and partial/live Event Forensic modes.
 - Create a provider/query micro-probe packet for one selected truncated market before any production pagination expansion.
-- Supply one exact market or event slug if the bounded live indexer probe should actually run; the current runner stops at `bounded_live_indexer_blocked_missing_operator_target` without a target.
+- For bounded indexer follow-up, write a repeat-run/hardening RFC around the completed `russia-x-ukraine-ceasefire-by-january-31-2026` probe: idempotence, fresh DB comparison, orderbook endpoint contract, retention, and operator rollback.
 - Improve analyst-facing strategic summaries and review packet freshness checks.
 - Validate the weak-history near-certainty demotion on fresh live single-market and whole-event outputs when the operator wants confirmation.
 - Decide whether root `AGENTS.md` should remain local-only or become tracked repository policy in a separate process-control campaign.

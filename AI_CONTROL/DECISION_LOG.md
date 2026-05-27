@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat the first bounded live indexer sidecar probe as successful but still hardening-gated.
+  - Why: The owner approved exactly one market slug, and the manual sidecar runner completed one public read-only run without production integration or provider failure.
+  - Consequence: Current Branch A run gate is `bounded_live_indexer_success_needs_operator_hardening`. The local-only DB contains 1 market row, 200 public trade rows, and 2 cursors; the DB audit gate is `indexer_sidecar_readiness_ready_no_runtime`. No daemon, scheduler, warehouse mode, scanner/archive/Event Forensic/browser/report integration, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.
+  - Reversal / revisit condition: Before any repeat run, target expansion, orderbook collection, scheduling, warehouse mode, or production integration, write a hardening/repeat-run RFC covering idempotence, endpoint contracts, retention, rollback, and operator stop conditions.
+
 - Decision: Add a manual bounded live indexer sidecar runner, but block the first run until an exact operator target is supplied.
   - Why: Branch A was approved to the operator packet layer, and the owner selected "Require Slug" plus "Add Sidecar Tool". No exact market or event slug was present in the implementation request, so choosing a target automatically would violate the approval packet.
   - Consequence: `tools/indexer_bounded_live_sidecar_run.py` and focused tests now make a future one-target manual run executable. The current run report gate is `bounded_live_indexer_blocked_missing_operator_target`; no public provider calls, DB creation, background worker, warehouse mode, production import, report/UI change, saved-artifact mutation, trading, push, or PR occurred.

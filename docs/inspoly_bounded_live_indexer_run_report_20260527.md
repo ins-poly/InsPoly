@@ -2,85 +2,94 @@
 
 ## Gate Decision
 
-Final gate: `bounded_live_indexer_blocked_missing_operator_target`.
+Final gate: `bounded_live_indexer_success_needs_operator_hardening`.
 
-No live network run was executed. The operator-approved packet requires one exact market or event slug, and this implementation request did not provide one. The campaign therefore stopped before provider calls, before DB creation, and before readiness audit.
+One approved read-only sidecar run was executed for market slug `russia-x-ukraine-ceasefire-by-january-31-2026`. The run stayed within the approved bounds, produced a local-only sidecar DB, and passed the existing DB readiness audit. It is useful enough to justify a future repeat-run/hardening RFC, but not enough to approve scheduling, warehouse mode, production integration, report/UI wiring, or broader target expansion.
 
-## Scope Reviewed
+## Live Scope
 
-- Previous combined gate: `operator_approval_readiness_packets_ready_no_runtime`.
-- Branch A gate: `indexer_bounded_live_approval_packet_ready`.
-- Approved live scope: one manual sidecar-only run against one exact market or event slug.
-- Output DB policy for a future approved run: `.inspoly_indexer/bounded_live_20260527/indexer.sqlite3`.
-- Bounds for a future approved run: max 1 target, max 3 market rows after target expansion, max 2 pages per public data source, max 500 stored rows, max 120 seconds.
+- Target type: `marketSlugs`.
+- Target slug: `russia-x-ukraine-ceasefire-by-january-31-2026`.
+- Config path: `.inspoly_indexer/bounded_live_20260527/operator_config.json` local-only.
+- DB path: `.inspoly_indexer/bounded_live_20260527/indexer.sqlite3` local-only.
+- Raw runner summary: `.inspoly_indexer/bounded_live_20260527/raw_run_summary.json` local-only.
+- DB audit JSON: `validation_outputs/inspoly_bounded_live_indexer_db_audit_20260527.json`.
+- Bounds: max 1 market, max 2 Data API pages, max 500 stored rows, max 120 seconds.
 
-## Implementation Outcome
+## Run Result
 
-Added a reusable CLI-only runner at `tools/indexer_bounded_live_sidecar_run.py`.
+- Config validation: `indexer_bounded_live_config_valid_for_operator_review`.
+- Runner gate: `bounded_live_indexer_success_needs_operator_hardening`.
+- DB readiness gate: `indexer_sidecar_readiness_ready_no_runtime`.
+- Elapsed time: 7.632 seconds.
+- Provider failures: 0.
+- Provider warnings: orderbook snapshots skipped because no approved public orderbook endpoint contract is wired into the manual runner.
+- Live network used: yes, public read-only Gamma/Data API calls only.
+- External writes/auth/trading/private keys/order placement: none.
+- Background worker/daemon/repeat loop: none.
+- Production integration/report mutation/browser integration: none.
 
-The runner:
+## Stored Evidence
 
-- validates the proposed config before any network path is reachable;
-- requires exactly one `targets.marketSlugs` or `targets.eventSlugs` value;
-- requires an explicit `--allow-live-network` command flag before public GET requests;
-- writes only to the configured local SQLite sidecar DB;
-- records cursors, table counts, malformed payload counters, warnings, failures, elapsed time, and readiness-audit output when a DB is produced;
-- never starts a daemon, scheduler, background worker, auth flow, wallet/RPC trace, order placement, report mutation, browser flow, or production integration path.
+The local sidecar DB contains:
 
-Focused tests were added at `tests/test_indexer_bounded_live_sidecar_run.py`.
+- `indexed_markets`: 1 row.
+- `indexed_trades`: 200 rows.
+- `indexer_cursors`: 2 rows.
+- `orderbook_snapshots`: 0 rows.
+- `wallet_index_snapshots`: 0 rows.
+- `score_history`: 0 rows.
 
-## Collection Status
+Observed market row:
 
-Collected in this campaign:
+- Condition ID: `0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce`.
+- Question: `Russia x Ukraine ceasefire by January 31, 2026?`
+- Event slug: `russia-x-ukraine-ceasefire-by-january-31-2026`.
+- Active: true.
+- Closed: true.
 
-- no public Gamma market metadata;
-- no public Data API trades;
-- no orderbook snapshots;
-- no cursor rows;
-- no local sidecar DB rows.
+Trade sample summary:
 
-Not collected or touched:
+- Distinct wallets: 156.
+- Distinct token IDs: 2.
+- Timestamp range stored: `1769880358` to `1769929968`.
+- Malformed payload counts: 0 markets, 0 trades, 0 orderbooks.
 
-- no auth or private-key material;
-- no CLOB order placement or external write;
-- no wallet funding/RPC trace;
-- no saved report;
-- no scanner/archive/Event Forensic/browser runtime import;
-- no production storage schema.
+## Readiness Audit
 
-## Rollback And Isolation
+The readiness audit found:
 
-No production rollback is required. The only durable outputs are this report, the compact JSON summary, the new sidecar runner/tests, and strategic state updates. No `.inspoly_indexer/bounded_live_20260527/indexer.sqlite3` DB was created because the run stopped before target selection.
+- DB exists: true.
+- Expected tables present: 6.
+- Expected tables missing: 0.
+- Cursor count: 2.
+- Stale cursors: 0.
+- Cursor errors: 0.
+- Malformed raw JSON rows: 0.
+- Duplicate indicators: 0.
 
-## Future Run Instructions
+Recommended next action from the audit remains operator-review-only use; live indexer production integration still requires a separate approval.
 
-To perform the first approved live probe, the owner must supply exactly one market slug or event slug. The proposed config must keep:
+## Isolation And Rollback
 
-- `dryRun: true`;
-- `requiresOperatorApproval: true`;
-- `networkExecution: false`;
-- all production/background/warehouse/saved-artifact mutation flags set to `false`;
-- the output path under `.inspoly_indexer/` or `indexer_sidecar_outputs/`;
-- caps no wider than this campaign's bounds.
-
-After config validation passes, a future manual command may use `--allow-live-network` to execute one bounded public-read run. The produced DB should remain local-only by default and should be audited before any longer run or warehouse RFC.
+Rollback is local-only: delete `.inspoly_indexer/bounded_live_20260527/`. No production rollback is needed because nothing consumes this DB. The DB and raw local summaries must not be committed by default; only this report, compact JSON, and the DB audit JSON are intended for commit.
 
 ## Future RFC Outline
 
-A repeat-run RFC remains blocked until the owner supplies a target and the first run produces evidence. If the first run succeeds, the next RFC should answer:
+Before any repeat run or warehouse work, a future RFC should define:
 
-- whether provider latency and payload shape are stable enough for repeatability;
-- whether cursor continuity and idempotence are acceptable across two manual runs;
-- whether stored rows are useful for shadow metrics or warehouse planning;
-- what stronger operator controls are needed before any scheduled or multi-target run;
-- why production integration, report/browser wiring, and warehouse mode remain blocked.
+- whether the next run proves idempotence by rerunning the same slug into a fresh DB and comparing row/cursor behavior;
+- whether to add a controlled orderbook endpoint contract to the sidecar runner;
+- how to distinguish market-not-found, endpoint-blocked, and closed-market no-trade states in operator reports;
+- whether a second target class should be allowed, and under which cap;
+- why scanner/archive/Event Forensic/browser/report/storage integration remains blocked until explicit product approval.
 
 ## Validation Notes
 
-Validation for this campaign should prove:
+Required validation for this campaign:
 
-- new compact JSON parses;
-- new Python runner/tests compile;
-- focused runner and existing indexer sidecar tests pass;
-- production runtime files do not import the runner or sidecar audit tools;
-- `git diff --check` and staged diff checks pass before commit.
+- JSON validation for the run report and DB audit JSON.
+- Python compile for the bounded runner, validator, readiness audit, and focused tests.
+- Focused indexer/sidecar tests.
+- Runtime import scan proving no production path imports the sidecar runner, validator, or readiness audit.
+- `git diff --check` and staged diff check before commit.
