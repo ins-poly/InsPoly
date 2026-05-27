@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat indexer warehouse as RFC-ready for a future W0 cleanup campaign, not implementation-ready.
+  - Why: The evidence chain now includes clean one-target and same-slug repeat runs, target/provider hardening, scoped compare support, repeatability over the same three-target set, and per-target public-trade collection with 60/60/60 target coverage, clean readiness, and latest scoped compare storage risk count 0.
+  - Consequence: Current warehouse RFC gate is `indexer_warehouse_rfc_ready_for_future_w0_implementation`. A future W0 campaign may work on no-runtime schema/readiness cleanup and implementation-readiness contracts. Warehouse write commands, append-mode retention, scheduled/background mode, report/browser integration, storage schema migration, production imports, scoring/gate changes, CLOB auth/trading, push, and PR remain blocked.
+  - Reversal / revisit condition: If W0 discovers old sidecar DB incompatibility, cursor corruption risk, retention risk, or need for production schema/runtime integration, downgrade to `indexer_warehouse_rfc_blocked_by_schema_risk` or an RFC-only blocker before implementing any write path.
+
 - Decision: Per-target public-trade collection hardening is sufficient to draft a warehouse RFC, but not to implement warehouse mode.
   - Why: An approved sidecar-only hardening campaign added optional per-target public-trade caps while preserving old aggregate behavior for old configs. The approved three-target live probe stored 3 market rows, 180 public trade rows, and 2 cursors with 60 rows per target, clean readiness, no malformed raw JSON, no filter mismatches, and scoped compare storage risk count 0.
   - Consequence: Current indexer collection gate is `indexer_collection_hardening_ready_for_warehouse_rfc_no_runtime`; warehouse readiness is `warehouse_rfc_ready_no_implementation`. A future warehouse RFC may now be drafted around sidecar-only target registries, per-target/per-condition trade collection, per-condition cursor design, retention policy, readiness audits, scoped compares, and rollback. Warehouse implementation, production runtime integration, report/browser integration, storage schema migration, scoring/gate changes, background scheduling, CLOB auth/trading, push, and PR remain blocked.

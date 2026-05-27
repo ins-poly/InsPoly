@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-05-27T13:15:45Z",
+  "implementationApproved": false,
+  "nonGoals": [
+    "production_scoring_replacement",
+    "report_ui_integration_by_default",
+    "background_worker_by_default",
+    "clob_auth_trading",
+    "phase3_runtime",
+    "storage_schema_migration_without_future_approval"
+  ],
+  "operatorGates": [
+    "first_w0_implementation",
+    "warehouse_write_command",
+    "repeated_live_runs",
+    "append_mode_retention",
+    "scheduled_background_mode",
+    "report_browser_integration",
+    "production_imports",
+    "schema_migration",
+    "target_expansion",
+    "auth_trading_private_key_behavior"
+  ],
+  "proposedBoundary": {
+    "localSqliteSidecarFirst": true,
+    "noHostedServiceRequired": true,
+    "productionStorageUntouched": true,
+    "rawDbsLocalOnlyByDefault": true
+  },
+  "recommendedDecision": "indexer_warehouse_rfc_ready_for_future_w0_implementation",
+  "reportType": "indexer_warehouse_rfc",
+  "schemaVersion": "indexer_warehouse_rfc_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "firstImplementationScope": "w0_no_runtime_schema_readiness_cleanup",
+    "implementationThisCampaign": false,
+    "runtimeIntegrationStillBlocked": true,
+    "warehouseImplementationStillBlocked": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-05-27T13:15:45Z",
+  "implementationThisCampaign": false,
+  "recommendedNextStage": "W0",
+  "reportType": "indexer_warehouse_implementation_stage_plan",
+  "schemaVersion": "indexer_warehouse_implementation_stage_plan_v1",
+  "sidecarOnly": true,
+  "stages": [
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w0_schema_readiness_ready_for_w1_manual_command",
+      "goal": "no-runtime schema and readiness cleanup",
+      "stage": "W0"
+    },
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w1_manual_command_ready_for_repeat_registry",
+      "goal": "manual local warehouse command",
+      "stage": "W1"
+    },
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w2_registry_retention_ready_for_sidecar_packets",
+      "goal": "repeat-run registry and retention",
+      "stage": "W2"
+    },
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w3_sidecar_packets_ready_for_pointer_decision",
+      "goal": "analyst sidecar query/report packet",
+      "stage": "W3"
+    },
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w4_pointer_metadata_ready_no_metric_copying",
+      "goal": "optional report pointer only",
+      "stage": "W4"
+    },
+    {
+      "approvalRequired": true,
+      "exitGate": "warehouse_w5_scheduler_ready_for_limited_operator_use",
+      "goal": "scheduled/background mode",
+      "stage": "W5"
+    }
+  ],
+  "summary": {
+    "blockedStagesWithoutFutureApproval": [
+      "W1",
+      "W2",
+      "W3",
+      "W4",
+      "W5"
+    ],
+    "nextSafeCampaign": "future_w0_no_runtime_schema_readiness_cleanup"
+  }
+}
