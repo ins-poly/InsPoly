@@ -143,6 +143,41 @@ class IndexerBoundedLiveSidecarRunTests(unittest.TestCase):
         self.assertEqual(report["summary"]["targetsCompleted"], 3)
         self.assertEqual(report["summary"]["targetsFailed"], 0)
         self.assertEqual([item["tradeRows"] for item in report["summary"]["targetResults"]], [1, 1, 1])
+        collection = report["summary"]["publicTradeCollection"]
+        self.assertEqual(collection["mode"], "aggregate_condition_filter")
+        self.assertFalse(collection["mayUnderrepresentTargets"])
+        self.assertEqual([item["storedTradeRows"] for item in collection["perConditionStoredRows"]], [1, 1, 1])
+
+    def test_multi_target_global_trade_cap_warns_when_targets_have_no_trades(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
+                limits={"maxMarkets": 3, "maxPages": 1, "maxRows": 6, "timeoutSeconds": 120},
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                _market_payload("cond-b", "market-b"),
+                _market_payload("cond-c", "market-c"),
+            ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=lambda _params: [
+                    _trade_payload("0xtx-c1", "cond-c"),
+                    _trade_payload("0xtx-c2", "cond-c"),
+                    _trade_payload("0xtx-c3", "cond-c"),
+                ],
+            )
+
+        collection = report["summary"]["publicTradeCollection"]
+        self.assertTrue(collection["mayUnderrepresentTargets"])
+        self.assertTrue(collection["capReached"])
+        self.assertEqual(collection["targetsWithoutTrades"], ["market-a", "market-b"])
+        self.assertIn("some targets may be underrepresented", " ".join(report["warnings"]))
 
     def test_target_count_above_max_markets_stops_before_network(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

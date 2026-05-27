@@ -216,6 +216,20 @@ def run_bounded_live_sidecar(
             trade_counts_by_condition[trade.condition_id] = trade_counts_by_condition.get(trade.condition_id, 0) + 1
         for condition_id, target_index in condition_to_target.items():
             target_results[target_index]["tradeRows"] = int(target_results[target_index]["tradeRows"]) + trade_counts_by_condition.get(condition_id, 0)
+        public_trade_collection = _public_trade_collection_summary(
+            condition_ids=condition_ids,
+            condition_to_target=condition_to_target,
+            target_results=target_results,
+            limits=limits,
+            market_row_count=len(market_entries),
+            stored_trades=stored_trades,
+            trade_counts_by_condition=trade_counts_by_condition,
+        )
+        if public_trade_collection["mayUnderrepresentTargets"]:
+            report["warnings"].append(
+                "Public trades were collected with one aggregate condition filter and a global page/row cap; "
+                "some targets may be underrepresented."
+            )
 
         storage.upsert_cursor(
             source=SOURCE_NAME,
@@ -246,6 +260,7 @@ def run_bounded_live_sidecar(
         report["summary"]["tableCounts"] = table_counts
         report["summary"]["cursorStates"] = _cursor_states(storage)
         report["summary"]["malformedPayloadCounts"] = malformed
+        report["summary"]["publicTradeCollection"] = public_trade_collection
         report["summary"]["readinessGate"] = audit.get("summary", {}).get("readinessGate", "")
         report["summary"]["targetResults"] = target_results
         gate = GATE_SUCCESS_HARDENING if table_counts.get("indexed_markets", 0) or stored_trades else GATE_LOW_VALUE
@@ -325,6 +340,7 @@ def _base_report(
                 "tradesNonMapping": 0,
                 "orderbooksNonMapping": 0,
             },
+            "publicTradeCollection": {},
             "validationGate": validation.get("summary", {}).get("gateDecision", ""),
         },
         "warnings": [],
@@ -533,6 +549,66 @@ def _fetch_public_trade_rows(
     if len(rows) >= max_rows:
         warnings.append(f"Public trade rows capped at {max_rows}.")
     return rows, warnings, malformed
+
+
+def _public_trade_collection_summary(
+    *,
+    condition_ids: Sequence[str],
+    condition_to_target: Mapping[str, int],
+    target_results: Sequence[Mapping[str, object]],
+    limits: Mapping[str, int],
+    market_row_count: int,
+    stored_trades: int,
+    trade_counts_by_condition: Mapping[str, int],
+) -> dict[str, object]:
+    max_rows_after_markets = max(0, int(limits["maxRows"]) - market_row_count)
+    page_size = min(100, max_rows_after_markets) if max_rows_after_markets else 0
+    effective_fetch_cap = min(max_rows_after_markets, page_size * int(limits["maxPages"])) if page_size else 0
+    per_condition: list[dict[str, object]] = []
+    targets_without_trades: list[str] = []
+    uncovered_conditions: list[str] = []
+    for condition_id in condition_ids:
+        target_index = condition_to_target.get(condition_id)
+        target_slug = ""
+        if target_index is not None and 0 <= target_index < len(target_results):
+            target_slug = str(target_results[target_index].get("slug") or "")
+        rows = int(trade_counts_by_condition.get(condition_id, 0))
+        if rows == 0:
+            uncovered_conditions.append(condition_id)
+            if target_slug:
+                targets_without_trades.append(target_slug)
+        per_condition.append(
+            {
+                "conditionId": condition_id,
+                "targetSlug": target_slug,
+                "storedTradeRows": rows,
+            }
+        )
+    cap_reached = bool(effective_fetch_cap and stored_trades >= effective_fetch_cap)
+    may_underrepresent = bool(len(condition_ids) > 1 and (uncovered_conditions or cap_reached))
+    return {
+        "mode": "aggregate_condition_filter",
+        "marketFilter": "comma_separated_condition_ids",
+        "cursorIdentity": "aggregate_public_trades",
+        "perTargetCursorRows": False,
+        "perTargetTradeCapConfigured": False,
+        "conditionCount": len(condition_ids),
+        "maxRowsAfterMarketRows": max_rows_after_markets,
+        "maxPages": int(limits["maxPages"]),
+        "pageSize": page_size,
+        "effectiveFetchCap": effective_fetch_cap,
+        "storedTradeRows": stored_trades,
+        "capReached": cap_reached,
+        "perConditionStoredRows": per_condition,
+        "uncoveredConditionIds": uncovered_conditions,
+        "targetsWithoutTrades": targets_without_trades,
+        "mayUnderrepresentTargets": may_underrepresent,
+        "recommendedHardening": (
+            "add_per_target_or_per_condition_trade_collection_before_warehouse_rfc"
+            if may_underrepresent
+            else "current_collection_sufficient_for_bounded_probe"
+        ),
+    }
 
 
 def _default_trade_fetcher(params: Mapping[str, object]) -> object:

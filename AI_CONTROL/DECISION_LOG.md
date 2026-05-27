@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Keep warehouse RFC readiness blocked until public-trade collection is hardened.
+  - Why: A second approved three-target run repeated the prior hardened DB with zero drift and clean readiness, proving sidecar repeatability for the exact set. However, both three-target runs stored all 200 public trades on the Khamenei condition and zero on the two anchor targets because the runner uses one aggregate condition filter with a global two-page cap.
+  - Consequence: Current repeatability gate is `indexer_repeatability_needs_collection_hardening`; warehouse readiness state is `warehouse_rfc_blocked_needs_collection_hardening`. The runner now emits sidecar-only public-trade collection metadata and warnings for future runs, but collection behavior and DB schema remain unchanged. Runtime, warehouse implementation, report/browser integration, storage schema changes, scoring/gate changes, and push/PR remain blocked.
+  - Reversal / revisit condition: Revisit warehouse RFC readiness only after an approved sidecar-only per-target/per-condition public-trade collection mode proves representative target coverage with readiness audit and scoped compare evidence.
+
 - Decision: Treat bounded indexer target hardening as ready for a future repeat operator run, not warehouse/runtime work.
   - Why: Resolver preflight selected two proven anchors plus a single-market Khamenei replacement, and the fresh three-target sidecar run reached clean readiness. Scoped compare found no storage identity drift, malformed payloads, duplicate indicators, cursor key/status errors, or schema issues.
   - Consequence: Current hardening gate is `indexer_multitarget_hardening_ready_for_repeat_operator_run`. The failed `us-x-iran-permanent-peace-deal-by` slug is classified as market-vs-event/bounds mismatch for bounded indexer use. Public-trade overlap drift is classified as provider/collection-sampling drift, so warehouse/runtime/report integration remains blocked until repeat evidence or per-target trade collection hardening exists.
