@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Add a manual bounded live indexer sidecar runner, but block the first run until an exact operator target is supplied.
+  - Why: Branch A was approved to the operator packet layer, and the owner selected "Require Slug" plus "Add Sidecar Tool". No exact market or event slug was present in the implementation request, so choosing a target automatically would violate the approval packet.
+  - Consequence: `tools/indexer_bounded_live_sidecar_run.py` and focused tests now make a future one-target manual run executable. The current run report gate is `bounded_live_indexer_blocked_missing_operator_target`; no public provider calls, DB creation, background worker, warehouse mode, production import, report/UI change, saved-artifact mutation, trading, push, or PR occurred.
+  - Reversal / revisit condition: Revisit only when the owner supplies exactly one market or event slug and accepts the bounded caps/output path; then run the manual sidecar command once and audit the produced DB before any repeat-run RFC.
+
 - Decision: Prepare operator approval packets for the three remaining post-donor gates without runtime changes.
   - Why: The prior donor campaign made the branches decision-ready but left the owner-facing approval layer ambiguous. The next safe step was to make the approval decisions explicit, not to start live ingestion, report/UI integration, or funding/Phase 3 runtime work.
   - Consequence: Final combined gate is `operator_approval_readiness_packets_ready_no_runtime`. Branch A is `indexer_bounded_live_approval_packet_ready` with a no-network config validator; Branch B is `sidecar_report_pointer_keep_sidecar_only` with a static pointer example only; Branch C is `pusd_collateral_fixture_grade_sources_added` with static official-docs facts only. No live worker, report/browser wiring, funding runtime, Phase 3 runtime, scoring/gate changes, storage schema changes, trading, push, or PR was performed.

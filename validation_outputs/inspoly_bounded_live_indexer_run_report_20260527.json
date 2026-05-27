@@ -1,0 +1,55 @@
+{
+  "backgroundWorker": false,
+  "bounds": {
+    "maxMarkets": 3,
+    "maxPages": 2,
+    "maxRows": 500,
+    "maxTargets": 1,
+    "timeoutSeconds": 120
+  },
+  "collection": {
+    "cursorRows": 0,
+    "gammaMarketMetadata": false,
+    "localSidecarRows": 0,
+    "orderbookSnapshots": false,
+    "publicDataApiTrades": false
+  },
+  "configValidation": {
+    "configMaterialized": false,
+    "reason": "No exact operator-supplied market or event slug was provided, so a live-run config was not materialized for execution.",
+    "validatorAvailable": true
+  },
+  "dbAudit": {
+    "auditJsonProduced": false,
+    "reason": "No sidecar DB was created because the campaign stopped before live execution."
+  },
+  "externalWrites": false,
+  "finalGate": "bounded_live_indexer_blocked_missing_operator_target",
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "liveRunExecuted": false,
+  "networkUsed": false,
+  "output": {
+    "dbCreated": false,
+    "dbPath": ".inspoly_indexer/bounded_live_20260527/indexer.sqlite3",
+    "dbCommitted": false,
+    "reportPath": "docs/inspoly_bounded_live_indexer_run_report_20260527.md"
+  },
+  "productionIntegration": false,
+  "reportType": "bounded_live_indexer_run_report",
+  "runner": {
+    "path": "tools/indexer_bounded_live_sidecar_run.py",
+    "requiresAllowLiveNetworkFlag": true,
+    "requiresConfigValidationBeforeFetch": true,
+    "requiresExactMarketOrEventSlug": true,
+    "sidecarOnly": true
+  },
+  "savedArtifactsMutated": false,
+  "schemaVersion": "bounded_live_indexer_run_report_v1",
+  "stopReason": "missing_operator_target",
+  "target": {
+    "provided": false,
+    "slug": "",
+    "type": ""
+  },
+  "tradingUsed": false
+}

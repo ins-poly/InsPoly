@@ -46,6 +46,7 @@ Last updated: 2026-05-27 EEST.
 - pUSD/CLOB collateral branch: static unknown-safe semantics helper exists for fixtures only; funding runtime and Phase 3 runtime remain blocked pending verified addresses/source fields and explicit approval.
 - Operator approval readiness packets now exist for the three post-donor gates in `docs/inspoly_operator_approval_readiness_campaign_summary_20260527.md`. Final combined gate: `operator_approval_readiness_packets_ready_no_runtime`.
 - Bounded live indexer branch: `indexer_bounded_live_approval_packet_ready`; config validation helper exists at `tools/indexer_bounded_live_config_validator.py`, but live ingestion remains operator-gated.
+- Bounded live indexer operator run: manual sidecar runner exists at `tools/indexer_bounded_live_sidecar_run.py`, but no exact operator market/event slug was supplied, so the first run stopped at `bounded_live_indexer_blocked_missing_operator_target` with no network use and no DB creation.
 - Sidecar report-pointer branch: `sidecar_report_pointer_keep_sidecar_only`; a static pointer example exists, but no report writer/browser implementation is approved.
 - pUSD/CLOB collateral branch: `pusd_collateral_fixture_grade_sources_added`; official-docs static fixture facts were added, but funding runtime and Phase 3 runtime remain blocked.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
@@ -72,7 +73,7 @@ Last updated: 2026-05-27 EEST.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.
 - Phase 3 capital-at-risk runtime needs stronger real source-field evidence and explicit product/accounting decisions.
-- Live indexer/warehouse work now has an operator approval packet and no-network config validator; it still needs explicit approval, target selection, and caps before any network ingestion.
+- Live indexer/warehouse work now has an operator approval packet, no-network config validator, and manual sidecar runner; it still needs one exact operator-supplied market/event slug before any network ingestion.
 - Sidecar context report pointers remain product-gated; current decision is keep sidecar-only unless a future pointer-only RFC is approved.
 - pUSD/CLOB collateral work has fixture-grade official-docs facts for pUSD and selected contracts, but adapter-address reconciliation, tracing semantics, and Phase 3 source-field blockers remain before any funding runtime or Phase 3 runtime changes.
 - Legacy Tk retirement or support would need a separate RFC/campaign; current state is freeze/reference-only.
