@@ -143,3 +143,31 @@ The corpus was expanded to `known_case_benchmark_v2` with `24` compact cases. Th
 The expansion adds `4` false-positive library controls and `4` sidecar-context controls. These cases are executable regression guards for overclaiming, not production model labels. They require `automatic_action_allowed: false`, `safe_to_use_for_scoring_claims: false`, and explicit `forbidden_interpretation` text.
 
 Gate remains `known_case_corpus_ready`; the broader campaign gate is `known_case_benchmark_expanded`.
+
+## 2026-05-26 Public-Case Source Label Addendum
+
+The corpus was extended to `known_case_benchmark_v3` with `30` compact cases.
+
+New public-source controls:
+
+- `public_maduro_enforcement_named_user_control`
+- `public_maduro_pre_charge_market_timing_control`
+- `public_iran_military_cluster_pattern_control`
+- `public_zachxbt_axiom_pattern_control`
+- `public_google_year_in_search_retrospective_control`
+- `public_trump_whale_high_volume_control`
+
+Public-source coverage:
+
+| Metric | Count |
+|---|---:|
+| public-case controls | 6 |
+| unique source URLs | 9 |
+| exact-wallet supported public cases | 0 |
+| named-user-only public cases | 2 |
+| pattern-level-only public cases | 2 |
+| market-level-only public cases | 2 |
+
+Decision: public source metadata is now represented, but exact-wallet public benchmark assertions remain deferred. The sources used in this pass support named-user, market-level, or pattern-level controls only.
+
+The public cases are fresh-validation and overclaiming guards. They do not prove exact wallet detection, production precision, legal conclusions, scoring labels, or automatic suppressor behavior.

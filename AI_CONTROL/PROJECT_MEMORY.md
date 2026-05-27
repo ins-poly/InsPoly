@@ -42,7 +42,7 @@ This is the compact strategic memory for external review loops. The full operati
 - Phase 3 capital-at-risk: sidecar-only final for now; runtime remains blocked.
 - Replay persistence: sidecar-only final for now.
 - Browser strict offline: implementation committed; both browser UIs boot from vendored React/ReactDOM/Babel assets.
-- Known-case benchmark: expanded to `known_case_benchmark_v2` with 24 compact offline cases, including false-positive and sidecar-context controls.
+- Known-case benchmark: expanded to `known_case_benchmark_v3` with 30 compact offline cases, including false-positive, sidecar-context, and public-source metadata controls. Public cases remain named-user, market-level, or pattern-level only; exact-wallet public cases are still blocked until source/local-artifact proof exists.
 - Strategic Operating System: implemented as the required ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD loop for non-trivial work.
 - Push/PR/release: user-gated.
 

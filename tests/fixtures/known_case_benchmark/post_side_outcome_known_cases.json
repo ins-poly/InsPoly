@@ -1,13 +1,18 @@
 {
   "cases": [
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-buy_yes_unaffected",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "buy_yes_unaffected",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "unaffected",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -26,25 +31,37 @@
       "notes": "Stable BUY YES control.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|buy_yes_unaffected|BUY|YES|0.20",
       "wallet": "0xbuyyesunaffected"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-buy_no_unaffected",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "buy_no_unaffected",
       "cluster_direction": "long_no",
       "derived_from_artifact": "",
       "economic_side": "NO",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "unaffected",
       "expected_phase4_effect": "unchanged_long_no",
@@ -63,25 +80,37 @@
       "notes": "Stable BUY NO control.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "NO",
       "raw_side": "BUY",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|buy_no_unaffected|BUY|NO|0.20",
       "wallet": "0xbuynounaffected"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-sell_yes_low_price_economic_no_high_probability",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "sell_yes_low_price_economic_no_high_probability",
       "cluster_direction": "long_no",
       "derived_from_artifact": "",
       "economic_side": "NO",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "low_probability_inverted_to_high_probability",
       "expected_phase4_effect": "direction_changed_to_long_no",
@@ -100,25 +129,37 @@
       "notes": "SELL YES low raw token price becomes economic NO high probability.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "SELL",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|sell_yes_low_price_economic_no_high_probability|SELL|YES|0.20",
       "wallet": "0xsellyeslowpricee"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-sell_no_low_price_economic_yes_high_probability",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "sell_no_low_price_economic_yes_high_probability",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "low_probability_inverted_to_high_probability",
       "expected_phase4_effect": "direction_changed_to_long_yes",
@@ -137,25 +178,37 @@
       "notes": "SELL NO low raw token price becomes economic YES high probability.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "NO",
       "raw_side": "SELL",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|sell_no_low_price_economic_yes_high_probability|SELL|NO|0.20",
       "wallet": "0xsellnolowpriceec"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-sell_yes_near_certainty_inversion",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "sell_yes_near_certainty_inversion",
       "cluster_direction": "long_no",
       "derived_from_artifact": ".inspoly/reports/scan_20260416_142216.json",
       "economic_side": "NO",
       "event": "unknown",
+      "evidence_quality": "real_local_artifact_bounded_sample",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "near_certainty_inverted",
       "expected_phase4_effect": "direction_changed_to_long_no",
@@ -174,6 +227,9 @@
       "notes": "Representative real local SELL YES near-certainty inversion if present; synthetic fallback is avoided unless no record exists.",
       "phase3_capital_status": "blocked_overlap",
       "provenance_quality": "real_local_artifact_bounded_sample",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [
         "capital_at_risk_would_change",
         "opening_exposure_unknown",
@@ -183,21 +239,30 @@
       "raw_outcome": "YES",
       "raw_side": "SELL",
       "raw_token_price": "0.986",
+      "requires_fresh_validation": false,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "validation_outputs/post_side_outcome_benchmark_replay_20260522.json",
+      "source_titles": [],
       "source_type": "real_local_artifact",
+      "source_urls": [],
       "trade_key": "0x6852537676f7ad97ae63021735553e62acd8aac95c65bfd550d8c3ee88058529|0xb528a976ca7d476602f8040c3d1a49e5145a5039|0x1480b819d03d4b6388d70e848b0384adf38c38d955cb783cdbcf6d4a436dee14|2026-04-16T14:06:50+00:00|SELL|YES|0.986",
       "wallet": "0xb528a976ca7d476602f8040c3d1a49e5145a5039"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-sell_no_near_certainty_inversion",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "sell_no_near_certainty_inversion",
       "cluster_direction": "long_yes",
       "derived_from_artifact": ".inspoly/reports/scan_20260416_142216.json",
       "economic_side": "YES",
       "event": "unknown",
+      "evidence_quality": "real_local_artifact_bounded_sample",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "near_certainty_inverted",
       "expected_phase4_effect": "direction_changed_to_long_yes",
@@ -216,6 +281,9 @@
       "notes": "Representative real local SELL NO near-certainty inversion.",
       "phase3_capital_status": "blocked_overlap",
       "provenance_quality": "real_local_artifact_bounded_sample",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [
         "capital_at_risk_would_change",
         "opening_exposure_unknown",
@@ -225,14 +293,19 @@
       "raw_outcome": "NO",
       "raw_side": "SELL",
       "raw_token_price": "0.9828929385751127",
+      "requires_fresh_validation": false,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "validation_outputs/post_side_outcome_benchmark_replay_20260522.json",
+      "source_titles": [],
       "source_type": "real_local_artifact",
+      "source_urls": [],
       "trade_key": "0x9d8fb897fdf3ed217486c0b8fb1bf69971751c15a18b168235becc476ff1fcdd|0x6302cdefa498e7174dd0fcd6b06652a38eae7917|0x7434b22007745d99095c102119fdb6b975d34869212e9dda4c6c5c48db0683a7|2026-04-16T13:44:06+00:00|SELL|NO|0.9828929385751127",
       "wallet": "0x6302cdefa498e7174dd0fcd6b06652a38eae7917"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-buy_yes_sell_no_same_cluster_long_yes",
       "case_trades": [
@@ -249,11 +322,15 @@
           "raw_token_price": "0.20"
         }
       ],
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "buy_yes_sell_no_same_cluster_long_yes",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "what-price-will-bitcoin-hit-before-2027",
+      "evidence_quality": "review_packet_derived_from_real_local_artifacts",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "cluster_pair_context",
       "expected_phase4_effect": "same_cluster_long_yes",
@@ -272,18 +349,26 @@
       "notes": "BUY YES and SELL NO should share normalized cluster long_yes.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "review_packet_derived_from_real_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "",
       "source_path": "side_outcome_review_packets/phase4_post_migration_sensitive_merge_groups_20260522/sensitive_merge_groups.json",
+      "source_titles": [],
       "source_type": "review_packet",
+      "source_urls": [],
       "trade_key": "0x024b68f77bfc019341ee3db8f57c103334e4b9430bba4746d8c94aafd8b36fee|long_yes",
       "wallet": "0xcluster"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-buy_no_sell_yes_same_cluster_long_no",
       "case_trades": [
@@ -300,11 +385,15 @@
           "raw_token_price": "0.20"
         }
       ],
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "buy_no_sell_yes_same_cluster_long_no",
       "cluster_direction": "long_no",
       "derived_from_artifact": "",
       "economic_side": "NO",
       "event": "trump-announces-end-of-military-operations-against-iran-by",
+      "evidence_quality": "review_packet_derived_from_real_local_artifacts",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "cluster_pair_context",
       "expected_phase4_effect": "same_cluster_long_no",
@@ -323,25 +412,37 @@
       "notes": "BUY NO and SELL YES should share normalized cluster long_no.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "review_packet_derived_from_real_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "NO",
       "raw_side": "BUY",
       "raw_token_price": "0.20",
+      "requires_fresh_validation": false,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "",
       "source_path": "side_outcome_review_packets/phase4_post_migration_sensitive_merge_groups_20260522/sensitive_merge_groups.json",
+      "source_titles": [],
       "source_type": "review_packet",
+      "source_urls": [],
       "trade_key": "0x1507c50c86fb307e4f1acd9d740b2be66d98773f90d161e94907d8ef2c5699b3|long_no",
       "wallet": "0xcluster"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-malformed_missing_fallback",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "malformed_missing_fallback",
       "cluster_direction": "unknown",
       "derived_from_artifact": "",
       "economic_side": "unknown",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "unknown_not_guessed",
       "expected_phase4_effect": "unknown_not_grouped",
@@ -360,25 +461,37 @@
       "notes": "Malformed row must stay unknown, not zero or clean.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "MAYBE",
       "raw_side": "unknown",
       "raw_token_price": "bad",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|malformed",
       "wallet": "0xmalformed"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-old_report_without_phase2_phase4_fields",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "old_report_without_phase2_phase4_fields",
       "cluster_direction": "long_no",
       "derived_from_artifact": "",
       "economic_side": "NO",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_old_report_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "derivable_from_old_raw_fields",
       "expected_phase4_effect": "derivable_from_old_raw_fields",
@@ -401,25 +514,37 @@
       "notes": "Old report shape has no Phase 2/4 additive fields; safe derivation uses raw side/outcome/price only.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_old_report_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "SELL",
       "raw_token_price": "20.0%",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|old-report|SELL|YES|20pct",
       "wallet": "0xoldreport"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-sensitive_gate_overlap_no_direct_mutation",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "sensitive_gate_overlap_no_direct_mutation",
       "cluster_direction": "long_no",
       "derived_from_artifact": "event_forensic_outputs/event_forensic_20260423_092924/event_analysis.json",
       "economic_side": "NO",
       "event": "unknown",
+      "evidence_quality": "review_packet_derived_from_real_local_artifact",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "expected_indirect_sensitive_overlap",
       "expected_phase4_effect": "unchanged_or_context_only",
@@ -438,6 +563,9 @@
       "notes": "Sensitive overlap is evidence for review only; direct gate mutation remains forbidden.",
       "phase3_capital_status": "blocked_if_sell_opening_overlap",
       "provenance_quality": "review_packet_derived_from_real_local_artifact",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [
         "opening_sell_requires_accounting_verification_before_capital_migration",
         "opening_sell_size_inferred_from_notional_and_price",
@@ -446,21 +574,30 @@
       "raw_outcome": "YES",
       "raw_side": "SELL",
       "raw_token_price": "0.83",
+      "requires_fresh_validation": false,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "side_outcome_review_packets/phase2_post_migration_sensitive_cases_20260522/sensitive_cases.json",
+      "source_titles": [],
       "source_type": "review_packet",
+      "source_urls": [],
       "trade_key": "0x052cd5989f47a5c4589bbbcec243dfcc11ad678a0b969184f70f672a9cff1c8b|0x69ea0d77ef34f1acb03aaed901df7620fc4215cd||2026-02-28T06:19:59+00:00|SELL|YES|0.83",
       "wallet": "0x69ea0d77ef34f1acb03aaed901df7620fc4215cd"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-phase3_capital_at_risk_blocked_overlap",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "phase3_capital_at_risk_blocked_overlap",
       "cluster_direction": "long_yes",
       "derived_from_artifact": ".inspoly/reports/scan_20260416_133149.json",
       "economic_side": "YES",
       "event": "unknown",
+      "evidence_quality": "generated_audit_evidence_derived_from_real_local_artifact",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "phase2_context_available",
       "expected_phase4_effect": "phase4_context_available",
@@ -479,6 +616,9 @@
       "notes": "Capital-at-risk delta is evidence only; runtime Phase 3 remains blocked.",
       "phase3_capital_status": "blocked_overlap",
       "provenance_quality": "generated_audit_evidence_derived_from_real_local_artifact",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [
         "opening_exposure_unknown",
         "opening_sell_complement_exposure_requires_accounting_gate",
@@ -487,21 +627,30 @@
       "raw_outcome": "NO",
       "raw_side": "SELL",
       "raw_token_price": "0.992",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "side_outcome_audits/side_outcome_phase3_capital_at_risk_audit_20260522.json",
+      "source_titles": [],
       "source_type": "generated_audit_evidence",
+      "source_urls": [],
       "trade_key": "0x58cadc42e39f17b810ba914061680177584baddf25cd95df83b699405ed414bc",
       "wallet": "unknown"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-event_forensic_later_correctness_affected",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "event_forensic_later_correctness_affected",
       "cluster_direction": "long_no",
       "derived_from_artifact": "event_forensic_outputs/event_forensic_20260423_092924/event_analysis.json",
       "economic_side": "NO",
       "event": "unknown",
+      "evidence_quality": "review_packet_derived_from_real_local_artifact",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "later_correctness_inverted",
       "expected_phase4_effect": "direction_changed_if_sell",
@@ -520,6 +669,9 @@
       "notes": "Event Forensic later-correctness affected row from local review packet.",
       "phase3_capital_status": "blocked_if_sell_opening_overlap",
       "provenance_quality": "review_packet_derived_from_real_local_artifact",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [
         "opening_sell_requires_accounting_verification_before_capital_migration",
         "opening_sell_size_inferred_from_notional_and_price",
@@ -528,21 +680,30 @@
       "raw_outcome": "YES",
       "raw_side": "SELL",
       "raw_token_price": "0.83",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "side_outcome_review_packets/phase2_post_migration_sensitive_cases_20260522/sensitive_cases.json",
+      "source_titles": [],
       "source_type": "review_packet",
+      "source_urls": [],
       "trade_key": "0x052cd5989f47a5c4589bbbcec243dfcc11ad678a0b969184f70f672a9cff1c8b|0x69ea0d77ef34f1acb03aaed901df7620fc4215cd||2026-02-28T06:19:59+00:00|SELL|YES|0.83",
       "wallet": "0x69ea0d77ef34f1acb03aaed901df7620fc4215cd"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-archive_affected_case",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "archive_affected_case",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "archive_outputs/archive_research_20260420_104704_candidates.csv",
       "economic_side": "YES",
       "event": "unknown",
+      "evidence_quality": "generated_audit_evidence_derived_from_real_local_artifact",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "archive_probability_direction_changed",
       "expected_phase4_effect": "direction_changed_if_sell",
@@ -561,25 +722,37 @@
       "notes": "Archive evidence-gap audit row derived from a real local archive artifact.",
       "phase3_capital_status": "blocked_if_sell_opening_overlap",
       "provenance_quality": "generated_audit_evidence_derived_from_real_local_artifact",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "NO",
       "raw_side": "SELL",
       "raw_token_price": "0.992039306465401",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "side_outcome_audits/side_outcome_phase2_archive_evidence_gap_20260522.json",
+      "source_titles": [],
       "source_type": "generated_audit_evidence",
+      "source_urls": [],
       "trade_key": "0x692a5a8e04516c2e2ca2bcb6b407acb326ac25f54fd41a1b863239c417a29f09",
       "wallet": "unknown"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-scanner_affected_case",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "scanner_affected_case",
       "cluster_direction": "long_yes",
       "derived_from_artifact": ".inspoly/reports/scan_20260416_133149.json",
       "economic_side": "YES",
       "event": "unknown",
+      "evidence_quality": "generated_audit_evidence",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "scanner_probability_direction_changed",
       "expected_phase4_effect": "direction_changed_if_sell",
@@ -598,25 +771,37 @@
       "notes": "Scanner affected row from the Phase 2 readiness audit.",
       "phase3_capital_status": "blocked_if_sell_opening_overlap",
       "provenance_quality": "generated_audit_evidence",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "NO",
       "raw_side": "SELL",
       "raw_token_price": "0.992",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "derived from bounded local audit/review output",
       "source_path": "side_outcome_audits/side_outcome_phase2_readiness_impact_audit_20260522.json",
+      "source_titles": [],
       "source_type": "generated_audit_evidence",
+      "source_urls": [],
       "trade_key": "0x58cadc42e39f17b810ba914061680177584baddf25cd95df83b699405ed414bc|0x53e864c926967ce0cfe88eefbc46564aed40f226|0x00ad3bb5284b0b2314b1a2d42812fe292f606619c6278bd95c9d905816c240f6|2026-04-16T12:52:02+00:00|SELL|NO|0.992",
       "wallet": "unknown"
     },
     {
+      "assertion_level": "synthetic_control",
       "assertion_type": "side_outcome_contract",
       "case_id": "known-stable_unaffected_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "stable_unaffected_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "synthetic-known-case-event",
+      "evidence_quality": "synthetic_contract_fixture",
       "expected_behavior": "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
       "expected_phase2_effect": "unaffected",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -635,25 +820,37 @@
       "notes": "Stable medium-probability control; no low/near threshold inversion expected.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "synthetic_contract_fixture",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.62",
+      "requires_fresh_validation": false,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "",
       "source_path": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
+      "source_titles": [],
       "source_type": "synthetic_fixture",
+      "source_urls": [],
       "trade_key": "synthetic|stable_unaffected_control|BUY|YES|0.62",
       "wallet": "0xstableunaffectedco"
     },
     {
+      "assertion_level": "sidecar_context_only",
       "assertion_type": "sidecar_context_control",
       "case_id": "known-true_low_probability_later_winner",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "true_low_probability_later_winner",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "sidecar_measurement_compact_pattern_control",
       "expected_behavior": "Pattern-level low-probability later-winner evidence remains benchmark context only.",
       "expected_phase2_effect": "low_probability_later_winner_context_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -662,6 +859,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "model_probability": "0.04",
         "phase3_runtime_allowed": false,
         "requires_fresh_validation_for_model_use": true,
@@ -675,25 +873,37 @@
       "notes": "Saved weak-history evidence records low-probability/later-winner policy rows, but this compact case is pattern-level only.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "sidecar_measurement_compact_pattern_control",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.04",
+      "requires_fresh_validation": true,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "sidecar source gate=available; summary_keys=",
       "source_path": "validation_outputs/event_forensic_weak_history_policy_evidence_20260524.json",
+      "source_titles": [],
       "source_type": "sidecar_measurement",
+      "source_urls": [],
       "trade_key": "pattern|true_low_probability_later_winner|BUY|YES|0.04",
       "wallet": "pattern-level"
     },
     {
+      "assertion_level": "sidecar_context_only",
       "assertion_type": "sidecar_context_control",
       "case_id": "known-weak_history_near_certainty_demotion",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "weak_history_near_certainty_demotion",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "sidecar_measurement_compact_pattern_control",
       "expected_behavior": "Weak-history near-certainty later-win rows remain exported but should be demotion-aware review context.",
       "expected_phase2_effect": "near_certainty_context_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -702,6 +912,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "model_probability": "0.99",
         "phase3_runtime_allowed": false,
         "requires_fresh_validation_for_model_use": true,
@@ -715,25 +926,37 @@
       "notes": "Regression control for the weak-history near-certainty demotion workstream.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "sidecar_measurement_compact_pattern_control",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.99",
+      "requires_fresh_validation": true,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "sidecar source gate=available; summary_keys=",
       "source_path": "validation_outputs/event_forensic_weak_history_policy_evidence_20260524.json",
+      "source_titles": [],
       "source_type": "sidecar_measurement",
+      "source_urls": [],
       "trade_key": "pattern|weak_history_near_certainty_demotion|BUY|YES|0.99",
       "wallet": "pattern-level"
     },
     {
+      "assertion_level": "sidecar_context_only",
       "assertion_type": "sidecar_context_control",
       "case_id": "known-selected_market_vs_whole_event_scope_boundary",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "selected_market_vs_whole_event_scope_boundary",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "generated_audit_evidence_compact_pattern_control",
       "expected_behavior": "Selected-market reports must not silently broaden primary scoring to sibling markets.",
       "expected_phase2_effect": "scope_metadata_context_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -742,6 +965,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "model_probability": "0.55",
         "phase3_runtime_allowed": false,
         "requires_fresh_validation_for_model_use": true,
@@ -755,25 +979,37 @@
       "notes": "Scope audit found selected-market and whole-event semantics must remain explicit.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "generated_audit_evidence_compact_pattern_control",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.55",
+      "requires_fresh_validation": true,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "sidecar source gate=scope_semantics_needs_new_report_metadata; summary_keys=artifactCount,explicitSummaryScopeFieldReportCount,loadedReportCount,missingSummaryScopeFieldReportCount,possibleScopeAmbiguityCount,primaryScopeCounts",
       "source_path": "validation_outputs/event_forensic_scope_semantics_audit_20260525.json",
+      "source_titles": [],
       "source_type": "generated_audit_evidence",
+      "source_urls": [],
       "trade_key": "pattern|selected_market_vs_whole_event_scope_boundary|BUY|YES|0.55",
       "wallet": "pattern-level"
     },
     {
+      "assertion_level": "sidecar_context_only",
       "assertion_type": "sidecar_context_control",
       "case_id": "known-pagination_truncation_warning_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "pagination_truncation_warning_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "generated_audit_evidence_compact_pattern_control",
       "expected_behavior": "Truncation markers stay analyst warnings and do not justify production pagination expansion.",
       "expected_phase2_effect": "pagination_warning_context_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -782,6 +1018,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "model_probability": "0.50",
         "phase3_runtime_allowed": false,
         "requires_fresh_validation_for_model_use": true,
@@ -795,25 +1032,37 @@
       "notes": "Pagination impact assessment found low impact for the bounded subset but continued monitor-only truncation markers.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "generated_audit_evidence_compact_pattern_control",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.50",
+      "requires_fresh_validation": true,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "sidecar source gate=pagination_low_impact_monitor_only; summary_keys=baselineTruncatedMarkets,boundsHit,candidateFloorRowsDelta,collectionExecuted,collectionGate,collectionWallClockSeconds",
       "source_path": "validation_outputs/event_forensic_pagination_impact_assessment_20260526.json",
+      "source_titles": [],
       "source_type": "generated_audit_evidence",
+      "source_urls": [],
       "trade_key": "pattern|pagination_truncation_warning_control|BUY|YES|0.50",
       "wallet": "pattern-level"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "false_positive_control",
       "case_id": "known-false_positive_near_certainty_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "false_positive_near_certainty_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "false_positive_library_advisory_control_from_local_artifacts",
       "expected_behavior": "Use only as analyst caution and benchmark guardrail; never as automatic model behavior.",
       "expected_phase2_effect": "near_certainty_advisory_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -822,6 +1071,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.99",
         "phase3_runtime_allowed": false,
@@ -842,25 +1092,37 @@
       "notes": "Near-certainty entry: advisory false-positive control derived from local false-positive library.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "false_positive_library_advisory_control_from_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.99",
+      "requires_fresh_validation": true,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "false_positive_pattern=near_certainty; observed_count=133; source_count_keys=case_reviewer,unique_review_packet",
       "source_path": "false_positive_library/false_positive_pattern_library_20260505_151140.json",
+      "source_titles": [],
       "source_type": "false_positive_library",
+      "source_urls": [],
       "trade_key": "packet_0001",
       "wallet": "0x090a0d3fc9d68d3e16db70e3460e3e4b510801b4"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "false_positive_control",
       "case_id": "known-high_volume_public_user_false_positive_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "high_volume_public_user_false_positive_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "false_positive_library_advisory_control_from_local_artifacts",
       "expected_behavior": "Use only as analyst caution and benchmark guardrail; never as automatic model behavior.",
       "expected_phase2_effect": "high_volume_public_user_advisory_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -869,6 +1131,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.72",
         "phase3_runtime_allowed": false,
@@ -889,25 +1152,37 @@
       "notes": "High-volume public user: advisory false-positive control derived from local false-positive library.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "false_positive_library_advisory_control_from_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.72",
+      "requires_fresh_validation": true,
       "sensitive_context": false,
+      "source_dates": [],
       "source_note": "false_positive_pattern=high_volume_public_user; observed_count=211; source_count_keys=case_reviewer,unique_review_packet",
       "source_path": "false_positive_library/false_positive_pattern_library_20260505_151140.json",
+      "source_titles": [],
       "source_type": "false_positive_library",
+      "source_urls": [],
       "trade_key": "packet_0001",
       "wallet": "0x090a0d3fc9d68d3e16db70e3460e3e4b510801b4"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "false_positive_control",
       "case_id": "known-funding_unknown_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "funding_unknown_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "false_positive_library_advisory_control_from_local_artifacts",
       "expected_behavior": "Use only as analyst caution and benchmark guardrail; never as automatic model behavior.",
       "expected_phase2_effect": "funding_unknown_advisory_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -916,6 +1191,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.55",
         "phase3_runtime_allowed": false,
@@ -936,25 +1212,37 @@
       "notes": "Funding unknown: advisory false-positive control derived from local false-positive library.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "false_positive_library_advisory_control_from_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.55",
+      "requires_fresh_validation": true,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "false_positive_pattern=funding_unknown; observed_count=53; source_count_keys=case_reviewer,unique_review_packet",
       "source_path": "false_positive_library/false_positive_pattern_library_20260505_151140.json",
+      "source_titles": [],
       "source_type": "false_positive_library",
+      "source_urls": [],
       "trade_key": "packet_0001",
       "wallet": "0x090a0d3fc9d68d3e16db70e3460e3e4b510801b4"
     },
     {
+      "assertion_level": "local_artifact_supported",
       "assertion_type": "false_positive_control",
       "case_id": "known-no_independent_hard_evidence_control",
+      "catalyst_timing": {
+        "status": "not_applicable"
+      },
       "category": "no_independent_hard_evidence_control",
       "cluster_direction": "long_yes",
       "derived_from_artifact": "",
       "economic_side": "YES",
       "event": "pattern-level",
+      "evidence_quality": "false_positive_library_advisory_control_from_local_artifacts",
       "expected_behavior": "Use only as analyst caution and benchmark guardrail; never as automatic model behavior.",
       "expected_phase2_effect": "no_independent_hard_evidence_advisory_only",
       "expected_phase4_effect": "unchanged_long_yes",
@@ -963,6 +1251,7 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.64",
         "phase3_runtime_allowed": false,
@@ -983,24 +1272,451 @@
       "notes": "No independent hard evidence: advisory false-positive control derived from local false-positive library.",
       "phase3_capital_status": "not_applicable",
       "provenance_quality": "false_positive_library_advisory_control_from_local_artifacts",
+      "public_knowledge_timing": {
+        "status": "not_applicable"
+      },
       "quality_notes": [],
       "raw_outcome": "YES",
       "raw_side": "BUY",
       "raw_token_price": "0.64",
+      "requires_fresh_validation": true,
       "sensitive_context": true,
+      "source_dates": [],
       "source_note": "false_positive_pattern=no_independent_hard_evidence; observed_count=579; source_count_keys=case_reviewer,unique_review_packet",
       "source_path": "false_positive_library/false_positive_pattern_library_20260505_151140.json",
+      "source_titles": [],
       "source_type": "false_positive_library",
+      "source_urls": [],
       "trade_key": "packet_0001",
       "wallet": "0x090a0d3fc9d68d3e16db70e3460e3e4b510801b4"
+    },
+    {
+      "assertion_level": "named_user_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_maduro_enforcement_named_user_control",
+      "catalyst_timing": {
+        "note": "Public announcement/resolution catalyst for Maduro/Venezuela markets.",
+        "status": "source_provided",
+        "timestamp": "2026-01-03T04:21:00-05:00"
+      },
+      "category": "public_maduro_enforcement_named_user_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "maduro-and-venezuela-related-contracts",
+      "evidence_quality": "official_named_user_source_no_wallet",
+      "expected_behavior": "Official enforcement sources support a named-user public case, but not an exact wallet benchmark assertion.",
+      "expected_phase2_effect": "public_maduro_enforcement_named_user_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.33",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "Named-user enforcement source is strong for public-case context but not exact-wallet fixture truth.",
+        "Treat as a fresh-validation priority, not scorer-tuning data."
+      ],
+      "forbidden_interpretation": "Do not infer the exact Polymarket wallet from this source metadata or change runtime gates from a named-user enforcement case.",
+      "market": "maduro-out-by-january-31-2026",
+      "mode": "event_forensic",
+      "model_probability": "0.33",
+      "notes": "Official enforcement sources support a named-user public case, but not an exact wallet benchmark assertion.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "official_named_user_source_no_wallet_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "DOJ complaint states the President publicly announced Maduro capture at approximately 4:21 AM EST.",
+        "status": "source_provided",
+        "timestamp": "2026-01-03T04:21:00-05:00"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.33",
+      "requires_fresh_validation": true,
+      "sensitive_context": true,
+      "source_dates": [
+        "2026-04-23",
+        "2026-04-23"
+      ],
+      "source_note": "Official complaint/filing alleges named-user Maduro-related Polymarket trading and profits; wallet identity remains unavailable in this compact benchmark.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "United States v. Gannon Ken Van Dyke complaint",
+        "CFTC complaint: Gannon Ken Van Dyke"
+      ],
+      "source_type": "public_enforcement_source",
+      "source_urls": [
+        "https://www.justice.gov/usao-sdny/media/1437781/dl",
+        "https://www.cftc.gov/media/13761/EnfGannonKenVanDykeComplaint042326/download"
+      ],
+      "trade_key": "public|public_maduro_enforcement_named_user_control|BUY|YES|0.33",
+      "wallet": "named-user-only"
+    },
+    {
+      "assertion_level": "market_level_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_maduro_pre_charge_market_timing_control",
+      "catalyst_timing": {
+        "note": "Maduro capture/announcement timing is described as the public catalyst.",
+        "status": "source_described",
+        "timestamp": "2026-01-03"
+      },
+      "category": "public_maduro_pre_charge_market_timing_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "maduro-capture-public-market-timing",
+      "evidence_quality": "public_market_timing_source_no_identity",
+      "expected_behavior": "Early public coverage supports market-level timing concern before identity attribution was available.",
+      "expected_phase2_effect": "public_maduro_pre_charge_market_timing_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.20",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "Before official attribution, public reporting supports timing concern only.",
+        "Use as a source-quality guard against overclaiming from anonymous trades."
+      ],
+      "forbidden_interpretation": "Do not turn pre-charge public reporting into exact-wallet truth, legal conclusion, or automatic detector behavior.",
+      "market": "maduro-related-contracts",
+      "mode": "event_forensic",
+      "model_probability": "0.20",
+      "notes": "Early public coverage supports market-level timing concern before identity attribution was available.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "public_market_timing_source_no_identity_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "Axios public article date for post-event policy response.",
+        "status": "article_publication",
+        "timestamp": "2026-01-05"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.20",
+      "requires_fresh_validation": true,
+      "sensitive_context": true,
+      "source_dates": [
+        "2026-01-05",
+        "2026-01-06"
+      ],
+      "source_note": "Public articles described suspiciously timed Maduro-related bets before later enforcement documents named an alleged trader.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "A congressman wants to criminalize insider trading on prediction markets",
+        "The Polymarket Bets on Maduro Are a Warning"
+      ],
+      "source_type": "public_source_metadata",
+      "source_urls": [
+        "https://www.axios.com/2026/01/05/venezuela-polymarket-prediction-insider-trading",
+        "https://www.theatlantic.com/technology/2026/01/venezuela-maduro-polymarket-prediction-markets/685526/"
+      ],
+      "trade_key": "public|public_maduro_pre_charge_market_timing_control|BUY|YES|0.20",
+      "wallet": "unknown"
+    },
+    {
+      "assertion_level": "pattern_level_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_iran_military_cluster_pattern_control",
+      "catalyst_timing": {
+        "note": "Sources describe multiple U.S. military/Iran developments rather than one fixture-grade timestamp.",
+        "status": "multiple_source_described",
+        "timestamp": "2026-02-28/2026-05"
+      },
+      "category": "public_iran_military_cluster_pattern_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "iran-war-polymarket-cluster",
+      "evidence_quality": "public_pattern_source_no_exact_wallet_import",
+      "expected_behavior": "Public reporting supports a pattern-level cluster/timing benchmark, not exact wallet detection.",
+      "expected_phase2_effect": "public_iran_military_cluster_pattern_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.04",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "High win rate and connected-account reporting are pattern evidence only.",
+        "Exact wallet labels require separate source proof or local artifact reconciliation."
+      ],
+      "forbidden_interpretation": "Do not assert that InsPoly should identify any specific wallet from this public-source pattern alone.",
+      "market": "iran-military-operation-contracts",
+      "mode": "event_forensic",
+      "model_probability": "0.04",
+      "notes": "Public reporting supports a pattern-level cluster/timing benchmark, not exact wallet detection.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "public_pattern_source_no_exact_wallet_import_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "CBS/60 Minutes public publication date.",
+        "status": "article_publication",
+        "timestamp": "2026-05-17"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.04",
+      "requires_fresh_validation": true,
+      "sensitive_context": true,
+      "source_dates": [
+        "2026-05-17",
+        "2026-05-19"
+      ],
+      "source_note": "CBS/Cointelegraph summarize Bubblemaps-reported connected accounts and military-event timing; exact wallet fixture labels are not imported.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "Suspected insider accounts net $2.4 million on Polymarket Iran war bets with 98% win rate, firm finds",
+        "Wallet cluster earned $2.4M with 98% win rate on Polymarket military bets: Bubblemaps"
+      ],
+      "source_type": "public_source_metadata",
+      "source_urls": [
+        "https://www.cbsnews.com/news/betting-on-iran-war-insider-trading-concerns-prediction-markets-60-minutes/",
+        "https://cointelegraph.com/news/bubblemaps-polymarket-cluster-win-military-bets"
+      ],
+      "trade_key": "public|public_iran_military_cluster_pattern_control|BUY|YES|0.04",
+      "wallet": "pattern-level"
+    },
+    {
+      "assertion_level": "pattern_level_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_zachxbt_axiom_pattern_control",
+      "catalyst_timing": {
+        "note": "Axiom was publicly named by ZachXBT after the relevant betting window.",
+        "status": "source_described",
+        "timestamp": "2026-02-26"
+      },
+      "category": "public_zachxbt_axiom_pattern_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "zachxbt-company-named-investigation",
+      "evidence_quality": "public_pattern_source_partial_wallet_snippets",
+      "expected_behavior": "Public reporting supports an advance-publication pattern case for source timing and overclaiming controls.",
+      "expected_phase2_effect": "public_zachxbt_axiom_pattern_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.14",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "Use for pattern-level source timing, not exact-wallet assertion.",
+        "Attribution remains unclear without exchange cooperation."
+      ],
+      "forbidden_interpretation": "Do not treat partial wallet snippets, handles, or article summaries as exact-wallet benchmark truth.",
+      "market": "zachxbt-axiom-investigation-market",
+      "mode": "event_forensic",
+      "model_probability": "0.14",
+      "notes": "Public reporting supports an advance-publication pattern case for source timing and overclaiming controls.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "public_pattern_source_partial_wallet_snippets_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "Sources describe ZachXBT publication as the public reveal; exact timestamp is not fixture-grade here.",
+        "status": "source_described",
+        "timestamp": "2026-02-26"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.14",
+      "requires_fresh_validation": true,
+      "sensitive_context": true,
+      "source_dates": [
+        "2026-02-27",
+        "2026-02-27"
+      ],
+      "source_note": "Sources describe concentrated Axiom bets before ZachXBT publication and attribution uncertainty due Polymarket identity limits.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "Polymarket bettors appear to have insider-traded on a market designed to catch insider traders",
+        "Suspected insider wallets rack up $1.2M betting on ZachXBT's Axiom expose"
+      ],
+      "source_type": "public_source_metadata",
+      "source_urls": [
+        "https://www.coindesk.com/markets/2026/02/27/polymarket-bettors-appear-to-have-insider-traded-on-a-market-designed-to-catch-insider-traders",
+        "https://cointelegraph.com/news/suspected-insider-1-2m-zachxbt-axiom-expose"
+      ],
+      "trade_key": "public|public_zachxbt_axiom_pattern_control|BUY|YES|0.14",
+      "wallet": "pattern-level"
+    },
+    {
+      "assertion_level": "market_level_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_google_year_in_search_retrospective_control",
+      "catalyst_timing": {
+        "note": "Article describes bets before Google's Year in Search report release but does not provide fixture-grade timing.",
+        "status": "source_described_no_exact_timestamp",
+        "timestamp": "2025-12"
+      },
+      "category": "public_google_year_in_search_retrospective_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "google-year-in-search-2025",
+      "evidence_quality": "secondary_public_source_retrospective_only",
+      "expected_behavior": "Public article mention supports a retrospective-only caution, not a benchmarkable wallet identity.",
+      "expected_phase2_effect": "public_google_year_in_search_retrospective_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.18",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "Secondary-source-only item; keep as retrospective caution.",
+        "Requires primary source and wallet/market reconciliation before executable exact assertions."
+      ],
+      "forbidden_interpretation": "Do not use a secondary article mention as exact case evidence, automatic suspicion, or runtime tuning approval.",
+      "market": "google-year-in-search-related-contracts",
+      "mode": "event_forensic",
+      "model_probability": "0.18",
+      "notes": "Public article mention supports a retrospective-only caution, not a benchmarkable wallet identity.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "secondary_public_source_retrospective_only_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "Only secondary article publication date is recorded.",
+        "status": "secondary_article_publication",
+        "timestamp": "2026-01-06"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.18",
+      "requires_fresh_validation": true,
+      "sensitive_context": false,
+      "source_dates": [
+        "2026-01-06"
+      ],
+      "source_note": "Atlantic article mentions Google Year in Search bets as another public example, but the fixture has no primary source or wallet identity.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "The Polymarket Bets on Maduro Are a Warning"
+      ],
+      "source_type": "public_source_metadata",
+      "source_urls": [
+        "https://www.theatlantic.com/technology/2026/01/venezuela-maduro-polymarket-prediction-markets/685526/"
+      ],
+      "trade_key": "public|public_google_year_in_search_retrospective_control|BUY|YES|0.18",
+      "wallet": "unknown"
+    },
+    {
+      "assertion_level": "named_user_only",
+      "assertion_type": "public_case_control",
+      "case_id": "known-public_trump_whale_high_volume_control",
+      "catalyst_timing": {
+        "note": "Election result context is public and high-volume; this fixture is a false-positive control, not a suspicion label.",
+        "status": "public_election_context",
+        "timestamp": "2024-11-05/2024-11-06"
+      },
+      "category": "public_trump_whale_high_volume_control",
+      "cluster_direction": "long_yes",
+      "derived_from_artifact": "",
+      "economic_side": "YES",
+      "event": "2024-us-presidential-election",
+      "evidence_quality": "public_named_account_high_volume_false_positive_control",
+      "expected_behavior": "High-volume public trader/source review should be a false-positive caution unless independent hard evidence exists.",
+      "expected_phase2_effect": "public_trump_whale_high_volume_control_public_metadata_only",
+      "expected_phase4_effect": "unchanged_long_yes",
+      "expected_result": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": true,
+        "model_probability": "0.62",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "requires_fresh_validation_for_model_use": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "false_positive_notes": [
+        "High-volume public trader behavior can move or lead market odds without proving insider access.",
+        "Use as a public-knowledge false-positive control."
+      ],
+      "forbidden_interpretation": "Do not infer manipulation, insider status, or exact wallet identity solely from high volume and named account handles.",
+      "market": "presidential-election-winner-2024",
+      "mode": "scanner",
+      "model_probability": "0.62",
+      "notes": "High-volume public trader/source review should be a false-positive caution unless independent hard evidence exists.",
+      "phase3_capital_status": "not_applicable",
+      "provenance_quality": "public_named_account_high_volume_false_positive_control_compact_metadata",
+      "public_knowledge_timing": {
+        "note": "Reuters publication date via Investing.com mirror.",
+        "status": "article_publication",
+        "timestamp": "2024-10-24"
+      },
+      "quality_notes": [],
+      "raw_outcome": "YES",
+      "raw_side": "BUY",
+      "raw_token_price": "0.62",
+      "requires_fresh_validation": true,
+      "sensitive_context": false,
+      "source_dates": [
+        "2024-10-24"
+      ],
+      "source_note": "Reuters-republished source says Polymarket investigated a French high-volume Trump bettor and did not identify manipulation evidence at that time.",
+      "source_path": "docs/inspoly_public_case_benchmark_labeling_20260526.md",
+      "source_titles": [
+        "Polymarket says mystery Trump bettor is French national"
+      ],
+      "source_type": "public_source_metadata",
+      "source_urls": [
+        "https://www.investing.com/news/world-news/polymarket-says-mystery-trump-bettor-is-french-national-3680928"
+      ],
+      "trade_key": "public|public_trump_whale_high_volume_control|BUY|YES|0.62",
+      "wallet": "named-user-only"
     }
   ],
-  "generatedAt": "2026-05-26T15:43:31.617394+00:00",
+  "generatedAt": "2026-05-26T18:32:16.588640+00:00",
   "networkUsed": false,
   "productionIntegration": false,
   "reportType": "post_side_outcome_known_case_benchmark_corpus",
   "runtimeBehaviorChanged": false,
-  "schemaVersion": "known_case_benchmark_v2",
+  "schemaVersion": "known_case_benchmark_v3",
   "sidecarOnly": true,
   "sourceInventory": {
     "archive_evidence": {
@@ -1182,7 +1898,7 @@
     }
   },
   "summary": {
-    "caseCount": 24,
+    "caseCount": 30,
     "coveredRequiredCategories": [
       "archive_affected_case",
       "buy_no_sell_yes_same_cluster_long_no",
@@ -1198,6 +1914,12 @@
       "old_report_without_phase2_phase4_fields",
       "pagination_truncation_warning_control",
       "phase3_capital_at_risk_blocked_overlap",
+      "public_google_year_in_search_retrospective_control",
+      "public_iran_military_cluster_pattern_control",
+      "public_maduro_enforcement_named_user_control",
+      "public_maduro_pre_charge_market_timing_control",
+      "public_trump_whale_high_volume_control",
+      "public_zachxbt_axiom_pattern_control",
       "scanner_affected_case",
       "selected_market_vs_whole_event_scope_boundary",
       "sell_no_low_price_economic_yes_high_probability",
@@ -1209,14 +1931,21 @@
       "true_low_probability_later_winner",
       "weak_history_near_certainty_demotion"
     ],
+    "exactWalletPublicCaseCount": 0,
     "generatedAuditEvidenceCaseCount": 5,
     "missingRequiredCategories": [],
+    "namedUserPublicCaseCount": 2,
+    "patternLevelPublicCaseCount": 2,
+    "publicCaseCount": 6,
+    "publicSourceUrlCount": 9,
     "realLocalCaseCount": 2,
-    "requiredCategoryCount": 24,
+    "requiredCategoryCount": 30,
     "reviewPacketCaseCount": 4,
     "sourceTypeCounts": {
       "false_positive_library": 4,
       "generated_audit_evidence": 5,
+      "public_enforcement_source": 1,
+      "public_source_metadata": 5,
       "real_local_artifact": 2,
       "review_packet": 4,
       "sidecar_measurement": 2,

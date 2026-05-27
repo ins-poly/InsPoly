@@ -26,8 +26,8 @@ Last updated: 2026-05-26 EEST.
 - Browser UIs now boot from vendored local React/ReactDOM/Babel assets through narrow static serving.
 - Strategic Operating System files are present and wired into repo/global agent guidance for non-trivial work.
 - The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `/Users/Root1/.codex/skills/strategic-autonomy-review/`.
-- The test suite has broad local regression coverage compared with early project state; root memory records the latest full suite at 1105 tests passing during release-candidate verification.
-- The known-case benchmark has been expanded to `known_case_benchmark_v2` with 24 compact cases, including false-positive and sidecar-context controls.
+- The test suite has broad local regression coverage compared with early project state; the latest full suite after public-case benchmark labeling passed 1112 tests.
+- The known-case benchmark has been expanded to `known_case_benchmark_v3` with 30 compact cases, including false-positive, sidecar-context, and public-source metadata controls.
 - Event Forensic selected-market vs whole-event semantics are explicitly modeled.
 - Weak-history near-certainty rows are demoted out of primary Event Forensic review buckets while remaining exported/reviewable.
 - Side/Outcome reform Phase 2/4 is stable according to local benchmark/drift audits.
@@ -43,7 +43,7 @@ Last updated: 2026-05-26 EEST.
 - Push/PR/release grouping requires explicit operator decision.
 - Whether to include root `AGENTS.md` in a future public repo package remains an explicit user decision; for now it remains local-only.
 - Future strategic cycles must use ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD and score candidate campaigns before implementation.
-- Known-case benchmark coverage now includes local false-positive controls, but exact-wallet public-case labels still need human-curated source proof before becoming executable assertions.
+- Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0` and still need source/local-artifact proof before becoming executable assertions.
 - Archive/event pagination completeness needs provider/query proof before runtime changes.
 - Further Event Forensic performance work needs measured bottleneck evidence before patches.
 - Replay report embedding or storage persistence needs a separate RFC.

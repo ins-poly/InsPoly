@@ -10,9 +10,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.20",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -40,9 +42,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.20",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -70,9 +74,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.80",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -100,9 +106,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.80",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -130,9 +138,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.014",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "real_local_artifact",
@@ -160,9 +170,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.0171070614248873",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "real_local_artifact",
@@ -190,9 +202,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.20",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "review_packet",
@@ -230,9 +244,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.20",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "review_packet",
@@ -270,9 +286,11 @@
         "cluster_direction": "unknown",
         "direct_gate_mutation_allowed": false,
         "economic_side": "unknown",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "unknown",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -300,9 +318,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.8",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -330,9 +350,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.17",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "review_packet",
@@ -360,9 +382,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.008",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "generated_audit_evidence",
@@ -390,9 +414,11 @@
         "cluster_direction": "long_no",
         "direct_gate_mutation_allowed": false,
         "economic_side": "NO",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.17",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "review_packet",
@@ -420,9 +446,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.007960693534599",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "generated_audit_evidence",
@@ -450,9 +478,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.008",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "generated_audit_evidence",
@@ -480,9 +510,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.62",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "synthetic_fixture",
@@ -510,9 +542,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.04",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "sidecar_measurement",
@@ -540,9 +574,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.99",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "sidecar_measurement",
@@ -570,9 +606,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.55",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "generated_audit_evidence",
@@ -600,9 +638,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": false,
         "model_probability": "0.50",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "generated_audit_evidence",
@@ -630,9 +670,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.99",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "false_positive_library",
@@ -660,9 +702,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.72",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "false_positive_library",
@@ -690,9 +734,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.55",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "false_positive_library",
@@ -720,9 +766,11 @@
         "cluster_direction": "long_yes",
         "direct_gate_mutation_allowed": false,
         "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
         "false_positive_control": true,
         "model_probability": "0.64",
         "phase3_runtime_allowed": false,
+        "public_case_control": false,
         "safe_to_use_for_scoring_claims": false
       },
       "source_type": "false_positive_library",
@@ -739,11 +787,203 @@
           "raw_token_price": "0.64"
         }
       ]
+    },
+    {
+      "case_id": "known-public_maduro_enforcement_named_user_control",
+      "category": "public_maduro_enforcement_named_user_control",
+      "errors": [],
+      "mode": "event_forensic",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.33",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_enforcement_source",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.33",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.33"
+        }
+      ]
+    },
+    {
+      "case_id": "known-public_maduro_pre_charge_market_timing_control",
+      "category": "public_maduro_pre_charge_market_timing_control",
+      "errors": [],
+      "mode": "event_forensic",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.20",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_source_metadata",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.20",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.20"
+        }
+      ]
+    },
+    {
+      "case_id": "known-public_iran_military_cluster_pattern_control",
+      "category": "public_iran_military_cluster_pattern_control",
+      "errors": [],
+      "mode": "event_forensic",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.04",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_source_metadata",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.04",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.04"
+        }
+      ]
+    },
+    {
+      "case_id": "known-public_zachxbt_axiom_pattern_control",
+      "category": "public_zachxbt_axiom_pattern_control",
+      "errors": [],
+      "mode": "event_forensic",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.14",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_source_metadata",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.14",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.14"
+        }
+      ]
+    },
+    {
+      "case_id": "known-public_google_year_in_search_retrospective_control",
+      "category": "public_google_year_in_search_retrospective_control",
+      "errors": [],
+      "mode": "event_forensic",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": false,
+        "model_probability": "0.18",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_source_metadata",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.18",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.18"
+        }
+      ]
+    },
+    {
+      "case_id": "known-public_trump_whale_high_volume_control",
+      "category": "public_trump_whale_high_volume_control",
+      "errors": [],
+      "mode": "scanner",
+      "observed": {
+        "automatic_action_allowed": false,
+        "cluster_direction": "long_yes",
+        "direct_gate_mutation_allowed": false,
+        "economic_side": "YES",
+        "exact_wallet_detection_allowed": false,
+        "false_positive_control": true,
+        "model_probability": "0.62",
+        "phase3_runtime_allowed": false,
+        "public_case_control": true,
+        "safe_to_use_for_scoring_claims": false
+      },
+      "source_type": "public_source_metadata",
+      "status": "pass",
+      "tradeResults": [
+        {
+          "cluster_direction": "long_yes",
+          "economic_side": "YES",
+          "fallback_reason": "",
+          "model_probability": "0.62",
+          "normalization_status": "normalized",
+          "raw_outcome": "YES",
+          "raw_side": "BUY",
+          "raw_token_price": "0.62"
+        }
+      ]
     }
   ],
   "corpusPath": "tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json",
   "gateDecision": "known_case_corpus_ready",
-  "generatedAt": "2026-05-26T15:48:30.877874+00:00",
+  "generatedAt": "2026-05-26T18:32:16.635946+00:00",
   "networkUsed": false,
   "productionIntegration": false,
   "reportType": "post_side_outcome_known_case_benchmark_run",
@@ -751,8 +991,8 @@
   "schemaVersion": "known_case_benchmark_run_v1",
   "sidecarOnly": true,
   "summary": {
-    "advisoryOnlyCaseCount": 8,
-    "caseCount": 24,
+    "advisoryOnlyCaseCount": 14,
+    "caseCount": 30,
     "categoryCounts": {
       "archive_affected_case": 1,
       "buy_no_sell_yes_same_cluster_long_no": 1,
@@ -768,6 +1008,12 @@
       "old_report_without_phase2_phase4_fields": 1,
       "pagination_truncation_warning_control": 1,
       "phase3_capital_at_risk_blocked_overlap": 1,
+      "public_google_year_in_search_retrospective_control": 1,
+      "public_iran_military_cluster_pattern_control": 1,
+      "public_maduro_enforcement_named_user_control": 1,
+      "public_maduro_pre_charge_market_timing_control": 1,
+      "public_trump_whale_high_volume_control": 1,
+      "public_zachxbt_axiom_pattern_control": 1,
       "scanner_affected_case": 1,
       "selected_market_vs_whole_event_scope_boundary": 1,
       "sell_no_low_price_economic_yes_high_probability": 1,
@@ -780,22 +1026,25 @@
       "weak_history_near_certainty_demotion": 1
     },
     "failCount": 0,
-    "falsePositiveControlCaseCount": 4,
+    "falsePositiveControlCaseCount": 5,
     "missingRequiredCategories": [],
-    "passCount": 23,
+    "passCount": 29,
     "phase3BlockedCaseCount": 1,
-    "realOrDerivedCaseCount": 17,
+    "publicCaseControlCaseCount": 6,
+    "realOrDerivedCaseCount": 23,
     "schemaErrors": [],
     "sourceTypeCounts": {
       "false_positive_library": 4,
       "generated_audit_evidence": 5,
+      "public_enforcement_source": 1,
+      "public_source_metadata": 5,
       "real_local_artifact": 2,
       "review_packet": 4,
       "sidecar_measurement": 2,
       "synthetic_fixture": 7
     },
     "statusCounts": {
-      "pass": 23,
+      "pass": 29,
       "unknown_pass": 1
     },
     "syntheticCaseCount": 7,

@@ -127,3 +127,48 @@ Additional required categories:
 - `no_independent_hard_evidence_control`
 
 V2 controls are still sidecar-only. They do not authorize scoring, gate, routing, Phase 3, pagination, storage, or UI behavior changes.
+
+## 2026-05-26 V3 Addendum
+
+`known_case_benchmark_v3` keeps the v1/v2 contracts and adds public-source metadata for curated public-case controls.
+
+New source types:
+
+- `public_enforcement_source`
+- `public_source_metadata`
+
+New assertion levels:
+
+- `exact_wallet_supported`
+- `named_user_only`
+- `pattern_level_only`
+- `market_level_only`
+- `local_artifact_supported`
+- `sidecar_context_only`
+- `synthetic_control`
+
+New metadata fields:
+
+- `source_urls`
+- `source_titles`
+- `source_dates`
+- `evidence_quality`
+- `assertion_level`
+- `public_knowledge_timing`
+- `catalyst_timing`
+- `requires_fresh_validation`
+
+Public-case controls must include source URL/title/date metadata and a `forbidden_interpretation`. They are advisory by default: `automatic_action_allowed`, `safe_to_use_for_scoring_claims`, and `exact_wallet_detection_allowed` must all be `false`.
+
+Exact-wallet public cases require explicit source-backed wallet and market identity. If the source describes only a named user, unnamed cluster, article-level pattern, or market-level concern, the case must use `named_user_only`, `pattern_level_only`, or `market_level_only`; it must not assert exact-wallet detection.
+
+Additional v3 categories:
+
+- `public_maduro_enforcement_named_user_control`
+- `public_maduro_pre_charge_market_timing_control`
+- `public_iran_military_cluster_pattern_control`
+- `public_zachxbt_axiom_pattern_control`
+- `public_google_year_in_search_retrospective_control`
+- `public_trump_whale_high_volume_control`
+
+V3 still does not authorize scoring, gate, routing, Phase 3, pagination, storage, UI sorting/filtering, or runtime behavior changes.

@@ -3,6 +3,11 @@
 Last updated: 2026-05-26 EEST.
 
 ## Current Strategic Decisions
+- Decision: Keep public-case benchmark labels assertion-level scoped.
+  - Why: Public sources found in this campaign support named-user, market-level, or pattern-level controls, but not fixture-grade exact wallet identity.
+  - Consequence: `known_case_benchmark_v3` has 30 compact cases, including 6 public-source metadata controls with 9 unique source URLs, 2 named-user-only cases, 2 pattern-level-only cases, 2 market-level-only cases, and 0 exact-wallet public cases. Public controls require fresh validation and forbid exact-wallet detection, automatic action, and scoring/gate/routing use.
+  - Reversal / revisit condition: Add exact-wallet public cases only when a source or local artifact proves exact wallet/user/market identity without inference.
+
 - Decision: Expand known-case benchmark controls without runtime/model changes.
   - Why: Future scoring/runtime work needs stronger regression coverage for false-positive and overclaiming boundaries, but current release state does not justify model/gate changes.
   - Consequence: `known_case_benchmark_v2` has 24 compact offline cases, including four false-positive controls and four sidecar-context controls. These cases are advisory/regression evidence only and require `automatic_action_allowed: false` plus `safe_to_use_for_scoring_claims: false`.

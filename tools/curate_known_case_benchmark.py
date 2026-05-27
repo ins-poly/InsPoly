@@ -25,16 +25,28 @@ from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_sid
 
 
 REPORT_TYPE = "post_side_outcome_known_case_benchmark_corpus"
-SCHEMA_VERSION = "known_case_benchmark_v2"
+SCHEMA_VERSION = "known_case_benchmark_v3"
 DEFAULT_OUTPUT = Path("tests/fixtures/known_case_benchmark/post_side_outcome_known_cases.json")
 
 ALLOWED_SOURCE_TYPES = {
     "false_positive_library",
     "generated_audit_evidence",
+    "public_enforcement_source",
+    "public_source_metadata",
     "review_packet",
     "real_local_artifact",
     "sidecar_measurement",
     "synthetic_fixture",
+}
+
+ALLOWED_ASSERTION_LEVELS = {
+    "exact_wallet_supported",
+    "local_artifact_supported",
+    "market_level_only",
+    "named_user_only",
+    "pattern_level_only",
+    "sidecar_context_only",
+    "synthetic_control",
 }
 
 REQUIRED_CATEGORIES = (
@@ -62,6 +74,12 @@ REQUIRED_CATEGORIES = (
     "high_volume_public_user_false_positive_control",
     "funding_unknown_control",
     "no_independent_hard_evidence_control",
+    "public_maduro_enforcement_named_user_control",
+    "public_maduro_pre_charge_market_timing_control",
+    "public_iran_military_cluster_pattern_control",
+    "public_zachxbt_axiom_pattern_control",
+    "public_google_year_in_search_retrospective_control",
+    "public_trump_whale_high_volume_control",
 )
 
 REQUIRED_CASE_FIELDS = (
@@ -85,9 +103,17 @@ REQUIRED_CASE_FIELDS = (
     "sensitive_context",
     "expected_result",
     "assertion_type",
+    "assertion_level",
+    "evidence_quality",
     "expected_behavior",
     "forbidden_interpretation",
     "false_positive_notes",
+    "source_urls",
+    "source_titles",
+    "source_dates",
+    "public_knowledge_timing",
+    "catalyst_timing",
+    "requires_fresh_validation",
     "source_note",
     "notes",
     "provenance_quality",
@@ -119,6 +145,18 @@ def curate_known_case_benchmark(root: str | Path = ".") -> dict[str, object]:
             "realLocalCaseCount": counts.get("real_local_artifact", 0),
             "generatedAuditEvidenceCaseCount": counts.get("generated_audit_evidence", 0),
             "reviewPacketCaseCount": counts.get("review_packet", 0),
+            "publicCaseCount": sum(1 for case in cases if case.get("assertion_type") == "public_case_control"),
+            "exactWalletPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "exact_wallet_supported"),
+            "namedUserPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "named_user_only"),
+            "patternLevelPublicCaseCount": sum(1 for case in cases if case.get("assertion_level") == "pattern_level_only"),
+            "publicSourceUrlCount": len(
+                {
+                    str(url)
+                    for case in cases
+                    if case.get("assertion_type") == "public_case_control"
+                    for url in _as_list(case.get("source_urls"))
+                }
+            ),
         },
         "cases": cases,
     }
@@ -140,6 +178,9 @@ def validate_known_case_corpus(payload: Mapping[str, object]) -> list[str]:
         source_type = str(case.get("source_type") or "")
         if source_type not in ALLOWED_SOURCE_TYPES:
             errors.append(f"{case.get('case_id', index)} unsupported source_type: {source_type}")
+        assertion_level = str(case.get("assertion_level") or "")
+        if assertion_level not in ALLOWED_ASSERTION_LEVELS:
+            errors.append(f"{case.get('case_id', index)} unsupported assertion_level: {assertion_level}")
         category = str(case.get("category") or "")
         if category:
             categories.add(category)
@@ -153,11 +194,32 @@ def validate_known_case_corpus(payload: Mapping[str, object]) -> list[str]:
                 errors.append(f"{case.get('case_id', index)} advisory control must include forbidden_interpretation")
             if not isinstance(case.get("false_positive_notes"), list):
                 errors.append(f"{case.get('case_id', index)} advisory control false_positive_notes must be a list")
+            if case.get("requires_fresh_validation") is not True:
+                errors.append(f"{case.get('case_id', index)} advisory control must require fresh validation")
             if isinstance(expected, Mapping):
                 if expected.get("automatic_action_allowed") is not False:
                     errors.append(f"{case.get('case_id', index)} advisory control must forbid automatic action")
                 if expected.get("safe_to_use_for_scoring_claims") is not False:
                     errors.append(f"{case.get('case_id', index)} advisory control must not be scoring evidence")
+                if expected.get("requires_fresh_validation_for_model_use") is not True:
+                    errors.append(f"{case.get('case_id', index)} advisory control must require fresh validation for model use")
+        if case.get("assertion_type") == "public_case_control":
+            for field in ("source_urls", "source_titles", "source_dates"):
+                values = case.get(field)
+                if not isinstance(values, list) or not values:
+                    errors.append(f"{case.get('case_id', index)} public case must include {field}")
+            if not str(case.get("source_note") or "").strip():
+                errors.append(f"{case.get('case_id', index)} public case must include source_note")
+            if assertion_level == "exact_wallet_supported":
+                if str(case.get("wallet") or "") in {"", "unknown", "pattern-level"}:
+                    errors.append(f"{case.get('case_id', index)} exact-wallet case requires explicit wallet")
+                if str(case.get("market") or "") in {"", "unknown", "pattern-level"}:
+                    errors.append(f"{case.get('case_id', index)} exact-wallet case requires explicit market")
+            if assertion_level == "pattern_level_only":
+                if str(case.get("wallet") or "") != "pattern-level":
+                    errors.append(f"{case.get('case_id', index)} pattern-level public case must not assert a wallet")
+                if isinstance(expected, Mapping) and expected.get("exact_wallet_detection_allowed") is not False:
+                    errors.append(f"{case.get('case_id', index)} pattern-level public case must forbid exact-wallet detection")
     missing_categories = sorted(set(REQUIRED_CATEGORIES) - categories)
     if missing_categories:
         errors.append("missing required categories: " + ", ".join(missing_categories))
@@ -456,6 +518,230 @@ def _build_cases(sources: Mapping[str, object]) -> list[dict[str, object]]:
             raw_price="0.64",
             patterns_payload=false_positive_patterns,
         ),
+        _public_case_control(
+            category="public_maduro_enforcement_named_user_control",
+            assertion_level="named_user_only",
+            mode="event_forensic",
+            wallet="named-user-only",
+            market="maduro-out-by-january-31-2026",
+            event="maduro-and-venezuela-related-contracts",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.33",
+            source_urls=[
+                "https://www.justice.gov/usao-sdny/media/1437781/dl",
+                "https://www.cftc.gov/media/13761/EnfGannonKenVanDykeComplaint042326/download",
+            ],
+            source_titles=[
+                "United States v. Gannon Ken Van Dyke complaint",
+                "CFTC complaint: Gannon Ken Van Dyke",
+            ],
+            source_dates=["2026-04-23", "2026-04-23"],
+            expected_behavior="Official enforcement sources support a named-user public case, but not an exact wallet benchmark assertion.",
+            forbidden_interpretation="Do not infer the exact Polymarket wallet from this source metadata or change runtime gates from a named-user enforcement case.",
+            source_note="Official complaint/filing alleges named-user Maduro-related Polymarket trading and profits; wallet identity remains unavailable in this compact benchmark.",
+            public_knowledge_timing={
+                "status": "source_provided",
+                "timestamp": "2026-01-03T04:21:00-05:00",
+                "note": "DOJ complaint states the President publicly announced Maduro capture at approximately 4:21 AM EST.",
+            },
+            catalyst_timing={
+                "status": "source_provided",
+                "timestamp": "2026-01-03T04:21:00-05:00",
+                "note": "Public announcement/resolution catalyst for Maduro/Venezuela markets.",
+            },
+            false_positive_notes=[
+                "Named-user enforcement source is strong for public-case context but not exact-wallet fixture truth.",
+                "Treat as a fresh-validation priority, not scorer-tuning data.",
+            ],
+            evidence_quality="official_named_user_source_no_wallet",
+        ),
+        _public_case_control(
+            category="public_maduro_pre_charge_market_timing_control",
+            assertion_level="market_level_only",
+            mode="event_forensic",
+            wallet="unknown",
+            market="maduro-related-contracts",
+            event="maduro-capture-public-market-timing",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.20",
+            source_urls=[
+                "https://www.axios.com/2026/01/05/venezuela-polymarket-prediction-insider-trading",
+                "https://www.theatlantic.com/technology/2026/01/venezuela-maduro-polymarket-prediction-markets/685526/",
+            ],
+            source_titles=[
+                "A congressman wants to criminalize insider trading on prediction markets",
+                "The Polymarket Bets on Maduro Are a Warning",
+            ],
+            source_dates=["2026-01-05", "2026-01-06"],
+            expected_behavior="Early public coverage supports market-level timing concern before identity attribution was available.",
+            forbidden_interpretation="Do not turn pre-charge public reporting into exact-wallet truth, legal conclusion, or automatic detector behavior.",
+            source_note="Public articles described suspiciously timed Maduro-related bets before later enforcement documents named an alleged trader.",
+            public_knowledge_timing={
+                "status": "article_publication",
+                "timestamp": "2026-01-05",
+                "note": "Axios public article date for post-event policy response.",
+            },
+            catalyst_timing={
+                "status": "source_described",
+                "timestamp": "2026-01-03",
+                "note": "Maduro capture/announcement timing is described as the public catalyst.",
+            },
+            false_positive_notes=[
+                "Before official attribution, public reporting supports timing concern only.",
+                "Use as a source-quality guard against overclaiming from anonymous trades.",
+            ],
+            evidence_quality="public_market_timing_source_no_identity",
+        ),
+        _public_case_control(
+            category="public_iran_military_cluster_pattern_control",
+            assertion_level="pattern_level_only",
+            mode="event_forensic",
+            wallet="pattern-level",
+            market="iran-military-operation-contracts",
+            event="iran-war-polymarket-cluster",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.04",
+            source_urls=[
+                "https://www.cbsnews.com/news/betting-on-iran-war-insider-trading-concerns-prediction-markets-60-minutes/",
+                "https://cointelegraph.com/news/bubblemaps-polymarket-cluster-win-military-bets",
+            ],
+            source_titles=[
+                "Suspected insider accounts net $2.4 million on Polymarket Iran war bets with 98% win rate, firm finds",
+                "Wallet cluster earned $2.4M with 98% win rate on Polymarket military bets: Bubblemaps",
+            ],
+            source_dates=["2026-05-17", "2026-05-19"],
+            expected_behavior="Public reporting supports a pattern-level cluster/timing benchmark, not exact wallet detection.",
+            forbidden_interpretation="Do not assert that InsPoly should identify any specific wallet from this public-source pattern alone.",
+            source_note="CBS/Cointelegraph summarize Bubblemaps-reported connected accounts and military-event timing; exact wallet fixture labels are not imported.",
+            public_knowledge_timing={
+                "status": "article_publication",
+                "timestamp": "2026-05-17",
+                "note": "CBS/60 Minutes public publication date.",
+            },
+            catalyst_timing={
+                "status": "multiple_source_described",
+                "timestamp": "2026-02-28/2026-05",
+                "note": "Sources describe multiple U.S. military/Iran developments rather than one fixture-grade timestamp.",
+            },
+            false_positive_notes=[
+                "High win rate and connected-account reporting are pattern evidence only.",
+                "Exact wallet labels require separate source proof or local artifact reconciliation.",
+            ],
+            evidence_quality="public_pattern_source_no_exact_wallet_import",
+        ),
+        _public_case_control(
+            category="public_zachxbt_axiom_pattern_control",
+            assertion_level="pattern_level_only",
+            mode="event_forensic",
+            wallet="pattern-level",
+            market="zachxbt-axiom-investigation-market",
+            event="zachxbt-company-named-investigation",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.14",
+            source_urls=[
+                "https://www.coindesk.com/markets/2026/02/27/polymarket-bettors-appear-to-have-insider-traded-on-a-market-designed-to-catch-insider-traders",
+                "https://cointelegraph.com/news/suspected-insider-1-2m-zachxbt-axiom-expose",
+            ],
+            source_titles=[
+                "Polymarket bettors appear to have insider-traded on a market designed to catch insider traders",
+                "Suspected insider wallets rack up $1.2M betting on ZachXBT's Axiom expose",
+            ],
+            source_dates=["2026-02-27", "2026-02-27"],
+            expected_behavior="Public reporting supports an advance-publication pattern case for source timing and overclaiming controls.",
+            forbidden_interpretation="Do not treat partial wallet snippets, handles, or article summaries as exact-wallet benchmark truth.",
+            source_note="Sources describe concentrated Axiom bets before ZachXBT publication and attribution uncertainty due Polymarket identity limits.",
+            public_knowledge_timing={
+                "status": "source_described",
+                "timestamp": "2026-02-26",
+                "note": "Sources describe ZachXBT publication as the public reveal; exact timestamp is not fixture-grade here.",
+            },
+            catalyst_timing={
+                "status": "source_described",
+                "timestamp": "2026-02-26",
+                "note": "Axiom was publicly named by ZachXBT after the relevant betting window.",
+            },
+            false_positive_notes=[
+                "Use for pattern-level source timing, not exact-wallet assertion.",
+                "Attribution remains unclear without exchange cooperation.",
+            ],
+            evidence_quality="public_pattern_source_partial_wallet_snippets",
+        ),
+        _public_case_control(
+            category="public_google_year_in_search_retrospective_control",
+            assertion_level="market_level_only",
+            mode="event_forensic",
+            wallet="unknown",
+            market="google-year-in-search-related-contracts",
+            event="google-year-in-search-2025",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.18",
+            source_urls=[
+                "https://www.theatlantic.com/technology/2026/01/venezuela-maduro-polymarket-prediction-markets/685526/",
+            ],
+            source_titles=[
+                "The Polymarket Bets on Maduro Are a Warning",
+            ],
+            source_dates=["2026-01-06"],
+            expected_behavior="Public article mention supports a retrospective-only caution, not a benchmarkable wallet identity.",
+            forbidden_interpretation="Do not use a secondary article mention as exact case evidence, automatic suspicion, or runtime tuning approval.",
+            source_note="Atlantic article mentions Google Year in Search bets as another public example, but the fixture has no primary source or wallet identity.",
+            public_knowledge_timing={
+                "status": "secondary_article_publication",
+                "timestamp": "2026-01-06",
+                "note": "Only secondary article publication date is recorded.",
+            },
+            catalyst_timing={
+                "status": "source_described_no_exact_timestamp",
+                "timestamp": "2025-12",
+                "note": "Article describes bets before Google's Year in Search report release but does not provide fixture-grade timing.",
+            },
+            false_positive_notes=[
+                "Secondary-source-only item; keep as retrospective caution.",
+                "Requires primary source and wallet/market reconciliation before executable exact assertions.",
+            ],
+            evidence_quality="secondary_public_source_retrospective_only",
+        ),
+        _public_case_control(
+            category="public_trump_whale_high_volume_control",
+            assertion_level="named_user_only",
+            mode="scanner",
+            wallet="named-user-only",
+            market="presidential-election-winner-2024",
+            event="2024-us-presidential-election",
+            raw_side="BUY",
+            raw_outcome="YES",
+            raw_price="0.62",
+            source_urls=[
+                "https://www.investing.com/news/world-news/polymarket-says-mystery-trump-bettor-is-french-national-3680928",
+            ],
+            source_titles=[
+                "Polymarket says mystery Trump bettor is French national",
+            ],
+            source_dates=["2024-10-24"],
+            expected_behavior="High-volume public trader/source review should be a false-positive caution unless independent hard evidence exists.",
+            forbidden_interpretation="Do not infer manipulation, insider status, or exact wallet identity solely from high volume and named account handles.",
+            source_note="Reuters-republished source says Polymarket investigated a French high-volume Trump bettor and did not identify manipulation evidence at that time.",
+            public_knowledge_timing={
+                "status": "article_publication",
+                "timestamp": "2024-10-24",
+                "note": "Reuters publication date via Investing.com mirror.",
+            },
+            catalyst_timing={
+                "status": "public_election_context",
+                "timestamp": "2024-11-05/2024-11-06",
+                "note": "Election result context is public and high-volume; this fixture is a false-positive control, not a suspicion label.",
+            },
+            false_positive_notes=[
+                "High-volume public trader behavior can move or lead market odds without proving insider access.",
+                "Use as a public-knowledge false-positive control.",
+            ],
+            evidence_quality="public_named_account_high_volume_false_positive_control",
+        ),
     ]
     return [_ensure_case(case) for case in cases]
 
@@ -627,6 +913,7 @@ def _sidecar_pattern_case(
     case["expected_result"].update(
         {
             "automatic_action_allowed": False,
+            "exact_wallet_detection_allowed": False,
             "safe_to_use_for_scoring_claims": False,
             "requires_fresh_validation_for_model_use": True,
         }
@@ -686,7 +973,81 @@ def _false_positive_control_case(
     case["expected_result"].update(
         {
             "automatic_action_allowed": False,
+            "exact_wallet_detection_allowed": False,
             "false_positive_control": True,
+            "requires_fresh_validation_for_model_use": True,
+            "safe_to_use_for_scoring_claims": False,
+        }
+    )
+    return case
+
+
+def _public_case_control(
+    *,
+    category: str,
+    assertion_level: str,
+    mode: str,
+    wallet: str,
+    market: str,
+    event: str,
+    raw_side: str,
+    raw_outcome: str,
+    raw_price: str,
+    source_urls: Sequence[str],
+    source_titles: Sequence[str],
+    source_dates: Sequence[str],
+    expected_behavior: str,
+    forbidden_interpretation: str,
+    source_note: str,
+    public_knowledge_timing: Mapping[str, object],
+    catalyst_timing: Mapping[str, object],
+    false_positive_notes: Sequence[str],
+    evidence_quality: str,
+) -> dict[str, object]:
+    case = _make_case(
+        case_id=f"known-{category}",
+        category=category,
+        source_type="public_enforcement_source" if "enforcement" in category else "public_source_metadata",
+        source_path="docs/inspoly_public_case_benchmark_labeling_20260526.md",
+        mode=mode,
+        wallet=wallet,
+        market=market,
+        event=event,
+        trade_key=f"public|{category}|{raw_side}|{raw_outcome}|{raw_price}",
+        raw_side=raw_side,
+        raw_outcome=raw_outcome,
+        raw_price=raw_price,
+        expected_phase2_effect=f"{category}_public_metadata_only",
+        expected_phase4_effect="unchanged_long_yes",
+        phase3_status="not_applicable",
+        sensitive_context=category in {
+            "public_maduro_enforcement_named_user_control",
+            "public_maduro_pre_charge_market_timing_control",
+            "public_iran_military_cluster_pattern_control",
+            "public_zachxbt_axiom_pattern_control",
+        },
+        notes=expected_behavior,
+        provenance_quality=f"{evidence_quality}_compact_metadata",
+        assertion_type="public_case_control",
+        assertion_level=assertion_level,
+        expected_behavior=expected_behavior,
+        forbidden_interpretation=forbidden_interpretation,
+        false_positive_notes=false_positive_notes,
+        source_note=source_note,
+        source_urls=source_urls,
+        source_titles=source_titles,
+        source_dates=source_dates,
+        evidence_quality=evidence_quality,
+        public_knowledge_timing=public_knowledge_timing,
+        catalyst_timing=catalyst_timing,
+        requires_fresh_validation=True,
+    )
+    case["expected_result"].update(
+        {
+            "automatic_action_allowed": False,
+            "exact_wallet_detection_allowed": False,
+            "false_positive_control": category == "public_trump_whale_high_volume_control",
+            "public_case_control": True,
             "requires_fresh_validation_for_model_use": True,
             "safe_to_use_for_scoring_claims": False,
         }
@@ -762,13 +1123,23 @@ def _make_case(
     derived_from_artifact: str = "",
     quality_notes: Sequence[str] | None = None,
     assertion_type: str = "side_outcome_contract",
+    assertion_level: str | None = None,
+    evidence_quality: str | None = None,
     expected_behavior: str = "Preserve current side/outcome normalization and keep this fixture sidecar-only.",
     forbidden_interpretation: str = "Do not use this benchmark case to change scoring, gates, labels, routing, or production runtime behavior.",
     false_positive_notes: Sequence[str] | None = None,
+    source_urls: Sequence[str] | None = None,
+    source_titles: Sequence[str] | None = None,
+    source_dates: Sequence[str] | None = None,
+    public_knowledge_timing: Mapping[str, object] | None = None,
+    catalyst_timing: Mapping[str, object] | None = None,
+    requires_fresh_validation: bool | None = None,
     source_note: str = "",
 ) -> dict[str, object]:
     normalized = normalize_side_outcome(raw_side, raw_outcome, raw_price)
     cluster = normalize_cluster_direction(raw_side, raw_outcome, raw_price)
+    resolved_assertion_level = assertion_level or _default_assertion_level(source_type, assertion_type)
+    resolved_requires_fresh_validation = bool(requires_fresh_validation) if requires_fresh_validation is not None else _is_advisory_type(assertion_type)
     return {
         "case_id": case_id,
         "category": category,
@@ -798,9 +1169,17 @@ def _make_case(
             "direct_gate_mutation_allowed": False,
         },
         "assertion_type": assertion_type,
+        "assertion_level": resolved_assertion_level,
+        "evidence_quality": evidence_quality or provenance_quality,
         "expected_behavior": expected_behavior,
         "forbidden_interpretation": forbidden_interpretation,
         "false_positive_notes": list(false_positive_notes or []),
+        "source_urls": list(source_urls or []),
+        "source_titles": list(source_titles or []),
+        "source_dates": list(source_dates or []),
+        "public_knowledge_timing": dict(public_knowledge_timing or {"status": "not_applicable"}),
+        "catalyst_timing": dict(catalyst_timing or {"status": "not_applicable"}),
+        "requires_fresh_validation": resolved_requires_fresh_validation,
         "source_note": source_note,
         "notes": notes,
         "quality_notes": list(quality_notes or []),
@@ -815,6 +1194,22 @@ def _ensure_case(case: Mapping[str, object]) -> dict[str, object]:
             ensured.setdefault(field, False)
         elif field == "false_positive_notes":
             ensured.setdefault(field, [])
+        elif field in {"source_urls", "source_titles", "source_dates"}:
+            ensured.setdefault(field, [])
+        elif field in {"public_knowledge_timing", "catalyst_timing"}:
+            ensured.setdefault(field, {"status": "not_applicable"})
+        elif field == "requires_fresh_validation":
+            ensured.setdefault(field, _is_advisory_type(str(ensured.get("assertion_type") or "")))
+        elif field == "assertion_level":
+            ensured.setdefault(
+                field,
+                _default_assertion_level(
+                    str(ensured.get("source_type") or ""),
+                    str(ensured.get("assertion_type") or ""),
+                ),
+            )
+        elif field == "evidence_quality":
+            ensured.setdefault(field, ensured.get("provenance_quality", "unknown"))
         else:
             ensured.setdefault(field, "")
     return ensured
@@ -907,7 +1302,25 @@ def _first_text(*values: object) -> str:
 
 def _is_advisory_control(case: Mapping[str, object]) -> bool:
     assertion_type = str(case.get("assertion_type") or "")
-    return assertion_type in {"false_positive_control", "sidecar_context_control"}
+    return _is_advisory_type(assertion_type)
+
+
+def _is_advisory_type(assertion_type: str) -> bool:
+    return assertion_type in {"false_positive_control", "public_case_control", "sidecar_context_control"}
+
+
+def _default_assertion_level(source_type: str, assertion_type: str) -> str:
+    if assertion_type == "public_case_control":
+        return "pattern_level_only"
+    if assertion_type == "sidecar_context_control":
+        return "sidecar_context_only"
+    if source_type == "synthetic_fixture":
+        return "synthetic_control"
+    if source_type in {"generated_audit_evidence", "real_local_artifact", "review_packet"}:
+        return "local_artifact_supported"
+    if source_type == "false_positive_library":
+        return "local_artifact_supported"
+    return "pattern_level_only"
 
 
 def _decimal_or_unknown(value: object) -> str:

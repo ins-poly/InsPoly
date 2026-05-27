@@ -27,7 +27,7 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
         self.assertEqual(errors, [])
         categories = {case["category"] for case in payload["cases"]}
         self.assertEqual(set(REQUIRED_CATEGORIES) - categories, set())
-        self.assertEqual(payload["schemaVersion"], "known_case_benchmark_v2")
+        self.assertEqual(payload["schemaVersion"], "known_case_benchmark_v3")
 
     def test_curation_tool_runs_offline_and_marks_synthetic_cases(self) -> None:
         corpus = curate_known_case_benchmark(ROOT)
@@ -68,8 +68,9 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
         self.assertEqual(report["gateDecision"], "known_case_corpus_ready")
         self.assertEqual(report["summary"]["failCount"], 0)
         self.assertEqual(report["summary"]["caseCount"], len(REQUIRED_CATEGORIES))
-        self.assertEqual(report["summary"]["falsePositiveControlCaseCount"], 4)
-        self.assertEqual(report["summary"]["advisoryOnlyCaseCount"], 8)
+        self.assertEqual(report["summary"]["falsePositiveControlCaseCount"], 5)
+        self.assertEqual(report["summary"]["publicCaseControlCaseCount"], 6)
+        self.assertEqual(report["summary"]["advisoryOnlyCaseCount"], 14)
 
     def test_buy_sell_economic_probability_expectations(self) -> None:
         report = run_known_case_benchmark(CORPUS)
@@ -129,6 +130,7 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
             self.assertFalse(expected["direct_gate_mutation_allowed"])
             self.assertTrue(expected["false_positive_control"])
             self.assertTrue(expected["requires_fresh_validation_for_model_use"])
+            self.assertTrue(case["requires_fresh_validation"])
             self.assertTrue(case["forbidden_interpretation"])
             self.assertGreater(len(case["false_positive_notes"]), 0)
 
@@ -154,14 +156,82 @@ class KnownCaseBenchmarkTests(unittest.TestCase):
             self.assertFalse(expected["automatic_action_allowed"])
             self.assertFalse(expected["safe_to_use_for_scoring_claims"])
             self.assertTrue(expected["requires_fresh_validation_for_model_use"])
+            self.assertTrue(case["requires_fresh_validation"])
             self.assertIn("Do not", case["forbidden_interpretation"])
+
+    def test_public_cases_have_source_metadata_and_assertion_levels(self) -> None:
+        payload = json.loads(CORPUS.read_text(encoding="utf-8"))
+        controls = [
+            case
+            for case in payload["cases"]
+            if case.get("assertion_type") == "public_case_control"
+        ]
+
+        self.assertEqual(
+            {case["category"] for case in controls},
+            {
+                "public_maduro_enforcement_named_user_control",
+                "public_maduro_pre_charge_market_timing_control",
+                "public_iran_military_cluster_pattern_control",
+                "public_zachxbt_axiom_pattern_control",
+                "public_google_year_in_search_retrospective_control",
+                "public_trump_whale_high_volume_control",
+            },
+        )
+        self.assertEqual(len(controls), 6)
+        self.assertEqual(
+            {case["assertion_level"] for case in controls},
+            {"market_level_only", "named_user_only", "pattern_level_only"},
+        )
+        for case in controls:
+            self.assertGreater(len(case["source_urls"]), 0)
+            self.assertEqual(len(case["source_urls"]), len(case["source_titles"]))
+            self.assertEqual(len(case["source_urls"]), len(case["source_dates"]))
+            self.assertTrue(case["source_note"])
+            self.assertTrue(case["evidence_quality"])
+            self.assertTrue(case["requires_fresh_validation"])
+            self.assertEqual(case["expected_result"]["public_case_control"], True)
+            self.assertFalse(case["expected_result"]["exact_wallet_detection_allowed"])
+            self.assertFalse(case["expected_result"]["automatic_action_allowed"])
+
+    def test_pattern_level_public_cases_cannot_assert_exact_wallet_detection(self) -> None:
+        payload = json.loads(CORPUS.read_text(encoding="utf-8"))
+        pattern_cases = [
+            case
+            for case in payload["cases"]
+            if case.get("assertion_type") == "public_case_control"
+            and case.get("assertion_level") == "pattern_level_only"
+        ]
+
+        self.assertGreater(len(pattern_cases), 0)
+        for case in pattern_cases:
+            self.assertEqual(case["wallet"], "pattern-level")
+            self.assertFalse(case["expected_result"]["exact_wallet_detection_allowed"])
+
+    def test_exact_wallet_public_cases_require_explicit_identity(self) -> None:
+        payload = json.loads(CORPUS.read_text(encoding="utf-8"))
+        template = next(
+            case
+            for case in payload["cases"]
+            if case.get("assertion_type") == "public_case_control"
+        )
+        bad = dict(template)
+        bad["case_id"] = "bad-exact-wallet-public-case"
+        bad["assertion_level"] = "exact_wallet_supported"
+        bad["wallet"] = "unknown"
+        copied = dict(payload)
+        copied["cases"] = [bad]
+
+        errors = validate_known_case_corpus(copied)
+
+        self.assertTrue(any("exact-wallet case requires explicit wallet" in error for error in errors))
 
     def test_no_duplicate_case_ids_and_fixture_remains_compact(self) -> None:
         payload = json.loads(CORPUS.read_text(encoding="utf-8"))
         case_ids = [case["case_id"] for case in payload["cases"]]
 
         self.assertEqual(len(case_ids), len(set(case_ids)))
-        self.assertLess(CORPUS.stat().st_size, 80_000)
+        self.assertLess(CORPUS.stat().st_size, 130_000)
 
     def test_run_cli_writes_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

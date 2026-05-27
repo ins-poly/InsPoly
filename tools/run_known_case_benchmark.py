@@ -90,7 +90,9 @@ def evaluate_known_case(case: Mapping[str, object]) -> dict[str, object]:
             "model_probability": primary.get("model_probability", UNKNOWN),
             "cluster_direction": primary.get("cluster_direction", UNKNOWN),
             "automatic_action_allowed": False,
+            "exact_wallet_detection_allowed": False,
             "false_positive_control": bool(expected.get("false_positive_control", False)),
+            "public_case_control": bool(expected.get("public_case_control", False)),
             "phase3_runtime_allowed": False,
             "direct_gate_mutation_allowed": False,
             "safe_to_use_for_scoring_claims": False,
@@ -172,6 +174,7 @@ def _summarize(case_results: Sequence[Mapping[str, object]], schema_errors: Sequ
         "phase3BlockedCaseCount": sum(1 for row in case_results if "phase3" in str(row.get("category") or "")),
         "advisoryOnlyCaseCount": sum(1 for row in case_results if _is_advisory_result(row)),
         "falsePositiveControlCaseCount": sum(1 for row in case_results if _mapping(row.get("observed")).get("false_positive_control") is True),
+        "publicCaseControlCaseCount": sum(1 for row in case_results if _mapping(row.get("observed")).get("public_case_control") is True),
         "syntheticCaseCount": source_types.get("synthetic_fixture", 0),
         "realOrDerivedCaseCount": len(case_results) - source_types.get("synthetic_fixture", 0),
     }
@@ -196,17 +199,28 @@ def _sidecar_contract_errors(case: Mapping[str, object], expected: Mapping[str, 
         errors.append("automatic_action_allowed")
     if expected.get("safe_to_use_for_scoring_claims", False) is not False:
         errors.append("safe_to_use_for_scoring_claims")
-    if assertion_type in {"false_positive_control", "sidecar_context_control"}:
+    if assertion_type in {"false_positive_control", "public_case_control", "sidecar_context_control"}:
         if not str(case.get("forbidden_interpretation") or "").strip():
             errors.append("missing_forbidden_interpretation")
         if expected.get("requires_fresh_validation_for_model_use") is not True:
             errors.append("fresh_validation_not_required_for_advisory_control")
+        if case.get("requires_fresh_validation") is not True:
+            errors.append("top_level_fresh_validation_not_required")
+        if expected.get("exact_wallet_detection_allowed") is not False:
+            errors.append("exact_wallet_detection_allowed")
     if assertion_type == "false_positive_control":
         if expected.get("false_positive_control") is not True:
             errors.append("false_positive_control_not_marked")
         notes = case.get("false_positive_notes")
         if not isinstance(notes, list) or not notes:
             errors.append("false_positive_notes_missing")
+    if assertion_type == "public_case_control":
+        if expected.get("public_case_control") is not True:
+            errors.append("public_case_control_not_marked")
+        if not isinstance(case.get("source_urls"), list) or not case.get("source_urls"):
+            errors.append("public_source_urls_missing")
+        if str(case.get("assertion_level") or "") == "pattern_level_only" and str(case.get("wallet") or "") != "pattern-level":
+            errors.append("pattern_level_wallet_assertion")
     return errors
 
 
@@ -214,6 +228,7 @@ def _is_advisory_result(row: Mapping[str, object]) -> bool:
     observed = _mapping(row.get("observed"))
     return (
         observed.get("false_positive_control") is True
+        or observed.get("public_case_control") is True
         or str(row.get("category") or "")
         in {
             "true_low_probability_later_winner",
