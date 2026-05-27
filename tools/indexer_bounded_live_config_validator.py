@@ -22,6 +22,9 @@ HARD_LIMITS = {
     "maxRows": 50000,
     "timeoutSeconds": 1800,
 }
+OPTIONAL_LIMITS = {
+    "maxPublicTradesPerTarget": 50000,
+}
 
 TARGET_KEYS = ("marketSlugs", "conditionIds", "eventSlugs", "tokenIds")
 ALLOWED_DATA_TYPES = {
@@ -243,6 +246,52 @@ def _check_limits(
     max_markets = normalized_limits.get("maxMarkets")
     if max_markets is not None and target_count > max_markets:
         checks.append(_check("limits.maxMarkets", "error", "Target count exceeds configured maxMarkets."))
+    _check_optional_public_trade_limits(limits, checks, normalized, normalized_limits)
+
+
+def _check_optional_public_trade_limits(
+    limits: Mapping[str, object],
+    checks: list[dict[str, object]],
+    normalized: dict[str, object],
+    normalized_limits: Mapping[str, int],
+) -> None:
+    raw_value = limits.get("maxPublicTradesPerTarget")
+    normalized["maxPublicTradesPerTarget"] = None
+    if raw_value is None:
+        return
+    value = _int_value(raw_value)
+    if value is None:
+        checks.append(_check("limits.maxPublicTradesPerTarget", "error", "maxPublicTradesPerTarget must be an integer when present."))
+        return
+    normalized["maxPublicTradesPerTarget"] = value
+    hard_cap = OPTIONAL_LIMITS["maxPublicTradesPerTarget"]
+    if value <= 0:
+        checks.append(_check("limits.maxPublicTradesPerTarget", "error", "maxPublicTradesPerTarget must be positive when present."))
+        return
+    if value > hard_cap:
+        checks.append(_check("limits.maxPublicTradesPerTarget", "error", f"maxPublicTradesPerTarget exceeds hard cap {hard_cap}."))
+        return
+    target_count = int(normalized.get("targetCount") or 0)
+    max_rows = normalized_limits.get("maxRows")
+    if max_rows is not None and target_count > 1:
+        market_row_budget = target_count
+        trade_budget = max_rows - market_row_budget
+        requested_trade_budget = value * target_count
+        if requested_trade_budget > trade_budget:
+            checks.append(
+                _check(
+                    "limits.maxPublicTradesPerTarget",
+                    "error",
+                    "Per-target public-trade budget must fit inside maxRows after one market row per target.",
+                    {
+                        "targetCount": target_count,
+                        "requestedTradeBudget": requested_trade_budget,
+                        "availableTradeBudget": trade_budget,
+                    },
+                )
+            )
+            return
+    checks.append(_check("limits.maxPublicTradesPerTarget", "ok", "Per-target public-trade cap fits inside aggregate safety limits."))
 
 
 def _check_output_path(

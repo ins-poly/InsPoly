@@ -48,6 +48,53 @@ class IndexerBoundedLiveConfigValidatorTests(unittest.TestCase):
         self.assertEqual(report["summary"]["gateDecision"], GATE_BLOCKED)
         self.assertIn("limits.maxRows", _error_names(report))
 
+    def test_per_target_public_trade_cap_must_fit_aggregate_budget(self) -> None:
+        config = _valid_config()
+        config["targets"] = {"marketSlugs": ["market-a", "market-b", "market-c"]}
+        config["limits"] = {
+            "maxMarkets": 3,
+            "maxPages": 2,
+            "maxRows": 100,
+            "timeoutSeconds": 120,
+            "maxPublicTradesPerTarget": 40,
+        }
+
+        report = validate_bounded_live_config(config)
+
+        self.assertEqual(report["summary"]["gateDecision"], GATE_BLOCKED)
+        self.assertIn("limits.maxPublicTradesPerTarget", _error_names(report))
+
+    def test_valid_per_target_public_trade_cap_is_recorded(self) -> None:
+        config = _valid_config()
+        config["targets"] = {"marketSlugs": ["market-a", "market-b", "market-c"]}
+        config["limits"] = {
+            "maxMarkets": 3,
+            "maxPages": 2,
+            "maxRows": 183,
+            "timeoutSeconds": 120,
+            "maxPublicTradesPerTarget": 60,
+        }
+
+        report = validate_bounded_live_config(config)
+
+        self.assertEqual(report["summary"]["gateDecision"], GATE_VALID)
+        self.assertEqual(report["normalized"]["maxPublicTradesPerTarget"], 60)
+
+    def test_old_single_target_config_remains_valid_without_per_target_cap(self) -> None:
+        config = _valid_config()
+        config["targets"] = {"marketSlugs": ["market-a"]}
+        config["limits"] = {
+            "maxMarkets": 1,
+            "maxPages": 1,
+            "maxRows": 20,
+            "timeoutSeconds": 120,
+        }
+
+        report = validate_bounded_live_config(config)
+
+        self.assertEqual(report["summary"]["gateDecision"], GATE_VALID)
+        self.assertIsNone(report["normalized"]["maxPublicTradesPerTarget"])
+
     def test_auth_or_trading_fields_are_forbidden_even_when_nested(self) -> None:
         config = _valid_config()
         config["clob"] = {"apiKey": "secret", "placeOrder": False}

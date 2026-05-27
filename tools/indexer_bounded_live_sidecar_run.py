@@ -197,12 +197,28 @@ def run_bounded_live_sidecar(
             updated_at=timestamp,
         )
 
-        trade_rows, trade_warnings, malformed_trades = _fetch_public_trade_rows(
-            condition_ids=condition_ids,
-            max_pages=limits["maxPages"],
-            max_rows=limits["maxRows"] - len(market_entries),
-            trade_fetcher=trade_fetcher or _default_trade_fetcher,
-        )
+        per_target_trade_limit = int(limits.get("maxPublicTradesPerTarget", 0))
+        aggregate_trade_budget = limits["maxRows"] - len(market_entries)
+        fetch_details: list[dict[str, object]] = []
+        collection_policy = "aggregate_condition_filter"
+        if len(condition_ids) > 1 and per_target_trade_limit > 0:
+            collection_policy = "per_target_public_trade_cap"
+            trade_rows, trade_warnings, malformed_trades, fetch_details = _fetch_public_trade_rows_per_target(
+                condition_ids=condition_ids,
+                condition_to_target=condition_to_target,
+                target_results=target_results,
+                max_pages=limits["maxPages"],
+                max_rows=aggregate_trade_budget,
+                per_target_limit=per_target_trade_limit,
+                trade_fetcher=trade_fetcher or _default_trade_fetcher,
+            )
+        else:
+            trade_rows, trade_warnings, malformed_trades = _fetch_public_trade_rows(
+                condition_ids=condition_ids,
+                max_pages=limits["maxPages"],
+                max_rows=aggregate_trade_budget,
+                trade_fetcher=trade_fetcher or _default_trade_fetcher,
+            )
         malformed["tradesNonMapping"] = malformed_trades
         report["warnings"].extend(trade_warnings)
 
@@ -224,6 +240,9 @@ def run_bounded_live_sidecar(
             market_row_count=len(market_entries),
             stored_trades=stored_trades,
             trade_counts_by_condition=trade_counts_by_condition,
+            collection_policy=collection_policy,
+            per_target_trade_limit=per_target_trade_limit,
+            fetch_details=fetch_details,
         )
         if public_trade_collection["mayUnderrepresentTargets"]:
             report["warnings"].append(
@@ -444,18 +463,26 @@ def _narrow_limit_error(config: Mapping[str, object]) -> str:
     for key, cap in NARROW_LIMITS.items():
         if limits[key] > cap:
             return f"{key}={limits[key]} exceeds campaign cap {cap}."
+    per_target_trade_limit = limits.get("maxPublicTradesPerTarget", 0)
+    if per_target_trade_limit < 0:
+        return "maxPublicTradesPerTarget must not be negative."
+    if per_target_trade_limit > NARROW_LIMITS["maxRows"]:
+        return f"maxPublicTradesPerTarget={per_target_trade_limit} exceeds campaign maxRows cap {NARROW_LIMITS['maxRows']}."
     return ""
 
 
 def _limits(config: Mapping[str, object]) -> dict[str, int]:
     limits = config.get("limits")
     if not isinstance(limits, Mapping):
-        return dict(NARROW_LIMITS)
+        payload = dict(NARROW_LIMITS)
+        payload["maxPublicTradesPerTarget"] = 0
+        return payload
     return {
         "maxMarkets": _int(limits.get("maxMarkets"), NARROW_LIMITS["maxMarkets"]),
         "maxPages": _int(limits.get("maxPages"), NARROW_LIMITS["maxPages"]),
         "maxRows": _int(limits.get("maxRows"), NARROW_LIMITS["maxRows"]),
         "timeoutSeconds": _int(limits.get("timeoutSeconds"), NARROW_LIMITS["timeoutSeconds"]),
+        "maxPublicTradesPerTarget": _int(limits.get("maxPublicTradesPerTarget"), 0),
     }
 
 
@@ -551,6 +578,85 @@ def _fetch_public_trade_rows(
     return rows, warnings, malformed
 
 
+def _fetch_public_trade_rows_per_target(
+    *,
+    condition_ids: Sequence[str],
+    condition_to_target: Mapping[str, int],
+    target_results: Sequence[Mapping[str, object]],
+    max_pages: int,
+    max_rows: int,
+    per_target_limit: int,
+    trade_fetcher: TradeFetcher,
+) -> tuple[list[dict[str, object]], list[str], int, list[dict[str, object]]]:
+    rows: list[dict[str, object]] = []
+    warnings: list[str] = []
+    malformed = 0
+    fetch_details: list[dict[str, object]] = []
+    remaining = max(0, max_rows)
+    for condition_id in condition_ids:
+        target_index = condition_to_target.get(condition_id)
+        target_slug = _target_slug(target_results, target_index)
+        if remaining <= 0:
+            warnings.append(f"Aggregate public-trade cap exhausted before fetching target {target_slug or condition_id}.")
+            fetch_details.append(
+                {
+                    "conditionId": condition_id,
+                    "targetSlug": target_slug,
+                    "requestedLimit": 0,
+                    "fetchedRows": 0,
+                    "acceptedRows": 0,
+                    "filterMismatchRows": 0,
+                    "missingConditionRows": 0,
+                    "aggregateRowsRemainingAfter": 0,
+                    "skippedReason": "aggregate_cap_exhausted",
+                }
+            )
+            continue
+        target_limit = min(per_target_limit, remaining)
+        fetched_rows, target_warnings, target_malformed = _fetch_public_trade_rows(
+            condition_ids=[condition_id],
+            max_pages=max_pages,
+            max_rows=target_limit,
+            trade_fetcher=trade_fetcher,
+        )
+        malformed += target_malformed
+        warnings.extend(f"{target_slug or condition_id}: {warning}" for warning in target_warnings)
+        accepted_rows: list[dict[str, object]] = []
+        filter_mismatches = 0
+        missing_condition = 0
+        for row in fetched_rows:
+            row_condition = _payload_condition_id(row)
+            if not row_condition:
+                missing_condition += 1
+                continue
+            if row_condition != condition_id:
+                filter_mismatches += 1
+                continue
+            accepted_rows.append(row)
+        if missing_condition:
+            warnings.append(f"{target_slug or condition_id}: {missing_condition} public trade rows lacked condition identity and were not stored.")
+        if filter_mismatches:
+            warnings.append(
+                f"{target_slug or condition_id}: {filter_mismatches} public trade rows did not match the requested condition and were not stored."
+            )
+        rows.extend(accepted_rows)
+        remaining -= len(accepted_rows)
+        fetch_details.append(
+            {
+                "conditionId": condition_id,
+                "targetSlug": target_slug,
+                "requestedLimit": target_limit,
+                "fetchedRows": len(fetched_rows),
+                "acceptedRows": len(accepted_rows),
+                "filterMismatchRows": filter_mismatches,
+                "missingConditionRows": missing_condition,
+                "aggregateRowsRemainingAfter": remaining,
+                "skippedReason": "",
+            }
+        )
+    return rows, warnings, malformed, fetch_details
+
+
 def _public_trade_collection_summary(
     *,
     condition_ids: Sequence[str],
@@ -560,11 +666,22 @@ def _public_trade_collection_summary(
     market_row_count: int,
     stored_trades: int,
     trade_counts_by_condition: Mapping[str, int],
+    collection_policy: str = "aggregate_condition_filter",
+    per_target_trade_limit: int = 0,
+    fetch_details: Sequence[Mapping[str, object]] = (),
 ) -> dict[str, object]:
     max_rows_after_markets = max(0, int(limits["maxRows"]) - market_row_count)
-    page_size = min(100, max_rows_after_markets) if max_rows_after_markets else 0
-    effective_fetch_cap = min(max_rows_after_markets, page_size * int(limits["maxPages"])) if page_size else 0
+    aggregate_mode = collection_policy == "aggregate_condition_filter"
+    if aggregate_mode:
+        page_size = min(100, max_rows_after_markets) if max_rows_after_markets else 0
+        effective_fetch_cap = min(max_rows_after_markets, page_size * int(limits["maxPages"])) if page_size else 0
+        condition_filter_mode = "comma_separated_condition_ids"
+    else:
+        page_size = min(100, per_target_trade_limit) if per_target_trade_limit else 0
+        effective_fetch_cap = min(max_rows_after_markets, per_target_trade_limit * len(condition_ids))
+        condition_filter_mode = "single_condition_per_request"
     per_condition: list[dict[str, object]] = []
+    rows_by_target: dict[str, int] = {}
     targets_without_trades: list[str] = []
     uncovered_conditions: list[str] = []
     for condition_id in condition_ids:
@@ -577,6 +694,8 @@ def _public_trade_collection_summary(
             uncovered_conditions.append(condition_id)
             if target_slug:
                 targets_without_trades.append(target_slug)
+        if target_slug:
+            rows_by_target[target_slug] = rows
         per_condition.append(
             {
                 "conditionId": condition_id,
@@ -585,23 +704,45 @@ def _public_trade_collection_summary(
             }
         )
     cap_reached = bool(effective_fetch_cap and stored_trades >= effective_fetch_cap)
-    may_underrepresent = bool(len(condition_ids) > 1 and (uncovered_conditions or cap_reached))
+    may_underrepresent = bool(aggregate_mode and len(condition_ids) > 1 and (uncovered_conditions or cap_reached))
+    target_starvation_warnings = _target_starvation_warnings(
+        collection_policy=collection_policy,
+        targets_without_trades=targets_without_trades,
+        fetch_details=fetch_details,
+        cap_reached=cap_reached,
+    )
+    cap_exhaustion_warnings = _cap_exhaustion_warnings(
+        collection_policy=collection_policy,
+        fetch_details=fetch_details,
+        cap_reached=cap_reached,
+        per_target_trade_limit=per_target_trade_limit,
+        stored_trades=stored_trades,
+        effective_fetch_cap=effective_fetch_cap,
+    )
     return {
-        "mode": "aggregate_condition_filter",
-        "marketFilter": "comma_separated_condition_ids",
+        "mode": collection_policy,
+        "collectionPolicy": collection_policy,
+        "marketFilter": condition_filter_mode,
+        "conditionFilterMode": condition_filter_mode,
         "cursorIdentity": "aggregate_public_trades",
         "perTargetCursorRows": False,
-        "perTargetTradeCapConfigured": False,
+        "perTargetTradeCapConfigured": per_target_trade_limit > 0,
+        "perTargetPublicTradeLimit": per_target_trade_limit or None,
+        "aggregatePublicTradeLimit": max_rows_after_markets,
         "conditionCount": len(condition_ids),
         "maxRowsAfterMarketRows": max_rows_after_markets,
         "maxPages": int(limits["maxPages"]),
         "pageSize": page_size,
         "effectiveFetchCap": effective_fetch_cap,
         "storedTradeRows": stored_trades,
+        "rowsByTarget": rows_by_target,
         "capReached": cap_reached,
+        "capExhaustionWarnings": cap_exhaustion_warnings,
         "perConditionStoredRows": per_condition,
+        "perTargetFetches": [dict(item) for item in fetch_details],
         "uncoveredConditionIds": uncovered_conditions,
         "targetsWithoutTrades": targets_without_trades,
+        "targetStarvationWarnings": target_starvation_warnings,
         "mayUnderrepresentTargets": may_underrepresent,
         "recommendedHardening": (
             "add_per_target_or_per_condition_trade_collection_before_warehouse_rfc"
@@ -609,6 +750,62 @@ def _public_trade_collection_summary(
             else "current_collection_sufficient_for_bounded_probe"
         ),
     }
+
+
+def _target_starvation_warnings(
+    *,
+    collection_policy: str,
+    targets_without_trades: Sequence[str],
+    fetch_details: Sequence[Mapping[str, object]],
+    cap_reached: bool,
+) -> list[str]:
+    if collection_policy == "aggregate_condition_filter" and targets_without_trades and cap_reached:
+        return [f"aggregate_cap_may_have_starved:{slug}" for slug in targets_without_trades]
+    warnings: list[str] = []
+    for item in fetch_details:
+        if str(item.get("skippedReason") or "") == "aggregate_cap_exhausted":
+            target_slug = str(item.get("targetSlug") or item.get("conditionId") or "")
+            if target_slug:
+                warnings.append(f"aggregate_cap_exhausted_before_target:{target_slug}")
+    return warnings
+
+
+def _cap_exhaustion_warnings(
+    *,
+    collection_policy: str,
+    fetch_details: Sequence[Mapping[str, object]],
+    cap_reached: bool,
+    per_target_trade_limit: int,
+    stored_trades: int,
+    effective_fetch_cap: int,
+) -> list[str]:
+    warnings: list[str] = []
+    if cap_reached:
+        warnings.append(f"{collection_policy}:effective_fetch_cap_reached:{effective_fetch_cap}")
+    if collection_policy == "per_target_public_trade_cap":
+        for item in fetch_details:
+            accepted = int(item.get("acceptedRows") or 0)
+            requested = int(item.get("requestedLimit") or 0)
+            target_slug = str(item.get("targetSlug") or item.get("conditionId") or "")
+            if per_target_trade_limit and requested == per_target_trade_limit and accepted >= per_target_trade_limit:
+                warnings.append(f"per_target_cap_reached:{target_slug}:{per_target_trade_limit}")
+        if effective_fetch_cap and stored_trades >= effective_fetch_cap:
+            warnings.append("aggregate_safety_budget_exhausted")
+    return warnings
+
+
+def _target_slug(target_results: Sequence[Mapping[str, object]], target_index: int | None) -> str:
+    if target_index is None or target_index < 0 or target_index >= len(target_results):
+        return ""
+    return str(target_results[target_index].get("slug") or "")
+
+
+def _payload_condition_id(row: Mapping[str, object]) -> str:
+    for key in ("conditionId", "condition_id", "market"):
+        value = str(row.get(key) or "").strip()
+        if value:
+            return value
+    return ""
 
 
 def _default_trade_fetcher(params: Mapping[str, object]) -> object:

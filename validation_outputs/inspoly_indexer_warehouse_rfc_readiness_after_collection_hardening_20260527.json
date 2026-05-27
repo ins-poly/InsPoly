@@ -1,0 +1,45 @@
+{
+  "blockedImplementation": {
+    "backgroundWorker": true,
+    "clobAuthTrading": true,
+    "productionRuntimeIntegration": true,
+    "reportBrowserIntegration": true,
+    "savedReportMutation": true,
+    "scoringGateChanges": true,
+    "storageSchemaMigration": true,
+    "warehouseImplementation": true
+  },
+  "generatedAt": "2026-05-27T12:33:09Z",
+  "readinessAssessment": {
+    "firstWarehouseRfcScopeIfApproved": "sidecar_only_per_target_public_trade_collection_retention_and_cursor_design",
+    "liveSidecarCollectionRepeatableEnough": true,
+    "operatorControlsRequired": [
+      "explicit target registry or exact slug set",
+      "max target/page/row/time bounds",
+      "fresh output directory",
+      "per-target public-trade cap",
+      "aggregate maxRows safety guard",
+      "post-run readiness audit",
+      "post-run scoped compare",
+      "rollback by deleting sidecar output directory"
+    ],
+    "publicTradeCollectionRepresentativeEnough": true,
+    "runtimeIntegrationStillBlocked": true,
+    "schemaRetentionQuestionsRemain": true,
+    "scopedCompareStrongEnough": true,
+    "targetResolutionStableEnough": true,
+    "warehouseReadinessState": "warehouse_rfc_ready_no_implementation"
+  },
+  "reportType": "indexer_warehouse_rfc_readiness_after_collection_hardening",
+  "schemaVersion": "indexer_warehouse_rfc_readiness_after_collection_hardening_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "remainingBlockersBeforeImplementation": [
+      "warehouse_rfc_not_written",
+      "per_condition_cursor_design_not_chosen",
+      "retention_policy_not_chosen",
+      "production_integration_not_approved"
+    ],
+    "warehouseRfcReadinessState": "warehouse_rfc_ready_no_implementation"
+  }
+}

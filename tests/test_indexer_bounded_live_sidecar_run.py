@@ -179,6 +179,130 @@ class IndexerBoundedLiveSidecarRunTests(unittest.TestCase):
         self.assertEqual(collection["targetsWithoutTrades"], ["market-a", "market-b"])
         self.assertIn("some targets may be underrepresented", " ".join(report["warnings"]))
 
+    def test_multi_target_per_target_cap_distributes_public_trades(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
+                limits={
+                    "maxMarkets": 3,
+                    "maxPages": 1,
+                    "maxRows": 9,
+                    "timeoutSeconds": 120,
+                    "maxPublicTradesPerTarget": 2,
+                },
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                _market_payload("cond-b", "market-b"),
+                _market_payload("cond-c", "market-c"),
+            ]
+
+            def trade_fetcher(params: dict[str, object]) -> list[dict[str, object]]:
+                condition_id = str(params["market"])
+                return [
+                    _trade_payload(f"0xtx-{condition_id}-1", condition_id),
+                    _trade_payload(f"0xtx-{condition_id}-2", condition_id),
+                    _trade_payload(f"0xtx-{condition_id}-3", condition_id),
+                ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=trade_fetcher,
+            )
+
+        collection = report["summary"]["publicTradeCollection"]
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 6)
+        self.assertEqual(collection["collectionPolicy"], "per_target_public_trade_cap")
+        self.assertEqual(collection["perTargetPublicTradeLimit"], 2)
+        self.assertEqual(collection["aggregatePublicTradeLimit"], 6)
+        self.assertEqual(collection["rowsByTarget"], {"market-a": 2, "market-b": 2, "market-c": 2})
+        self.assertFalse(collection["targetStarvationWarnings"])
+        self.assertEqual([item["tradeRows"] for item in report["summary"]["targetResults"]], [2, 2, 2])
+
+    def test_per_target_policy_filters_provider_condition_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b"]},
+                limits={
+                    "maxMarkets": 2,
+                    "maxPages": 1,
+                    "maxRows": 6,
+                    "timeoutSeconds": 120,
+                    "maxPublicTradesPerTarget": 2,
+                },
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                _market_payload("cond-b", "market-b"),
+            ]
+
+            def trade_fetcher(params: dict[str, object]) -> list[dict[str, object]]:
+                condition_id = str(params["market"])
+                return [
+                    _trade_payload(f"0xtx-{condition_id}-ok", condition_id),
+                    _trade_payload(f"0xtx-{condition_id}-bad", "wrong-cond"),
+                ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=trade_fetcher,
+            )
+
+        collection = report["summary"]["publicTradeCollection"]
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 2)
+        self.assertEqual(collection["rowsByTarget"], {"market-a": 1, "market-b": 1})
+        self.assertIn("did not match the requested condition", " ".join(report["warnings"]))
+
+    def test_target_failure_does_not_consume_another_target_public_trade_cap(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = _write_config(
+                tmp,
+                targets={"marketSlugs": ["market-a", "market-b", "market-c"]},
+                limits={
+                    "maxMarkets": 3,
+                    "maxPages": 1,
+                    "maxRows": 9,
+                    "timeoutSeconds": 120,
+                    "maxPublicTradesPerTarget": 2,
+                },
+            )
+            client = Mock()
+            client.fetch_market_by_slug.side_effect = [
+                _market_payload("cond-a", "market-a"),
+                None,
+                _market_payload("cond-c", "market-c"),
+            ]
+            seen_conditions: list[str] = []
+
+            def trade_fetcher(params: dict[str, object]) -> list[dict[str, object]]:
+                condition_id = str(params["market"])
+                seen_conditions.append(condition_id)
+                return [
+                    _trade_payload(f"0xtx-{condition_id}-1", condition_id),
+                    _trade_payload(f"0xtx-{condition_id}-2", condition_id),
+                ]
+
+            report = run_bounded_live_sidecar(
+                config_path,
+                allow_live_network=True,
+                client=client,
+                trade_fetcher=trade_fetcher,
+            )
+
+        self.assertEqual(seen_conditions, ["cond-a", "cond-c"])
+        self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 4)
+        self.assertEqual(report["summary"]["targetsCompleted"], 2)
+        self.assertEqual(report["summary"]["targetsFailed"], 1)
+        self.assertEqual(report["summary"]["publicTradeCollection"]["rowsByTarget"], {"market-a": 2, "market-c": 2})
+
     def test_target_count_above_max_markets_stops_before_network(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             config_path = _write_config(
