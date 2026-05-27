@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-05-27T00:00:00+03:00",
+  "status": "completed",
+  "indexerWarehousePointer": {
+    "advisoryOnly": true,
+    "analystConfusionNote": "This pointer only locates sidecar warehouse artifacts. It is not a verdict, ranking input, or report metric.",
+    "artifactId": "example-indexer-warehouse-query-run",
+    "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+    "artifactType": "indexer_warehouse_query",
+    "generatedAt": "2026-05-27T00:00:00+03:00",
+    "liveRefresh": false,
+    "localOnlyWarning": "The referenced sidecar artifact may exist only on the local machine that generated it.",
+    "metricsCopied": false,
+    "pointerVersion": "indexer_warehouse_report_pointer_v1",
+    "qualityNotes": [
+      "static_example_only",
+      "not_runtime_wired",
+      "no_copied_metrics"
+    ],
+    "rawDbReadRequired": false,
+    "registryPath": "validation_outputs/inspoly_indexer_warehouse_registry_20260527.json",
+    "reportUiRequired": false,
+    "routingEffect": false,
+    "scoringEffect": false,
+    "sidecarOnly": true,
+    "sourceReportId": "example-report-id",
+    "staleDataWarning": "The referenced registry/query output is historical and does not refresh live data."
+  },
+  "cases": []
+}
