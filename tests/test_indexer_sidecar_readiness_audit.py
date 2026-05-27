@@ -96,8 +96,13 @@ class IndexerSidecarReadinessAuditTests(unittest.TestCase):
             self.assertEqual(before, db_path.stat().st_mtime_ns)
             self.assertEqual(report["schema"]["status"], "complete")
             self.assertEqual(report["summary"]["readinessGate"], "indexer_sidecar_readiness_ready_no_runtime")
+            self.assertTrue(report["summary"]["warehouseW0Ready"])
+            self.assertEqual(report["summary"]["tableContractStatus"], "complete")
+            self.assertEqual(report["summary"]["cursorContractStatus"], "ready")
+            self.assertEqual(report["summary"]["collectionMetadataStatus"], "external_summary_required")
             self.assertEqual(report["summary"]["tableCounts"]["indexed_trades"], 1)
             self.assertEqual(report["summary"]["malformedRawJsonCount"], 0)
+            self.assertEqual(report["warehouseW0"]["oldDbCompatibility"]["status"], "sidecar_readable_w0_limited")
 
     def test_stale_cursor_and_malformed_json_are_reported(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -128,8 +133,39 @@ class IndexerSidecarReadinessAuditTests(unittest.TestCase):
             )
 
             self.assertEqual(report["summary"]["readinessGate"], "indexer_sidecar_readiness_blocked_malformed_json")
+            self.assertFalse(report["summary"]["warehouseW0Ready"])
+            self.assertIn("malformed_raw_json_count:1", report["summary"]["warehouseW0BlockingReasons"])
             self.assertEqual(report["summary"]["staleCursorCount"], 1)
             self.assertEqual(report["malformedRawJson"]["indexed_markets.raw_json"], 1)
+
+    def test_warehouse_w0_blocks_missing_cursor_contract_without_changing_readiness_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "indexer.sqlite3"
+            storage = IndexerStorage(db_path)
+            storage.init()
+            storage.upsert_market(
+                IndexedMarket(
+                    condition_id="cond-a",
+                    slug="market-a",
+                    event_slug="event-a",
+                    question="Fixture?",
+                    active=True,
+                    closed=False,
+                    end_date="",
+                    raw={"source": "fixture"},
+                    updated_at="2026-05-27T08:00:00+00:00",
+                )
+            )
+
+            report = audit_indexer_sidecar_readiness(
+                db_path,
+                now=storage_time("2026-05-27T08:10:00+00:00"),
+            )
+
+            self.assertEqual(report["summary"]["readinessGate"], "indexer_sidecar_readiness_ready_no_runtime")
+            self.assertFalse(report["summary"]["warehouseW0Ready"])
+            self.assertEqual(report["summary"]["cursorContractStatus"], "missing_cursors")
+            self.assertIn("missing_indexer_cursors", report["summary"]["warehouseW0BlockingReasons"])
 
     def test_cli_writes_explicit_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

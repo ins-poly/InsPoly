@@ -11,6 +11,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from app.indexer.warehouse_contract import evaluate_warehouse_w0_contract
+
 
 REPORT_TYPE = "indexer_sidecar_readiness_audit"
 SCHEMA_VERSION = "indexer_sidecar_readiness_audit_v1"
@@ -55,7 +57,7 @@ def audit_indexer_sidecar_readiness(
         "runtimeImplementationAllowed": False,
     }
     if not path.exists():
-        return {
+        return _with_warehouse_w0({
             **base,
             "schema": _empty_schema("missing_db"),
             "summary": {
@@ -75,7 +77,7 @@ def audit_indexer_sidecar_readiness(
             "cursorHealth": [],
             "duplicateIndicators": {},
             "malformedRawJson": {},
-        }
+        })
 
     now = now or datetime.now(tz=UTC)
     try:
@@ -88,7 +90,7 @@ def audit_indexer_sidecar_readiness(
             malformed = _malformed_raw_json_counts(conn, tables)
             duplicates = _duplicate_indicators(conn, tables)
     except sqlite3.Error as exc:
-        return {
+        return _with_warehouse_w0({
             **base,
             "schema": _empty_schema("sqlite_open_error"),
             "summary": {
@@ -109,7 +111,7 @@ def audit_indexer_sidecar_readiness(
             "cursorHealth": [],
             "duplicateIndicators": {},
             "malformedRawJson": {},
-        }
+        })
 
     stale_count = sum(1 for item in cursor_health if item["isStale"])
     error_count = sum(1 for item in cursor_health if item["status"] not in {"ok", "idle"} or item["lastError"])
@@ -124,7 +126,7 @@ def audit_indexer_sidecar_readiness(
         malformed_raw_json_count=malformed_count,
         duplicate_indicator_count=duplicate_count,
     )
-    return {
+    return _with_warehouse_w0({
         **base,
         "schema": {
             "status": schema_status,
@@ -149,7 +151,7 @@ def audit_indexer_sidecar_readiness(
         "cursorHealth": cursor_health,
         "duplicateIndicators": duplicates,
         "malformedRawJson": malformed,
-    }
+    })
 
 
 def write_audit_output(report: Mapping[str, object], output_json: str | Path) -> Path:
@@ -157,6 +159,20 @@ def write_audit_output(report: Mapping[str, object], output_json: str | Path) ->
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return target
+
+
+def _with_warehouse_w0(report: dict[str, object]) -> dict[str, object]:
+    warehouse_w0 = evaluate_warehouse_w0_contract(report)
+    report["warehouseW0"] = warehouse_w0
+    summary = report.get("summary")
+    if isinstance(summary, dict):
+        summary["warehouseW0Ready"] = warehouse_w0["warehouseW0Ready"]
+        summary["warehouseW0BlockingReasons"] = warehouse_w0["warehouseW0BlockingReasons"]
+        summary["tableContractStatus"] = warehouse_w0["tableContractStatus"]["status"]
+        summary["cursorContractStatus"] = warehouse_w0["cursorContractStatus"]["status"]
+        summary["collectionMetadataStatus"] = warehouse_w0["collectionMetadataStatus"]["status"]
+        summary["retentionPolicyStatus"] = warehouse_w0["retentionPolicyStatus"]["status"]
+    return report
 
 
 def _connect_read_only(path: Path) -> sqlite3.Connection:

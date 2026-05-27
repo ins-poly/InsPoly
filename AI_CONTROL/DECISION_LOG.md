@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat warehouse W0 as ready for a future W1 manual-command approval/RFC, not a warehouse implementation.
+  - Why: W0 now has a pure sidecar contract helper, explicit W0 fields in the read-only readiness audit, tests for table/cursor/raw JSON/collection metadata/retention/no-network behavior, and docs/JSON describing W0 boundaries. Old sidecar DBs remain readable without migration, and collection metadata remains an external run-summary requirement rather than a forced schema change.
+  - Consequence: Current warehouse W0 gate is `indexer_warehouse_w0_ready_for_w1_manual_command_rfc`. A future W1 campaign may propose one manual local warehouse command, but warehouse writes, live ingestion, append-mode retention, production imports, report/browser integration, storage schema migration, scheduling/background mode, scoring/gate/funding/Phase 3 changes, CLOB auth/trading, push, and PR remain blocked pending separate approval.
+  - Reversal / revisit condition: If future W1 planning discovers that useful warehouse behavior requires production storage migration, report/browser wiring, live background operation, or auth/trading/external writes, downgrade to a blocked RFC gate and do not implement W1.
+
 - Decision: Treat indexer warehouse as RFC-ready for a future W0 cleanup campaign, not implementation-ready.
   - Why: The evidence chain now includes clean one-target and same-slug repeat runs, target/provider hardening, scoped compare support, repeatability over the same three-target set, and per-target public-trade collection with 60/60/60 target coverage, clean readiness, and latest scoped compare storage risk count 0.
   - Consequence: Current warehouse RFC gate is `indexer_warehouse_rfc_ready_for_future_w0_implementation`. A future W0 campaign may work on no-runtime schema/readiness cleanup and implementation-readiness contracts. Warehouse write commands, append-mode retention, scheduled/background mode, report/browser integration, storage schema migration, production imports, scoring/gate changes, CLOB auth/trading, push, and PR remain blocked.
