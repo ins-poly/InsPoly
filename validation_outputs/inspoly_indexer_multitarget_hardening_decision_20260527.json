@@ -1,0 +1,100 @@
+{
+  "blockedPaths": {
+    "backgroundWorker": true,
+    "clobAuthTrading": true,
+    "productionIntegration": true,
+    "reportUiIntegration": true,
+    "scoringGateChanges": true,
+    "storageSchemaChanges": true,
+    "warehouseMode": true
+  },
+  "finalGate": "indexer_multitarget_hardening_ready_for_repeat_operator_run",
+  "generatedAt": "2026-05-27T11:47:00+00:00",
+  "inputs": {
+    "previousMultitargetReport": "docs/inspoly_bounded_live_indexer_multitarget_probe_20260527.md",
+    "readinessAudit": "validation_outputs/inspoly_indexer_multitarget_repeat_db_audit_20260527.json",
+    "resolverPreflight": "validation_outputs/inspoly_indexer_target_resolver_preflight_20260527.json",
+    "scopedCompare": "validation_outputs/inspoly_indexer_multitarget_scoped_compare_20260527.json",
+    "targetHardening": "docs/inspoly_indexer_target_provider_hardening_20260527.md",
+    "targetRegistry": "docs/inspoly_indexer_probe_target_registry_20260527.md"
+  },
+  "networkUse": {
+    "approvedResolverPreflight": true,
+    "approvedSingleManualIngestionRun": true,
+    "broadDiscovery": false,
+    "repeatLoop": false
+  },
+  "readiness": {
+    "cursorErrorCount": 0,
+    "duplicateIndicatorCount": 0,
+    "malformedRawJsonCount": 0,
+    "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+    "schemaStatus": "complete",
+    "tableCounts": {
+      "indexed_markets": 3,
+      "indexed_trades": 200,
+      "indexer_cursors": 2,
+      "orderbook_snapshots": 0,
+      "score_history": 0,
+      "wallet_index_snapshots": 0
+    }
+  },
+  "reportType": "indexer_multitarget_hardening_decision",
+  "schemaVersion": "indexer_multitarget_hardening_decision_v1",
+  "scopedCompare": {
+    "classification": "provider_or_collection_sampling_drift_without_storage_identity_drift",
+    "gateDecision": "indexer_multitarget_scoped_compare_warn_provider_drift",
+    "marketIdentityDriftCount": 0,
+    "providerDriftCount": 6,
+    "storageRiskCount": 0,
+    "tradeIdentityDriftCount": 400
+  },
+  "sidecarOnly": true,
+  "summary": {
+    "didRepeatRunPassReadiness": true,
+    "didScopedCompareWork": true,
+    "didTargetHardeningSolveFailedSlugIssue": true,
+    "driftAcceptableForWarehouseRuntime": false,
+    "driftAcceptableForRepeatOperatorRun": true,
+    "finalGate": "indexer_multitarget_hardening_ready_for_repeat_operator_run",
+    "isFutureMoreTargetRunJustified": false,
+    "isFutureRepeatRunJustified": true,
+    "isStableThreeTargetSetAvailable": true,
+    "nextHighestLeverageStep": "operator_approved_repeat_same_three_target_set_or_per_target_trade_collection_hardening_before_warehouse_rfc",
+    "warehouseRuntimeIntegrationStillBlocked": true
+  },
+  "targetResolution": {
+    "failedSlug": {
+      "classification": "market_vs_event_ambiguity",
+      "marketCountWhenResolvedAsEvent": 15,
+      "slug": "us-x-iran-permanent-peace-deal-by"
+    },
+    "preflightGate": "indexer_target_resolver_preflight_selected_3_targets",
+    "replacementSelected": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+    "selectedMarketSlugs": [
+      "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "maduro-in-us-custody-by-january-31",
+      "khamenei-out-as-supreme-leader-of-iran-by-february-28"
+    ]
+  },
+  "targetResults": [
+    {
+      "marketRows": 1,
+      "slug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "status": "completed",
+      "tradeRows": 0
+    },
+    {
+      "marketRows": 1,
+      "slug": "maduro-in-us-custody-by-january-31",
+      "status": "completed",
+      "tradeRows": 0
+    },
+    {
+      "marketRows": 1,
+      "slug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+      "status": "completed",
+      "tradeRows": 200
+    }
+  ]
+}

@@ -47,6 +47,8 @@ def compare_indexer_sidecar_dbs(
     comparison_mode: str,
     trade_row_drift_tolerance_pct: float = 10.0,
     trade_row_drift_tolerance_abs: int = 25,
+    scope_market_slugs: Sequence[str] | None = None,
+    scope_condition_ids: Sequence[str] | None = None,
     now: datetime | None = None,
 ) -> dict[str, object]:
     """Compare two sidecar DBs without initializing or mutating either file."""
@@ -59,6 +61,9 @@ def compare_indexer_sidecar_dbs(
     candidate_path = Path(candidate_db)
     base_readiness = audit_indexer_sidecar_readiness(base_path, now=now)
     candidate_readiness = audit_indexer_sidecar_readiness(candidate_path, now=now)
+    scoped_market_slugs = tuple(str(item).strip() for item in (scope_market_slugs or ()) if str(item).strip())
+    scoped_condition_ids = tuple(str(item).strip() for item in (scope_condition_ids or ()) if str(item).strip())
+    scope_enabled = bool(scoped_market_slugs or scoped_condition_ids)
 
     report: dict[str, object] = {
         "reportType": REPORT_TYPE,
@@ -80,6 +85,11 @@ def compare_indexer_sidecar_dbs(
             "base": _readiness_summary(base_readiness),
             "candidate": _readiness_summary(candidate_readiness),
         },
+        "scope": _empty_scope_report(
+            enabled=scope_enabled,
+            market_slugs=scoped_market_slugs,
+            condition_ids=scoped_condition_ids,
+        ),
         "tableCounts": {},
         "cursorComparison": _empty_entity_comparison(),
         "marketComparison": _empty_entity_comparison(),
@@ -140,27 +150,52 @@ def compare_indexer_sidecar_dbs(
     try:
         with closing(_connect_read_only(base_path)) as base_conn:
             with closing(_connect_read_only(candidate_path)) as candidate_conn:
-                base_counts = _table_counts(base_conn)
-                candidate_counts = _table_counts(candidate_conn)
+                base_market_rows_all = _market_rows(base_conn)
+                candidate_market_rows_all = _market_rows(candidate_conn)
+                base_trade_rows_all = _trade_rows(base_conn)
+                candidate_trade_rows_all = _trade_rows(candidate_conn)
+                scope_report = _resolve_scope(
+                    base_market_rows_all,
+                    candidate_market_rows_all,
+                    market_slugs=scoped_market_slugs,
+                    condition_ids=scoped_condition_ids,
+                )
+                if scope_enabled:
+                    condition_scope = set(scope_report["resolvedConditionIds"])
+                    base_counts = _scoped_table_counts(base_conn, condition_scope)
+                    candidate_counts = _scoped_table_counts(candidate_conn, condition_scope)
+                    base_market_rows = _filter_markets_by_condition(base_market_rows_all, condition_scope)
+                    candidate_market_rows = _filter_markets_by_condition(candidate_market_rows_all, condition_scope)
+                    base_trade_rows = _filter_trades_by_condition(base_trade_rows_all, condition_scope)
+                    candidate_trade_rows = _filter_trades_by_condition(candidate_trade_rows_all, condition_scope)
+                    report["scope"] = scope_report
+                else:
+                    base_counts = _table_counts(base_conn)
+                    candidate_counts = _table_counts(candidate_conn)
+                    base_market_rows = base_market_rows_all
+                    candidate_market_rows = candidate_market_rows_all
+                    base_trade_rows = base_trade_rows_all
+                    candidate_trade_rows = candidate_trade_rows_all
                 table_comparison = _compare_table_counts(
                     base_counts,
                     candidate_counts,
                     comparison_mode=comparison_mode,
                 )
-                cursors = _compare_keyed(
+                cursors = _compare_cursors(
                     _cursor_rows(base_conn),
                     _cursor_rows(candidate_conn),
-                    exact_values=True,
+                    comparison_mode=comparison_mode,
+                    scoped=scope_enabled,
                 )
                 markets = _compare_keyed(
-                    _market_rows(base_conn),
-                    _market_rows(candidate_conn),
+                    base_market_rows,
+                    candidate_market_rows,
                     exact_values=comparison_mode in {MODE_SELF_COMPARE, MODE_IDEMPOTENT_REPLAY},
                     identity_fields=("conditionId", "slug", "eventSlug"),
                 )
                 trades = _compare_trades(
-                    _trade_rows(base_conn),
-                    _trade_rows(candidate_conn),
+                    base_trade_rows,
+                    candidate_trade_rows,
                     comparison_mode=comparison_mode,
                     tolerance_pct=trade_row_drift_tolerance_pct,
                     tolerance_abs=trade_row_drift_tolerance_abs,
@@ -186,6 +221,12 @@ def compare_indexer_sidecar_dbs(
 
     storage_risks: list[str] = []
     provider_drifts: list[str] = []
+    scope_detail = report.get("scope", {})
+    if isinstance(scope_detail, Mapping) and scope_detail.get("enabled"):
+        if scope_detail.get("missingMarketSlugs") or scope_detail.get("missingConditionIds"):
+            storage_risks.append("scoped_targets_missing")
+        if scope_detail.get("unsupportedCompareReason"):
+            storage_risks.append("scoped_compare_unsupported")
 
     drifted_tables = _drifted_tables(table_comparison)
     if table_comparison["driftCount"]:
@@ -196,8 +237,10 @@ def compare_indexer_sidecar_dbs(
 
     if cursors["missingKeyCount"] or cursors["addedKeyCount"]:
         storage_risks.append("cursor_key_set_mismatch")
+    if cursors.get("statusErrorChangedCount"):
+        storage_risks.append("cursor_status_or_error_mismatch")
     if cursors["valueChangedCount"]:
-        if comparison_mode == MODE_FRESH_LIVE:
+        if comparison_mode == MODE_FRESH_LIVE or scope_enabled:
             provider_drifts.append("cursor_value_drift_requires_operator_review")
         else:
             storage_risks.append("cursor_value_drift_not_allowed_for_exact_replay")
@@ -211,7 +254,10 @@ def compare_indexer_sidecar_dbs(
             storage_risks.append("market_raw_hash_drift_not_allowed_for_exact_replay")
 
     if trades["status"] == "drift_blocked":
-        storage_risks.append("trade_identity_or_row_drift_outside_policy")
+        if scope_enabled and comparison_mode == MODE_FRESH_LIVE:
+            provider_drifts.append("scoped_trade_identity_or_row_drift_outside_fresh_live_tolerance")
+        else:
+            storage_risks.append("trade_identity_or_row_drift_outside_policy")
     elif trades["status"] == "provider_drift_within_tolerance":
         provider_drifts.append("trade_identity_or_row_drift_within_fresh_live_tolerance")
     elif trades["status"] == "exact_drift_blocked":
@@ -222,7 +268,12 @@ def compare_indexer_sidecar_dbs(
     summary = report["summary"]
     assert isinstance(summary, dict)
     summary["tableCountDriftCount"] = table_comparison["driftCount"]
-    summary["cursorDriftCount"] = cursors["missingKeyCount"] + cursors["addedKeyCount"] + cursors["valueChangedCount"]
+    summary["cursorDriftCount"] = (
+        cursors["missingKeyCount"]
+        + cursors["addedKeyCount"]
+        + cursors["valueChangedCount"]
+        + int(cursors.get("statusErrorChangedCount") or 0)
+    )
     summary["marketIdentityDriftCount"] = (
         markets["missingKeyCount"] + markets["addedKeyCount"] + markets["identityChangedCount"]
     )
@@ -274,6 +325,30 @@ def _table_counts(conn: sqlite3.Connection) -> dict[str, int]:
         row = conn.execute(f"SELECT COUNT(*) AS count FROM {table}").fetchone()
         counts[table] = int(row["count"]) if row is not None else 0
     return counts
+
+
+def _scoped_table_counts(conn: sqlite3.Connection, condition_ids: set[str]) -> dict[str, int]:
+    counts = {table: 0 for table in EXPECTED_TABLES}
+    counts["indexer_cursors"] = int(conn.execute("SELECT COUNT(*) AS count FROM indexer_cursors").fetchone()["count"])
+    counts["indexed_markets"] = _count_condition_rows(conn, "indexed_markets", condition_ids)
+    counts["indexed_trades"] = _count_condition_rows(conn, "indexed_trades", condition_ids)
+    counts["orderbook_snapshots"] = _count_condition_rows(conn, "orderbook_snapshots", condition_ids)
+    if "wallet_index_snapshots" in EXPECTED_TABLES:
+        counts["wallet_index_snapshots"] = int(conn.execute("SELECT COUNT(*) AS count FROM wallet_index_snapshots").fetchone()["count"])
+    if "score_history" in EXPECTED_TABLES:
+        counts["score_history"] = int(conn.execute("SELECT COUNT(*) AS count FROM score_history").fetchone()["count"])
+    return counts
+
+
+def _count_condition_rows(conn: sqlite3.Connection, table: str, condition_ids: set[str]) -> int:
+    if not condition_ids:
+        return 0
+    placeholders = ",".join("?" for _ in condition_ids)
+    row = conn.execute(
+        f"SELECT COUNT(*) AS count FROM {table} WHERE condition_id IN ({placeholders})",
+        sorted(condition_ids),
+    ).fetchone()
+    return int(row["count"]) if row is not None else 0
 
 
 def _compare_table_counts(
@@ -334,6 +409,49 @@ def _cursor_rows(conn: sqlite3.Connection) -> dict[str, dict[str, object]]:
     }
 
 
+def _compare_cursors(
+    base_rows: Mapping[str, Mapping[str, object]],
+    candidate_rows: Mapping[str, Mapping[str, object]],
+    *,
+    comparison_mode: str,
+    scoped: bool,
+) -> dict[str, object]:
+    base_keys = set(base_rows)
+    candidate_keys = set(candidate_rows)
+    missing = sorted(base_keys - candidate_keys)
+    added = sorted(candidate_keys - base_keys)
+    common = sorted(base_keys & candidate_keys)
+    cursor_value_changed: list[str] = []
+    status_error_changed: list[str] = []
+    raw_changed: list[str] = []
+    for key in common:
+        base = base_rows[key]
+        candidate = candidate_rows[key]
+        if base.get("cursorValue") != candidate.get("cursorValue"):
+            cursor_value_changed.append(key)
+        if base.get("status") != candidate.get("status") or base.get("lastError") != candidate.get("lastError"):
+            status_error_changed.append(key)
+        if base.get("rawHash") != candidate.get("rawHash"):
+            raw_changed.append(key)
+    exact_values = comparison_mode in {MODE_SELF_COMPARE, MODE_IDEMPOTENT_REPLAY} and not scoped
+    return {
+        "baseCount": len(base_keys),
+        "candidateCount": len(candidate_keys),
+        "missingKeyCount": len(missing),
+        "addedKeyCount": len(added),
+        "identityChangedCount": 0,
+        "valueChangedCount": len(cursor_value_changed),
+        "statusErrorChangedCount": len(status_error_changed),
+        "rawHashChangedCount": len(raw_changed) if exact_values else 0,
+        "missingKeySamples": _sample(missing),
+        "addedKeySamples": _sample(added),
+        "identityChangedSamples": [],
+        "valueChangedSamples": _sample(cursor_value_changed),
+        "statusErrorChangedSamples": _sample(status_error_changed),
+        "rawHashChangedSamples": _sample(raw_changed) if exact_values else [],
+    }
+
+
 def _market_rows(conn: sqlite3.Connection) -> dict[str, dict[str, object]]:
     rows = conn.execute(
         """
@@ -371,6 +489,69 @@ def _market_rows(conn: sqlite3.Connection) -> dict[str, dict[str, object]]:
             "rawHash": _hash_text(str(row["raw_json"])),
         }
     return markets
+
+
+def _resolve_scope(
+    base_markets: Mapping[str, Mapping[str, object]],
+    candidate_markets: Mapping[str, Mapping[str, object]],
+    *,
+    market_slugs: Sequence[str],
+    condition_ids: Sequence[str],
+) -> dict[str, object]:
+    condition_scope = set(condition_ids)
+    missing_market_slugs: list[dict[str, object]] = []
+    missing_condition_ids: list[dict[str, object]] = []
+    for slug in market_slugs:
+        base_matches = _conditions_for_slug(base_markets, slug)
+        candidate_matches = _conditions_for_slug(candidate_markets, slug)
+        condition_scope.update(base_matches)
+        condition_scope.update(candidate_matches)
+        if not base_matches or not candidate_matches:
+            missing_market_slugs.append(
+                {
+                    "slug": slug,
+                    "basePresent": bool(base_matches),
+                    "candidatePresent": bool(candidate_matches),
+                }
+            )
+    for condition_id in condition_ids:
+        base_present = condition_id in base_markets
+        candidate_present = condition_id in candidate_markets
+        if not base_present or not candidate_present:
+            missing_condition_ids.append(
+                {
+                    "conditionId": condition_id,
+                    "basePresent": base_present,
+                    "candidatePresent": candidate_present,
+                }
+            )
+    unsupported_reason = ""
+    if (market_slugs or condition_ids) and not condition_scope:
+        unsupported_reason = "scope_resolved_no_condition_ids"
+    return {
+        "enabled": bool(market_slugs or condition_ids),
+        "requestedMarketSlugs": list(market_slugs),
+        "requestedConditionIds": list(condition_ids),
+        "resolvedConditionIds": sorted(condition_scope),
+        "missingMarketSlugs": missing_market_slugs,
+        "missingConditionIds": missing_condition_ids,
+        "unsupportedCompareReason": unsupported_reason,
+    }
+
+
+def _conditions_for_slug(markets: Mapping[str, Mapping[str, object]], slug: str) -> set[str]:
+    return {
+        str(condition_id)
+        for condition_id, row in markets.items()
+        if str(row.get("slug") or "") == slug or str(row.get("eventSlug") or "") == slug
+    }
+
+
+def _filter_markets_by_condition(
+    markets: Mapping[str, Mapping[str, object]],
+    condition_ids: set[str],
+) -> dict[str, Mapping[str, object]]:
+    return {key: row for key, row in markets.items() if key in condition_ids}
 
 
 def _trade_rows(conn: sqlite3.Connection) -> dict[str, dict[str, object]]:
@@ -416,6 +597,13 @@ def _trade_rows(conn: sqlite3.Connection) -> dict[str, dict[str, object]]:
             "rawHash": _hash_text(str(row["raw_json"])),
         }
     return trades
+
+
+def _filter_trades_by_condition(
+    trades: Mapping[str, Mapping[str, object]],
+    condition_ids: set[str],
+) -> dict[str, Mapping[str, object]]:
+    return {key: row for key, row in trades.items() if str(row.get("conditionId") or "") in condition_ids}
 
 
 def _compare_keyed(
@@ -605,12 +793,26 @@ def _empty_entity_comparison() -> dict[str, object]:
         "addedKeyCount": 0,
         "identityChangedCount": 0,
         "valueChangedCount": 0,
+        "statusErrorChangedCount": 0,
         "rawHashChangedCount": 0,
         "missingKeySamples": [],
         "addedKeySamples": [],
         "identityChangedSamples": [],
         "valueChangedSamples": [],
+        "statusErrorChangedSamples": [],
         "rawHashChangedSamples": [],
+    }
+
+
+def _empty_scope_report(*, enabled: bool, market_slugs: Sequence[str], condition_ids: Sequence[str]) -> dict[str, object]:
+    return {
+        "enabled": enabled,
+        "requestedMarketSlugs": list(market_slugs),
+        "requestedConditionIds": list(condition_ids),
+        "resolvedConditionIds": [],
+        "missingMarketSlugs": [],
+        "missingConditionIds": [],
+        "unsupportedCompareReason": "",
     }
 
 
@@ -634,6 +836,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-json", help="Optional path for the compact compare report.")
     parser.add_argument("--trade-row-drift-tolerance-pct", type=float, default=10.0)
     parser.add_argument("--trade-row-drift-tolerance-abs", type=int, default=25)
+    parser.add_argument("--scope-market-slug", action="append", default=[], help="Limit comparison to this market slug. Repeatable.")
+    parser.add_argument("--scope-condition-id", action="append", default=[], help="Limit comparison to this condition ID. Repeatable.")
     return parser
 
 
@@ -645,6 +849,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         comparison_mode=args.comparison_mode,
         trade_row_drift_tolerance_pct=args.trade_row_drift_tolerance_pct,
         trade_row_drift_tolerance_abs=args.trade_row_drift_tolerance_abs,
+        scope_market_slugs=args.scope_market_slug,
+        scope_condition_ids=args.scope_condition_id,
     )
     if args.output_json:
         write_compare_output(report, args.output_json)

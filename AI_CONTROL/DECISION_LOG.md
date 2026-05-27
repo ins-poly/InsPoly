@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Treat bounded indexer target hardening as ready for a future repeat operator run, not warehouse/runtime work.
+  - Why: Resolver preflight selected two proven anchors plus a single-market Khamenei replacement, and the fresh three-target sidecar run reached clean readiness. Scoped compare found no storage identity drift, malformed payloads, duplicate indicators, cursor key/status errors, or schema issues.
+  - Consequence: Current hardening gate is `indexer_multitarget_hardening_ready_for_repeat_operator_run`. The failed `us-x-iran-permanent-peace-deal-by` slug is classified as market-vs-event/bounds mismatch for bounded indexer use. Public-trade overlap drift is classified as provider/collection-sampling drift, so warehouse/runtime/report integration remains blocked until repeat evidence or per-target trade collection hardening exists.
+  - Reversal / revisit condition: If a future repeat over the same three targets shows storage/cursor identity drift, malformed payloads, duplicate indicators, or unresolved target instability, downgrade to a target/compare hardening gate before any broader live run.
+
 - Decision: Treat the bounded multi-target indexer probe as partial success requiring target hardening.
   - Why: The owner approved exactly one three-slug public read-only sidecar run into a fresh local-only DB. The runner completed without forbidden behavior and the DB readiness audit was clean, but one approved slug failed provider lookup and scoped overlapping-slug comparison is not yet supported.
   - Consequence: Current multi-target probe gate is `indexer_multitarget_probe_partial_success_needs_target_hardening`. The fresh DB contains 2 market rows, 200 public trade rows, and 2 cursors; readiness gate is `indexer_sidecar_readiness_ready_no_runtime`; malformed raw JSON and duplicate indicators are 0. No daemon, scheduler, warehouse mode, scanner/archive/Event Forensic/browser/report integration, storage schema change, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.

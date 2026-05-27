@@ -117,6 +117,153 @@ class IndexerSidecarDbCompareTests(unittest.TestCase):
             self.assertEqual(report["summary"]["gateDecision"], GATE_STORAGE_RISK)
             self.assertIn("market_identity_mismatch", report["findings"])
 
+    def test_scoped_compare_ignores_extra_unrelated_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=2)
+            _write_fixture_db(candidate_db, condition_id="cond-a", slug="market-a", trade_count=2)
+            _append_fixture_market_trades(candidate_db, condition_id="cond-b", slug="market-b", trade_count=5, update_cursors=False)
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="fresh_live",
+                scope_market_slugs=["market-a"],
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_READY)
+            self.assertTrue(report["scope"]["enabled"])
+            self.assertEqual(report["scope"]["resolvedConditionIds"], ["cond-a"])
+            self.assertEqual(report["marketComparison"]["baseCount"], 1)
+            self.assertEqual(report["marketComparison"]["candidateCount"], 1)
+            self.assertEqual(report["tradeComparison"]["baseCount"], 2)
+            self.assertEqual(report["tradeComparison"]["candidateCount"], 2)
+
+    def test_scoped_compare_missing_target_reports_storage_risk(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=1)
+            _write_fixture_db(candidate_db, condition_id="cond-b", slug="market-b", trade_count=1)
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="fresh_live",
+                scope_market_slugs=["market-a"],
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_STORAGE_RISK)
+            self.assertIn("scoped_targets_missing", report["findings"])
+            self.assertEqual(report["scope"]["missingMarketSlugs"][0]["slug"], "market-a")
+
+    def test_scoped_compare_blocks_cursor_error_before_compare(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=1)
+            _write_fixture_db(candidate_db, condition_id="cond-a", slug="market-a", trade_count=1)
+            storage = IndexerStorage(candidate_db)
+            storage.upsert_cursor(
+                source="bounded_live_sidecar",
+                cursor_key="public_trades",
+                cursor_value="conditions:1:rows:1",
+                status="warn",
+                last_error="provider_warning",
+                updated_at="2026-05-27T08:30:00+00:00",
+            )
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="fresh_live",
+                scope_market_slugs=["market-a"],
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_STORAGE_RISK)
+            self.assertIn("candidate:cursor_errors", report["findings"])
+
+    def test_scoped_fresh_live_classifies_cursor_value_drift_as_provider_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=10, cursor_trade_count=10)
+            _write_fixture_db(candidate_db, condition_id="cond-a", slug="market-a", trade_count=12, cursor_trade_count=12)
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="fresh_live",
+                scope_market_slugs=["market-a"],
+                trade_row_drift_tolerance_abs=25,
+                trade_row_drift_tolerance_pct=10,
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_PROVIDER_DRIFT)
+            self.assertIn("cursor_value_drift_requires_operator_review", report["findings"])
+            self.assertEqual(report["summary"]["storageRiskCount"], 0)
+
+    def test_scoped_idempotent_replay_detects_trade_identity_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=2)
+            _write_fixture_db(candidate_db, condition_id="cond-a", slug="market-a", trade_count=3)
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="idempotent_replay",
+                scope_market_slugs=["market-a"],
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_STORAGE_RISK)
+            self.assertEqual(report["tradeComparison"]["status"], "exact_drift_blocked")
+
+    def test_scoped_fresh_live_large_trade_drift_is_provider_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base_db = Path(tmp) / "base.sqlite3"
+            candidate_db = Path(tmp) / "candidate.sqlite3"
+            _write_fixture_db(base_db, condition_id="cond-a", slug="market-a", trade_count=50)
+            _write_fixture_db(candidate_db, condition_id="cond-a", slug="market-a", trade_count=0, cursor_trade_count=0)
+
+            report = compare_indexer_sidecar_dbs(
+                base_db,
+                candidate_db,
+                comparison_mode="fresh_live",
+                scope_market_slugs=["market-a"],
+                trade_row_drift_tolerance_abs=5,
+                trade_row_drift_tolerance_pct=10,
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_PROVIDER_DRIFT)
+            self.assertIn("scoped_trade_identity_or_row_drift_outside_fresh_live_tolerance", report["findings"])
+            self.assertEqual(report["summary"]["storageRiskCount"], 0)
+
+    def test_scoped_compare_blocks_malformed_raw_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "indexer.sqlite3"
+            _write_fixture_db(db_path, condition_id="cond-a", slug="market-a", trade_count=1)
+            _set_market_raw_json(db_path, "cond-a", "{malformed")
+
+            report = compare_indexer_sidecar_dbs(
+                db_path,
+                db_path,
+                comparison_mode="self_compare",
+                scope_market_slugs=["market-a"],
+                now=NOW,
+            )
+
+            self.assertEqual(report["summary"]["gateDecision"], GATE_STORAGE_RISK)
+            self.assertIn("base:malformed_raw_json", report["findings"])
+
     def test_duplicate_indicator_blocks_even_when_self_comparing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             db_path = Path(tmp) / "indexer.sqlite3"
@@ -161,6 +308,8 @@ class IndexerSidecarDbCompareTests(unittest.TestCase):
                         str(db_path),
                         "--comparison-mode",
                         "self_compare",
+                        "--scope-market-slug",
+                        "market-a",
                         "--output-json",
                         str(output_path),
                     ]
@@ -196,6 +345,25 @@ def _write_fixture_db(
 ) -> None:
     storage = IndexerStorage(db_path)
     storage.init()
+    _append_fixture_market_trades(
+        db_path,
+        condition_id=condition_id,
+        slug=slug,
+        trade_count=trade_count,
+        cursor_trade_count=cursor_trade_count,
+    )
+
+
+def _append_fixture_market_trades(
+    db_path: Path,
+    *,
+    condition_id: str,
+    slug: str,
+    trade_count: int,
+    cursor_trade_count: int | None = None,
+    update_cursors: bool = True,
+) -> None:
+    storage = IndexerStorage(db_path)
     storage.upsert_market(
         IndexedMarket(
             condition_id=condition_id,
@@ -209,24 +377,25 @@ def _write_fixture_db(
             updated_at="2026-05-27T08:00:00+00:00",
         )
     )
-    storage.upsert_cursor(
-        source="bounded_live_sidecar",
-        cursor_key="markets",
-        cursor_value=f"marketSlugs:{slug}:1",
-        updated_at="2026-05-27T08:00:00+00:00",
-    )
-    storage.upsert_cursor(
-        source="bounded_live_sidecar",
-        cursor_key="public_trades",
-        cursor_value=f"conditions:1:rows:{cursor_trade_count if cursor_trade_count is not None else trade_count}",
-        updated_at="2026-05-27T08:00:00+00:00",
-    )
+    if update_cursors:
+        storage.upsert_cursor(
+            source="bounded_live_sidecar",
+            cursor_key="markets",
+            cursor_value=f"marketSlugs:{slug}:1",
+            updated_at="2026-05-27T08:00:00+00:00",
+        )
+        storage.upsert_cursor(
+            source="bounded_live_sidecar",
+            cursor_key="public_trades",
+            cursor_value=f"conditions:1:rows:{cursor_trade_count if cursor_trade_count is not None else trade_count}",
+            updated_at="2026-05-27T08:00:00+00:00",
+        )
     for index in range(trade_count):
         storage.upsert_trade(
             IndexedTrade(
-                stable_trade_id=f"0xtx:{index}",
-                transaction_hash=f"0xtx-{index}",
-                order_hash=f"0xorder-{index}",
+                stable_trade_id=f"{condition_id}:0xtx:{index}",
+                transaction_hash=f"{condition_id}-0xtx-{index}",
+                order_hash=f"{condition_id}-0xorder-{index}",
                 condition_id=condition_id,
                 token_id="yes-a",
                 wallet=f"0xwallet-{index}",
@@ -240,6 +409,13 @@ def _write_fixture_db(
                 raw={"fixtureTrade": index},
             )
         )
+
+
+def _set_market_raw_json(db_path: Path, condition_id: str, raw_json: str) -> None:
+    import sqlite3
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("UPDATE indexed_markets SET raw_json = ? WHERE condition_id = ?", (raw_json, condition_id))
 
 
 if __name__ == "__main__":
