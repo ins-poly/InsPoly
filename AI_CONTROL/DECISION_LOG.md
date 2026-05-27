@@ -3,6 +3,11 @@
 Last updated: 2026-05-27 EEST.
 
 ## Current Strategic Decisions
+- Decision: Prepare bounded indexer repeat-run approval without running a second live probe.
+  - Why: The first approved sidecar DB was useful but only proved a single narrow live slice. Before another run, the project needed explicit idempotence, fresh-DB comparison, drift tolerance, duplicate, malformed JSON, cursor, and retention policies.
+  - Consequence: Current repeat-run gate is `indexer_repeat_run_ready_for_operator_approval`. Added `tools/indexer_sidecar_db_compare.py`, focused tests, repeat-run RFC/decision docs, compact JSON outputs, and read-only re-audit/self-compare evidence. The existing DB re-audit remains `indexer_sidecar_readiness_ready_no_runtime`, and self-compare is `indexer_sidecar_compare_ready_for_repeat_run`. No second live/network run, daemon, scheduler, warehouse mode, production import, report/browser change, storage schema change, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.
+  - Reversal / revisit condition: Revisit only if the owner explicitly approves one second same-slug fresh-DB probe under the RFC bounds; then run readiness audit plus `fresh_live` compare before any longer run, warehouse design, target expansion, or runtime integration.
+
 - Decision: Treat the first bounded live indexer sidecar probe as successful but still hardening-gated.
   - Why: The owner approved exactly one market slug, and the manual sidecar runner completed one public read-only run without production integration or provider failure.
   - Consequence: Current Branch A run gate is `bounded_live_indexer_success_needs_operator_hardening`. The local-only DB contains 1 market row, 200 public trade rows, and 2 cursors; the DB audit gate is `indexer_sidecar_readiness_ready_no_runtime`. No daemon, scheduler, warehouse mode, scanner/archive/Event Forensic/browser/report integration, saved-artifact mutation, auth/private-key/trading behavior, push, or PR occurred.
