@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from decimal import Decimal
+import json
 import sqlite3
 from pathlib import Path
 import tempfile
@@ -11,8 +13,10 @@ import app.__main__ as app_main
 import app.cli as app_cli
 import app.browser_desktop as browser_desktop
 import app.desktop as desktop
+from app.archive_scanner import ArchiveResearchScanner
 from app.config import AppConfig
 from app.cli import build_parser
+from app.report_pointer import POINTER_FIELD
 from app.models import Market
 from app.scanner import Scanner
 from app.site_categories import SiteCategory
@@ -87,6 +91,14 @@ class AppWorkflowContractTests(unittest.TestCase):
         archive_cls.assert_called_once_with()
         archive_cls.return_value.launch.assert_called_once_with()
 
+    def test_cli_desktop_command_stays_on_browser_launch_path(self) -> None:
+        source = Path(app_cli.__file__).read_text(encoding="utf-8")
+
+        self.assertIn("from app.browser_desktop import launch_browser_desktop_app", source)
+        self.assertIn("launch_browser_desktop_app()", source)
+        self.assertNotIn("from app.desktop import launch_desktop_app", source)
+        self.assertNotIn("launch_desktop_app()", source)
+
     def test_legacy_tk_launch_function_delegates_without_opening_window(self) -> None:
         with patch.object(desktop, "DesktopApp") as desktop_cls:
             desktop.launch_desktop_app()
@@ -129,9 +141,12 @@ class AppWorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(payload["entryProbability"], 91.0)
         self.assertEqual(payload["entryProbabilityLabel"], "91.0%")
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: Yes @ 91.0%")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: Yes @ 91.0%")
         self.assertEqual(payload["walletPredictions"], 88)
         self.assertEqual(payload["walletPredictionsLabel"], "88")
-        self.assertTrue(any("Entry probability at trade: 91.0%" in line for line in context_lines))
+        self.assertTrue(any("Token price at trade: Raw token: Yes @ 91.0%." in line for line in context_lines))
+        self.assertTrue(any("Economic-side probability at trade: Economic side: Yes @ 91.0%." in line for line in context_lines))
         self.assertTrue(any("Wallet public prediction count: 88." in line for line in context_lines))
 
     def test_browser_scanner_hides_wallets_over_prediction_cap_from_visible_review(self) -> None:
@@ -144,6 +159,274 @@ class AppWorkflowContractTests(unittest.TestCase):
         }
 
         self.assertFalse(app._case_passes_wallet_quality(case))
+
+    def test_old_scanner_report_without_side_outcome_fields_still_loads_and_derives_safely(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        report = {
+            "cases": [
+                {
+                    "severity": "Worth a Look",
+                    "case_type": None,
+                    "suspicion_score": 55,
+                    "confidence_score": 90,
+                    "review_priority": "Medium",
+                    "verdict": "Needs review",
+                    "trade_count_window": 1,
+                    "window_start": "2026-05-07T10:00:00+00:00",
+                    "window_end": "2026-05-07T10:00:00+00:00",
+                    "trade": {
+                        "trade_id": "old-sell-yes",
+                        "title": "Old report market",
+                        "wallet": "0xabcdef1234567890",
+                        "trader_name": "",
+                        "trader_pseudonym": "",
+                        "outcome": "YES",
+                        "side": "SELL",
+                        "price": "0.20",
+                        "timestamp": "2026-05-07T10:00:00+00:00",
+                        "event_slug": "old-report-market",
+                    },
+                    "market": {"site_categories": []},
+                    "wallet_inspection": {},
+                    "subscores": {},
+                    "flags": [],
+                    "explanation": ["Old report row."],
+                    "reasons_against": [],
+                    "raw_metrics": {
+                        "trade_notional_usdc": "1000",
+                        "price_implied_probability": "20.0%",
+                        "liquidity_ratio": "Unavailable",
+                        "trade_state": "increase",
+                    },
+                }
+            ]
+        }
+
+        normalized = app._normalize_report(report)
+        payload = app._case_card_payload(normalized["cases"][0])
+
+        self.assertNotIn("raw_token_price_label", normalized["cases"][0]["raw_metrics"])
+        self.assertEqual(payload["entryProbability"], 20.0)
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: No @ 80.0%")
+
+    def test_scanner_report_writer_keeps_pointer_absent_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports_dir = root / "reports"
+            outputs_dir = root / "outputs"
+            reports_dir.mkdir()
+            outputs_dir.mkdir()
+            scanner = Scanner(
+                client=object(),
+                storage=object(),
+                config=AppConfig(
+                    data_dir=root,
+                    db_path=root / "db.sqlite3",
+                    reports_dir=reports_dir,
+                    outputs_dir=outputs_dir,
+                ),
+            )
+            report = {
+                "generated_at": "2026-05-27T00:00:00+00:00",
+                "lookback": "48h",
+                "topic_scope": "Politics",
+                "raw_trade_count": 0,
+                "filtered_trade_count": 0,
+                "candidate_trade_count": 0,
+                "flagged_case_count": 0,
+                "status": "completed",
+                "funding_resolver_health": {},
+                "cases": [],
+            }
+
+            json_path, _md_path, _txt_path = scanner._write_report_files(
+                datetime(2026, 5, 27, 10, 0, 0, tzinfo=UTC),
+                reports_dir,
+                report,
+            )
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+
+        self.assertNotIn(POINTER_FIELD, payload)
+
+    def test_scanner_report_writer_persists_explicit_pointer_only(self) -> None:
+        pointer = {
+            "artifactType": "indexer_warehouse_query",
+            "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+            "artifactId": "w3-query-run",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports_dir = root / "reports"
+            outputs_dir = root / "outputs"
+            reports_dir.mkdir()
+            outputs_dir.mkdir()
+            scanner = Scanner(
+                client=object(),
+                storage=object(),
+                config=AppConfig(
+                    data_dir=root,
+                    db_path=root / "db.sqlite3",
+                    reports_dir=reports_dir,
+                    outputs_dir=outputs_dir,
+                ),
+            )
+            report = {
+                "generated_at": "2026-05-27T00:00:00+00:00",
+                "lookback": "48h",
+                "topic_scope": "Politics",
+                "raw_trade_count": 0,
+                "filtered_trade_count": 0,
+                "candidate_trade_count": 0,
+                "flagged_case_count": 0,
+                "status": "completed",
+                "funding_resolver_health": {},
+                "cases": [],
+            }
+
+            json_path, _md_path, _txt_path = scanner._write_report_files(
+                datetime(2026, 5, 27, 10, 0, 1, tzinfo=UTC),
+                reports_dir,
+                report,
+                indexer_warehouse_pointer=pointer,
+            )
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+
+        self.assertIn(POINTER_FIELD, payload)
+        self.assertIn(POINTER_FIELD, report)
+        self.assertFalse(payload[POINTER_FIELD]["metricsCopied"])
+        self.assertFalse(payload[POINTER_FIELD]["scoringEffect"])
+        self.assertFalse(payload[POINTER_FIELD]["routingEffect"])
+        self.assertFalse(payload[POINTER_FIELD]["uiRequired"])
+
+    def test_archive_report_writer_persists_explicit_pointer_only(self) -> None:
+        pointer = {
+            "artifactType": "indexer_warehouse_query",
+            "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+            "artifactId": "w3-query-run",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports_dir = root / "reports"
+            outputs_dir = root / "outputs"
+            reports_dir.mkdir()
+            outputs_dir.mkdir()
+            scanner = ArchiveResearchScanner(
+                client=object(),
+                storage=object(),
+                config=AppConfig(
+                    data_dir=root,
+                    db_path=root / "db.sqlite3",
+                    reports_dir=reports_dir,
+                    outputs_dir=outputs_dir,
+                ),
+            )
+            report = {
+                "generated_at": "2026-05-27T00:00:00+00:00",
+                "range_start": "2026-05-26T00:00:00+00:00",
+                "range_end": "2026-05-27T00:00:00+00:00",
+                "range_hours": 24,
+                "topic_scope": "Politics",
+                "raw_trade_count": 0,
+                "filtered_trade_count": 0,
+                "candidate_trade_count": 0,
+                "unique_wallet_count": 0,
+                "unique_market_count": 0,
+                "flagged_case_count": 0,
+                "secondary_review_case_count": 0,
+                "status": "completed",
+                "funding_resolver_health": {},
+                "cases": [],
+            }
+
+            export_files = scanner._write_report_files(
+                datetime(2026, 5, 27, 10, 0, 2, tzinfo=UTC),
+                reports_dir,
+                report,
+                scoped_trades=[],
+                candidate_trades=[],
+                flagged_cases=[],
+                excluded_cases=[],
+                strong_risk_diagnostics=[],
+                wallet_rollups=[],
+                market_rollups=[],
+                indexer_warehouse_pointer=pointer,
+            )
+            payload = json.loads(Path(export_files["report_json_path"]).read_text(encoding="utf-8"))
+
+        self.assertIn(POINTER_FIELD, payload)
+        self.assertIn(POINTER_FIELD, report)
+        self.assertFalse(payload[POINTER_FIELD]["metricsCopied"])
+
+    def test_browser_payload_ignores_indexer_pointer_metadata(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.current_output_path = None
+        app.config = AppConfig(
+            data_dir=Path("."),
+            db_path=Path("./ignored.sqlite3"),
+            reports_dir=Path("."),
+            outputs_dir=Path("."),
+        )
+        report = {
+            "lookback": "48h",
+            "topic_scope": "Politics",
+            "raw_trade_count": 20,
+            "candidate_trade_count": 3,
+            "flagged_case_count": 1,
+            "generated_at": "2026-05-27T12:00:00+00:00",
+            POINTER_FIELD: {
+                "artifactType": "indexer_warehouse_query",
+                "artifactPath": "validation_outputs/inspoly_indexer_warehouse_w3_query_run_20260527.json",
+                "artifactId": "w3-query-run",
+                "metricsCopied": False,
+                "scoringEffect": False,
+                "routingEffect": False,
+            },
+            "cases": [
+                {"severity": "Worth a Look", "case_type": None, "trade": {"slug": "market-one", "title": "Market one?"}}
+            ],
+        }
+
+        normalized = app._normalize_report(report)
+        payload = app._report_payload(normalized, visible_cases=normalized["cases"])
+
+        self.assertIn(POINTER_FIELD, normalized)
+        self.assertNotIn(POINTER_FIELD, payload)
+        self.assertEqual(payload["visibleFlaggedCaseCount"], 1)
+
+    def test_old_report_without_safe_side_outcome_inputs_stays_unknown_not_zero(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        case = {
+            "trade": {
+                "trade_id": "unknown-side",
+                "title": "Unknown side market",
+                "wallet": "0xabcdef1234567890",
+                "trader_name": "",
+                "trader_pseudonym": "",
+                "outcome": "",
+                "side": "",
+                "timestamp": "2026-05-07T10:00:00+00:00",
+                "event_slug": "unknown-side",
+            },
+            "market": {"site_categories": []},
+            "raw_metrics": {
+                "trade_notional_usdc": "1000",
+                "price_implied_probability": "",
+                "liquidity_ratio": "Unavailable",
+            },
+            "flags": [],
+            "severity": "Low Risk",
+            "case_type": None,
+            "suspicion_score": 10,
+            "explanation": [],
+            "reasons_against": [],
+        }
+
+        payload = app._case_card_payload(case)
+
+        self.assertIsNone(payload["entryProbability"])
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: unknown")
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: unknown")
 
     def test_browser_scanner_default_filters_include_system_scope_controls(self) -> None:
         app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
@@ -192,9 +475,11 @@ class AppWorkflowContractTests(unittest.TestCase):
         html = Path("app/browser_ui.html").read_text(encoding="utf-8")
 
         self.assertIn("maxEntryProbability", html)
-        self.assertIn("Max entry probability %", html)
+        self.assertIn("Max token price %", html)
+        self.assertIn("Maximum raw token price percent", html)
         self.assertIn("parseProbabilityFilter", html)
-        self.assertIn("Entry chance", html)
+        self.assertIn("Token price", html)
+        self.assertNotIn("Entry chance", html)
 
     def test_browser_scanner_ui_exposes_system_funding_and_case_family_controls(self) -> None:
         html = Path("app/browser_ui.html").read_text(encoding="utf-8")

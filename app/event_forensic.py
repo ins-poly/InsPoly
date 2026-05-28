@@ -10,6 +10,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from statistics import median
+from threading import Lock
 from time import perf_counter
 from urllib.parse import unquote, urlparse
 
@@ -30,8 +31,17 @@ from app.funding_context import (
     grade_funding_evidence,
     unknown_funding_context,
 )
+from app.event_forensic_performance import (
+    build_score_loop_memoization_metadata,
+    build_score_trade_prepared_context_metadata,
+    build_scorer_context_profile_metadata,
+    build_wallet_api_boundary_trace_metadata,
+    build_wallet_context_reuse_metadata,
+)
+from app.report_pointer import POINTER_FIELD, attach_indexer_warehouse_pointer
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import MAX_TRADES_OFFSET, PolymarketClient
+from app.side_outcome import UNKNOWN, normalize_cluster_direction, normalize_side_outcome
 from app.scanner import (
     ProgressEvent,
     HARD_EVIDENCE_REVIEW_TIER,
@@ -52,6 +62,7 @@ from app.scanner import (
     _build_structural_pre_admission_metadata,
     _build_wallet_inspection,
     _capital_at_risk_usdc,
+    build_score_trade_prepared_context,
     _case_survives_output_threshold,
     _case_has_hard_evidence_review,
     _classify_execution_state,
@@ -92,6 +103,11 @@ EVENT_FORENSIC_GRAPH_TRADE_LIMIT = 24
 EVENT_FORENSIC_GRAPH_WALLET_LIMIT = 18
 EVENT_FORENSIC_GRAPH_CLUSTER_LIMIT = 12
 EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD = 40
+WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER = "weak_history_near_certainty_review_required"
+WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON = (
+    "Weak economic history plus a near-certain later-winning entry is review-required context, "
+    "not primary Event Forensic placement."
+)
 EVENT_FORENSIC_CASE_FAMILY_EVENT_LIMIT = 30
 EVENT_FORENSIC_HIGH_ASYMMETRY_DOMAINS = {"Politics", "Geopolitics", "Middle East", "Ukraine / war"}
 EVENT_FORENSIC_PUBLIC_BETTING_DOMAINS = {"Sports", "Entertainment", "Crypto", "Macro / rates"}
@@ -299,6 +315,7 @@ class CandidateReplayContext:
     prior_family_market_count: int = 0
     event_family_share: float = 0.0
     funding_skip_reason: str = ""
+    prepared_score_context: object | None = None
 
 
 @dataclass(slots=True)
@@ -347,6 +364,20 @@ def _time_window_filter_trades(
     return filtered
 
 
+def _append_wallet_api_trace(
+    trace_records: list[dict[str, object]] | None,
+    trace_lock: Lock | None,
+    record: dict[str, object],
+) -> None:
+    if trace_records is None:
+        return
+    if trace_lock is None:
+        trace_records.append(record)
+        return
+    with trace_lock:
+        trace_records.append(record)
+
+
 def _funding_skip_reason_for_mode(mode: str, *, include_blockchain: bool) -> str:
     if not include_blockchain:
         return "blockchain_disabled"
@@ -387,6 +418,7 @@ class EventForensicAnalyzer:
         selected_market_slug: str | None = None,
         start_at: datetime | None = None,
         end_at: datetime | None = None,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
         progress_callback: callable | None = None,
         stop_event: object | None = None,
     ) -> dict[str, object]:
@@ -447,6 +479,7 @@ class EventForensicAnalyzer:
                 scope_context=scope_context,
                 threshold=threshold,
                 eligibility=eligibility,
+                include_related_markets=include_related_markets,
             )
             export_files = self._write_report_bundle(
                 started_at,
@@ -469,6 +502,8 @@ class EventForensicAnalyzer:
             return report
 
         wallet_cache: dict[str, tuple[object, list[Trade], WalletPerformance]] = {}
+        wallet_api_trace_records: list[dict[str, object]] = []
+        wallet_api_trace_lock = Lock()
         wallet_prefetch_executor: ThreadPoolExecutor | None = None
         warm_wallet_futures: dict[str, Future] = {}
         if EVENT_FORENSIC_WALLET_PREFETCH_WORKERS > 1:
@@ -489,6 +524,8 @@ class EventForensicAnalyzer:
                     self._fetch_wallet_context,
                     wallet,
                     scope_context.analysis_markets,
+                    trace_records=wallet_api_trace_records,
+                    trace_lock=wallet_api_trace_lock,
                 )
 
         stage_started = perf_counter()
@@ -618,6 +655,7 @@ class EventForensicAnalyzer:
                 self._funding_resolver.record_trace_skipped(skip_reason)
         context_pool_trades = _dedupe_trades([*normal_candidate_trades, *pre_admission_context_pool])
         below_threshold_candidate_count = prethreshold_candidate_count - len(normal_candidate_trades)
+        context_pool_wallet_references = [trade.wallet for trade in context_pool_trades if trade.wallet]
         context_pool_wallet_count = len({trade.wallet for trade in context_pool_trades})
         candidate_wallet_count = len({trade.wallet for trade in normal_candidate_trades})
         performance["market_fetch_workers"] = min(
@@ -688,6 +726,8 @@ class EventForensicAnalyzer:
             stop_event=stop_event,
             prestarted_futures=warm_wallet_futures,
             executor=wallet_prefetch_executor,
+            trace_records=wallet_api_trace_records,
+            trace_lock=wallet_api_trace_lock,
         )
         performance["prefetch_wallet_context_seconds"] = round(perf_counter() - stage_started, 2)
         performance["wallet_context_count"] = len(wallet_cache)
@@ -723,7 +763,7 @@ class EventForensicAnalyzer:
             )
 
         stage_started = perf_counter()
-        context_pool_contexts, funding_requests = self._prepare_candidate_contexts(
+        context_pool_contexts, funding_requests, wallet_context_profile = self._prepare_candidate_contexts(
             context_pool_trades,
             resolved=resolved,
             scope_context=scope_context,
@@ -735,8 +775,21 @@ class EventForensicAnalyzer:
             funding_trace_mode=effective_funding_trace_mode,
             progress_callback=progress_callback,
             stop_event=stop_event,
+            wallet_api_trace_records=wallet_api_trace_records,
+            wallet_api_trace_lock=wallet_api_trace_lock,
         )
         performance["prepare_candidate_context_seconds"] = round(perf_counter() - stage_started, 2)
+        performance["wallet_api_boundary_trace"] = build_wallet_api_boundary_trace_metadata(
+            trace_records=wallet_api_trace_records,
+            requested_wallet_references=len(context_pool_wallet_references),
+            unique_requested_wallets=context_pool_wallet_count,
+            wallet_context_count=len(wallet_cache),
+            prestarted_future_count=len(warm_wallet_futures),
+            prefetch_seconds=float(performance["prefetch_wallet_context_seconds"] or 0.0),
+            truncated_market_count=truncated_market_count,
+            analysis_market_count=len(scope_context.analysis_markets),
+            live_resolved_market_count=len(resolved.markets),
+        )
         performance["funding_request_count"] = len(funding_requests)
         performance["funding_prefetch_workers"] = (
             0
@@ -964,11 +1017,57 @@ class EventForensicAnalyzer:
         performance["structural_pre_admission_count"] = structural_pre_admission_count
         performance["normal_candidate_trade_count"] = len(normal_candidate_trades)
         total_candidates = max(1, len(candidate_contexts))
+        scoring_wallet_windows = {
+            wallet: wallet_trades.get(wallet, [])
+            for wallet in {context.trade.wallet for context in candidate_contexts}
+        }
+        scoring_market_notional_samples = {
+            condition_id: market_notional_samples.get(condition_id)
+            for condition_id in {context.trade.condition_id for context in candidate_contexts}
+        }
+        scoring_domain_notional_samples = {
+            domain: domain_notional_samples.get(domain)
+            for domain in {context.trade_domain for context in candidate_contexts}
+        }
+        scoring_funding_health = self._funding_resolver.health().to_dict()
+        score_loop_memoization = build_score_loop_memoization_metadata(
+            candidate_rows=len(candidate_contexts),
+            unique_wallets=len(scoring_wallet_windows),
+            unique_markets=len(scoring_market_notional_samples),
+            unique_domains=len(scoring_domain_notional_samples),
+        )
+        performance["score_input_memoization"] = score_loop_memoization
+        prepared_context_count = sum(
+            1 for context in candidate_contexts if context.prepared_score_context is not None
+        )
+        performance["score_trade_prepared_context"] = build_score_trade_prepared_context_metadata(
+            candidate_rows=len(candidate_contexts),
+            prepared_context_rows=prepared_context_count,
+            score_call_count=len(candidate_contexts),
+            fallback_context_rows=len(candidate_contexts) - prepared_context_count,
+        )
 
         stage_started = perf_counter()
+        wallet_domain_counts_cache: dict[str, dict[str, int]] = {}
+        wallet_domain_profile = {
+            "cache_hits": 0,
+            "cache_misses": 0,
+        }
+        scorer_profile_seconds = {
+            "funding_context_lookup": 0.0,
+            "score_input_lookup": 0.0,
+            "score_trade_call": 0.0,
+            "candidate_admission_metadata": 0.0,
+            "wallet_domain_profile_annotation": 0.0,
+            "append_case": 0.0,
+            "progress_emit": 0.0,
+        }
+        scored_case_count = 0
+        skipped_case_count = 0
         for trade_index, context in enumerate(candidate_contexts, start=1):
             if _stop_requested(stop_event):
                 break
+            profile_started = perf_counter()
             funding_context = (
                 funding_cache.get(context.funding_cache_key)
                 if context.funding_cache_key is not None
@@ -976,50 +1075,106 @@ class EventForensicAnalyzer:
             ) or unknown_funding_context(
                 "blockchain_disabled" if not include_blockchain else "funding_trace_not_requested"
             )
+            scorer_profile_seconds["funding_context_lookup"] += perf_counter() - profile_started
 
+            profile_started = perf_counter()
+            wallet_window_trades = scoring_wallet_windows.get(context.trade.wallet, [])
+            market_notional_sample = scoring_market_notional_samples.get(context.trade.condition_id)
+            domain_notional_sample = scoring_domain_notional_samples.get(context.trade_domain)
+            scorer_profile_seconds["score_input_lookup"] += perf_counter() - profile_started
+
+            profile_started = perf_counter()
             case = _score_trade(
                 trade=context.trade,
                 market=context.market,
                 trade_domain=context.trade_domain,
                 wallet_inspection=context.wallet_inspection,
                 wallet_performance=context.wallet_performance,
-                wallet_window_trades=wallet_trades.get(context.trade.wallet, []),
+                wallet_window_trades=wallet_window_trades,
                 wallet_history_trades=context.wallet_history_trades,
                 market_window_trades=context.market_window_trades,
                 domain_window_trades=context.domain_window_trades,
                 event_context=context.event_context,
                 funding_context=funding_context,
-                funding_health=self._funding_resolver.health(),
+                funding_health=scoring_funding_health,
                 include_below_threshold=True,
-                market_notional_samples=market_notional_samples.get(context.trade.condition_id),
-                domain_notional_samples=domain_notional_samples.get(context.trade_domain),
+                market_notional_samples=market_notional_sample,
+                domain_notional_samples=domain_notional_sample,
                 prior_wallet_gap_days=context.prior_wallet_gap_days,
                 observed_post_trade_gap_days=context.observed_post_trade_gap_days,
                 family_key=context.family_key,
                 prior_family_trade_count=context.prior_family_trade_count,
                 prior_family_market_count=context.prior_family_market_count,
                 event_family_share=context.event_family_share,
+                prepared_context=context.prepared_score_context,
             )
+            scorer_profile_seconds["score_trade_call"] += perf_counter() - profile_started
             if case is not None:
+                scored_case_count += 1
+                profile_started = perf_counter()
                 _apply_candidate_admission_metadata(
                     case,
                     pre_admission_metadata.get(context.trade.trade_id),
                 )
+                scorer_profile_seconds["candidate_admission_metadata"] += perf_counter() - profile_started
+                profile_started = perf_counter()
                 _annotate_wallet_domain_diversity(
                     case,
                     wallet_history_trades=context.wallet_history_trades,
                     focus_markets=scope_context.analysis_markets,
+                    domain_counts_cache=wallet_domain_counts_cache,
+                    profile=wallet_domain_profile,
                 )
+                scorer_profile_seconds["wallet_domain_profile_annotation"] += perf_counter() - profile_started
+                profile_started = perf_counter()
                 all_cases.append(case)
+                scorer_profile_seconds["append_case"] += perf_counter() - profile_started
+            else:
+                skipped_case_count += 1
 
             percent = 25 + int((trade_index / total_candidates) * 35)
+            profile_started = perf_counter()
             _emit_progress(
                 progress_callback,
                 percent,
                 "Replaying model",
                 f"Scored trade {trade_index}/{total_candidates} with the current InsPoly logic",
             )
-        performance["score_candidates_seconds"] = round(perf_counter() - stage_started, 2)
+            scorer_profile_seconds["progress_emit"] += perf_counter() - profile_started
+        score_candidates_elapsed = perf_counter() - stage_started
+        performance["score_candidates_seconds"] = round(score_candidates_elapsed, 2)
+        performance["score_candidates_per_second"] = round(
+            (len(candidate_contexts) / score_candidates_elapsed) if score_candidates_elapsed > 0 else 0.0,
+            3,
+        )
+        wallet_context_reuse = build_wallet_context_reuse_metadata(
+            context_pool_trade_rows=len(context_pool_trades),
+            candidate_rows=len(candidate_contexts),
+            requested_wallet_references=len(context_pool_wallet_references),
+            unique_requested_wallets=context_pool_wallet_count,
+            wallet_context_count=len(wallet_cache),
+            prestarted_future_count=len(warm_wallet_futures),
+            wallet_context_cache_hits=int(wallet_context_profile.get("wallet_context_cache_hits", 0)),
+            wallet_context_cache_misses=int(wallet_context_profile.get("wallet_context_cache_misses", 0)),
+            scoped_history_cache_hits=int(wallet_context_profile.get("scoped_history_cache_hits", 0)),
+            scoped_history_cache_misses=int(wallet_context_profile.get("scoped_history_cache_misses", 0)),
+            wallet_history_metrics_cache_hits=int(wallet_context_profile.get("wallet_history_metrics_cache_hits", 0)),
+            wallet_history_metrics_cache_misses=int(wallet_context_profile.get("wallet_history_metrics_cache_misses", 0)),
+            domain_profile_cache_hits=int(wallet_domain_profile.get("cache_hits", 0)),
+            domain_profile_cache_misses=int(wallet_domain_profile.get("cache_misses", 0)),
+            prefetch_seconds=float(performance["prefetch_wallet_context_seconds"] or 0.0),
+            prepare_seconds=float(performance["prepare_candidate_context_seconds"] or 0.0),
+            score_seconds=float(performance["score_candidates_seconds"] or 0.0),
+        )
+        performance["wallet_context_reuse"] = wallet_context_reuse
+        performance["scorer_context_profile"] = build_scorer_context_profile_metadata(
+            candidate_rows=len(candidate_contexts),
+            scored_case_count=scored_case_count,
+            skipped_case_count=skipped_case_count,
+            bucket_seconds=scorer_profile_seconds,
+            score_loop_seconds=score_candidates_elapsed,
+            wallet_context_reuse=wallet_context_reuse,
+        )
 
         _annotate_domain_peer_history(all_cases, wallet_cache)
         _annotate_preclassification_linkage(all_cases)
@@ -1089,18 +1244,35 @@ class EventForensicAnalyzer:
             trade_payloads,
             minimum_notional=threshold,
         )
+        _annotate_weak_history_near_certainty_review_policy(visible_trade_payloads)
         ranked_trades = self._ranked_trade_rows(visible_trade_payloads)
+        prepolicy_threshold_suspicious_trade_count = sum(
+            1 for item in ranked_trades if item["eventForensicScore"] >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD
+        )
+        prepolicy_hard_evidence_review_trade_count = sum(
+            1 for item in ranked_trades if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER
+        )
         threshold_suspicious_trades = [
             item for item in ranked_trades if item["eventForensicScore"] >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD
+            and not _is_weak_history_near_certainty_review_demoted(item)
         ]
         hard_evidence_review_trades = [
             item for item in ranked_trades if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER
+            and not _is_weak_history_near_certainty_review_demoted(item)
         ]
         suspicious_trades = _dedupe_trade_payloads(
             [*threshold_suspicious_trades, *hard_evidence_review_trades]
         )
         suspicious_trades.sort(key=_event_trade_sort_key, reverse=True)
-        display_trades = suspicious_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT] or ranked_trades[:25]
+        review_required_trades = [
+            item for item in ranked_trades if _is_weak_history_near_certainty_review_demoted(item)
+        ]
+        review_required_trades.sort(key=_event_trade_sort_key, reverse=True)
+        fallback_display_trades = [
+            item for item in ranked_trades if not _is_weak_history_near_certainty_review_demoted(item)
+        ][:25]
+        display_trades = suspicious_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT] or fallback_display_trades
+        display_review_required_trades = review_required_trades[:EVENT_FORENSIC_VISIBLE_TRADE_LIMIT]
 
         ranked_wallets = self._build_wallet_rankings(
             visible_trade_payloads,
@@ -1150,9 +1322,20 @@ class EventForensicAnalyzer:
             selected_market_title=scope_context.selected_market_title,
             candidate_trade_count=len(candidate_trades),
         )
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
 
         raw_bundle = {
             "analysis_scope_metadata": _analysis_scope_metadata(resolved, scope_context),
+            "scope_product_metadata": scope_product_metadata,
             "analysis_time_window": {
                 "start_at": window_start_at.isoformat() if window_start_at else "",
                 "end_at": window_end_at.isoformat() if window_end_at else "",
@@ -1196,6 +1379,7 @@ class EventForensicAnalyzer:
             "status": "stopped" if _stop_requested(stop_event) else "completed",
             "input_url": input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -1220,12 +1404,16 @@ class EventForensicAnalyzer:
                 "include_blockchain": include_blockchain,
                 "funding_trace_mode": effective_funding_trace_mode,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
                 "start_at": window_start_at.isoformat() if window_start_at else "",
                 "end_at": window_end_at.isoformat() if window_end_at else "",
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": len(scoped_trades),
                 "candidate_trade_count": len(candidate_trades),
                 "normal_candidate_trade_count": len(normal_candidate_trades),
@@ -1235,10 +1423,15 @@ class EventForensicAnalyzer:
                 "forensic_suspicious_trade_count": len(threshold_suspicious_trades),
                 "primary_review_trade_count": len(suspicious_trades),
                 "hard_evidence_review_trade_count": len(hard_evidence_review_trades),
+                "prepolicy_forensic_suspicious_trade_count": prepolicy_threshold_suspicious_trade_count,
+                "prepolicy_hard_evidence_review_trade_count": prepolicy_hard_evidence_review_trade_count,
+                "weak_history_near_certainty_review_demotion_count": len(review_required_trades),
+                "review_required_trade_count": len(review_required_trades),
                 "suspicious_wallet_count": len(suspicious_wallets),
                 "wallet_context_count": len(ranked_wallets),
                 "wallet_cluster_count": len(wallet_clusters),
                 "display_trade_count": len(display_trades),
+                "display_review_required_trade_count": len(display_review_required_trades),
                 "display_wallet_count": len(display_wallets),
                 "display_cluster_count": len(display_clusters),
                 "below_threshold_candidate_count": below_threshold_candidate_count,
@@ -1280,9 +1473,11 @@ class EventForensicAnalyzer:
             "funding_resolver_health": self._funding_resolver.health().to_dict(),
             "candidate_admission_funnel": candidate_admission_funnel,
             "suspicious_trades": display_trades,
+            "review_required_trades": review_required_trades,
             "suspicious_wallets": display_wallets,
             "wallet_clusters": display_clusters,
             "display_trades": display_trades,
+            "display_review_required_trades": display_review_required_trades,
             "display_wallets": display_wallets,
             "display_clusters": display_clusters,
             "wallet_graph": wallet_graph,
@@ -1306,6 +1501,7 @@ class EventForensicAnalyzer:
             related_markets=related_market_rows,
             candidate_audit_rows=candidate_audit_rows,
             raw_bundle=raw_bundle,
+            indexer_warehouse_pointer=indexer_warehouse_pointer,
         )
         report["export_files"] = export_files
         report["report_json_path"] = export_files["report_json_path"]
@@ -1571,6 +1767,8 @@ class EventForensicAnalyzer:
         stop_event: object | None,
         prestarted_futures: dict[str, Future] | None = None,
         executor: ThreadPoolExecutor | None = None,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> None:
         wallets = sorted({trade.wallet for trade in candidate_trades if trade.wallet and trade.wallet not in wallet_cache})
         if not wallets:
@@ -1590,7 +1788,15 @@ class EventForensicAnalyzer:
             for index, wallet in enumerate(remaining_wallets, start=1):
                 if _stop_requested(stop_event):
                     return
-                wallet_cache[wallet] = self._fetch_wallet_context(wallet, focus_markets)
+                if trace_records is None and trace_lock is None:
+                    wallet_cache[wallet] = self._fetch_wallet_context(wallet, focus_markets)
+                else:
+                    wallet_cache[wallet] = self._fetch_wallet_context(
+                        wallet,
+                        focus_markets,
+                        trace_records=trace_records,
+                        trace_lock=trace_lock,
+                    )
                 if index == 1 or index == total_wallets or index % progress_step == 0:
                     percent = 26 + int((index / total_wallets) * 6)
                     _emit_progress(
@@ -1610,7 +1816,18 @@ class EventForensicAnalyzer:
         futures = {future: wallet for wallet, future in warm_futures.items()}
         if active_executor is not None:
             for wallet in remaining_wallets:
-                futures[active_executor.submit(self._fetch_wallet_context, wallet, focus_markets)] = wallet
+                if trace_records is None and trace_lock is None:
+                    futures[active_executor.submit(self._fetch_wallet_context, wallet, focus_markets)] = wallet
+                else:
+                    futures[
+                        active_executor.submit(
+                            self._fetch_wallet_context,
+                            wallet,
+                            focus_markets,
+                            trace_records=trace_records,
+                            trace_lock=trace_lock,
+                        )
+                    ] = wallet
 
         if not futures:
             return
@@ -1642,11 +1859,22 @@ class EventForensicAnalyzer:
         wallet: str,
         wallet_cache: dict[str, tuple[object, list[Trade], WalletPerformance]],
         focus_markets: dict[str, Market],
+        *,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> tuple[object, list[Trade], WalletPerformance]:
         cached = wallet_cache.get(wallet)
         if cached is not None:
             return cached
-        cached = self._fetch_wallet_context(wallet, focus_markets)
+        if trace_records is None and trace_lock is None:
+            cached = self._fetch_wallet_context(wallet, focus_markets)
+        else:
+            cached = self._fetch_wallet_context(
+                wallet,
+                focus_markets,
+                trace_records=trace_records,
+                trace_lock=trace_lock,
+            )
         wallet_cache[wallet] = cached
         return cached
 
@@ -1654,8 +1882,14 @@ class EventForensicAnalyzer:
         self,
         wallet: str,
         focus_markets: dict[str, Market],
+        *,
+        trace_records: list[dict[str, object]] | None = None,
+        trace_lock: Lock | None = None,
     ) -> tuple[object, list[Trade], WalletPerformance]:
+        started = perf_counter()
+        stats_started = perf_counter()
         wallet_stats = self._client.fetch_wallet_stats(wallet, trade_limit=500)
+        wallet_stats_seconds = perf_counter() - stats_started
         wallet_inspection = _build_wallet_inspection(
             wallet,
             wallet_stats.trades,
@@ -1663,8 +1897,27 @@ class EventForensicAnalyzer:
             wallet_stats.polygon_nonce,
             focus_markets,
         )
+        positions_started = perf_counter()
         wallet_positions = self._client.fetch_wallet_positions(wallet)
+        wallet_positions_seconds = perf_counter() - positions_started
+        performance_started = perf_counter()
         wallet_performance = compute_wallet_performance(wallet_stats.trades, wallet_positions)
+        wallet_performance_seconds = perf_counter() - performance_started
+        _append_wallet_api_trace(
+            trace_records,
+            trace_lock,
+            {
+                "wallet": wallet,
+                "totalSeconds": round(perf_counter() - started, 6),
+                "walletStatsSeconds": round(wallet_stats_seconds, 6),
+                "walletPositionsSeconds": round(wallet_positions_seconds, 6),
+                "walletPerformanceSeconds": round(wallet_performance_seconds, 6),
+                "walletStatsTradeRows": len(wallet_stats.trades),
+                "walletPositionsRows": len(wallet_positions),
+                "tradedMarketCountAvailable": wallet_stats.traded_market_count is not None,
+                "polygonNonceAvailable": wallet_stats.polygon_nonce is not None,
+            },
+        )
         return wallet_inspection, wallet_stats.trades, wallet_performance
 
     def _prepare_candidate_contexts(
@@ -1681,54 +1934,78 @@ class EventForensicAnalyzer:
         funding_trace_mode: str,
         progress_callback: callable | None,
         stop_event: object | None,
-    ) -> tuple[list[CandidateReplayContext], dict[tuple[str, str], tuple[str, datetime]]]:
+        wallet_api_trace_records: list[dict[str, object]] | None = None,
+        wallet_api_trace_lock: Lock | None = None,
+    ) -> tuple[
+        list[CandidateReplayContext],
+        dict[tuple[str, str], tuple[str, datetime]],
+        dict[str, int],
+    ]:
         contexts: list[CandidateReplayContext] = []
         funding_requests: dict[tuple[str, str], tuple[str, datetime]] = {}
         total_candidates = max(1, len(candidate_trades))
         progress_step = max(1, total_candidates // 6)
         all_event_condition_ids = set(resolved.markets)
+        scoped_wallet_history_cache: dict[str, list[Trade]] = {}
         wallet_history_metrics_cache: dict[str, dict[str, dict[str, object]]] = {}
+        profile = {
+            "wallet_context_cache_hits": 0,
+            "wallet_context_cache_misses": 0,
+            "scoped_history_cache_hits": 0,
+            "scoped_history_cache_misses": 0,
+            "wallet_history_metrics_cache_hits": 0,
+            "wallet_history_metrics_cache_misses": 0,
+        }
         for index, trade in enumerate(candidate_trades, start=1):
             if _stop_requested(stop_event):
                 break
             market = resolved.markets[trade.condition_id]
             trade_domain = _domain_for_trade(trade, scope_context.analysis_markets)
+            if trade.wallet in wallet_cache:
+                profile["wallet_context_cache_hits"] += 1
+            else:
+                profile["wallet_context_cache_misses"] += 1
             wallet_inspection, wallet_history_trades, wallet_performance = self._wallet_enrichment(
                 trade.wallet,
                 wallet_cache,
                 scope_context.analysis_markets,
+                trace_records=wallet_api_trace_records,
+                trace_lock=wallet_api_trace_lock,
             )
-            scoped_wallet_history_trades = _scope_filter_wallet_history_trades(
-                wallet_history_trades,
-                all_event_condition_ids=all_event_condition_ids,
-                selected_condition_id=scope_context.selected_condition_id,
-            )
+            scoped_wallet_history_trades = scoped_wallet_history_cache.get(trade.wallet)
+            if scoped_wallet_history_trades is None:
+                scoped_wallet_history_trades = _scope_filter_wallet_history_trades(
+                    wallet_history_trades,
+                    all_event_condition_ids=all_event_condition_ids,
+                    selected_condition_id=scope_context.selected_condition_id,
+                )
+                scoped_wallet_history_cache[trade.wallet] = scoped_wallet_history_trades
+                profile["scoped_history_cache_misses"] += 1
+            else:
+                profile["scoped_history_cache_hits"] += 1
             wallet_trade_metrics = wallet_history_metrics_cache.get(trade.wallet)
             if wallet_trade_metrics is None:
                 wallet_trade_metrics = _wallet_trade_replay_metrics(scoped_wallet_history_trades)
                 wallet_history_metrics_cache[trade.wallet] = wallet_trade_metrics
-            prior_same_market_trades = [
-                item
-                for item in scoped_wallet_history_trades
-                if item.condition_id == trade.condition_id
-                and item.trade_id != trade.trade_id
-                and item.timestamp <= trade.timestamp
-            ]
-            prior_same_asset_trades = [
-                item
-                for item in scoped_wallet_history_trades
-                if item.asset_id == trade.asset_id
-                and item.trade_id != trade.trade_id
-                and item.timestamp <= trade.timestamp
-            ]
+                profile["wallet_history_metrics_cache_misses"] += 1
+            else:
+                profile["wallet_history_metrics_cache_hits"] += 1
+            wallet_window_trades = wallet_trades.get(trade.wallet, [])
+            market_window_trades = market_trades.get(trade.condition_id, [])
+            prepared_score_context = build_score_trade_prepared_context(
+                trade=trade,
+                wallet_window_trades=wallet_window_trades,
+                wallet_history_trades=scoped_wallet_history_trades,
+                market_window_trades=market_window_trades,
+            )
             execution_state = _classify_execution_state(
                 trade,
-                prior_same_asset_trades,
-                prior_same_market_trades,
+                prepared_score_context.prior_same_asset_trades,
+                prepared_score_context.prior_same_market_trades,
             )
             opening_exposure = _is_opening_exposure(execution_state)
             capital_at_risk = _capital_at_risk_usdc(trade, execution_state)
-            conviction_ratio = _wallet_market_conviction_ratio(wallet_trades.get(trade.wallet, []), trade)
+            conviction_ratio = prepared_score_context.wallet_market_conviction_ratio
             trade_metrics = wallet_trade_metrics.get(trade.trade_id, {})
             prior_gap_days = trade_metrics.get("prior_wallet_gap_days")
             funding_cache_key: tuple[str, str] | None = None
@@ -1763,7 +2040,7 @@ class EventForensicAnalyzer:
                     wallet_inspection=wallet_inspection,
                     wallet_history_trades=scoped_wallet_history_trades,
                     wallet_performance=wallet_performance,
-                    market_window_trades=market_trades.get(trade.condition_id, []),
+                    market_window_trades=market_window_trades,
                     domain_window_trades=domain_trades.get(trade_domain, []),
                     event_context=self._event_context_resolver.resolve(
                         trade=trade,
@@ -1779,6 +2056,7 @@ class EventForensicAnalyzer:
                     prior_family_market_count=int(trade_metrics.get("prior_family_market_count") or 0),
                     event_family_share=float(trade_metrics.get("event_family_share") or 0.0),
                     funding_skip_reason=funding_skip_reason,
+                    prepared_score_context=prepared_score_context,
                 )
             )
             if index == 1 or index == total_candidates or index % progress_step == 0:
@@ -1789,7 +2067,7 @@ class EventForensicAnalyzer:
                     "Preparing replay",
                     f"Prepared {index}/{total_candidates} candidate trade contexts",
                 )
-        return contexts, funding_requests
+        return contexts, funding_requests, profile
 
     def _prefetch_funding_contexts(
         self,
@@ -2218,13 +2496,25 @@ class EventForensicAnalyzer:
         scope_context: AnalysisScopeContext,
         threshold: Decimal,
         eligibility: dict[str, object],
+        include_related_markets: bool,
     ) -> dict[str, object]:
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
         report = {
             "analysis_version": EVENT_ANALYSIS_VERSION,
             "generated_at": started_at.isoformat(),
             "status": "preview_only",
             "input_url": resolved.input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -2241,13 +2531,17 @@ class EventForensicAnalyzer:
             "eligibility": eligibility,
             "analysis_settings": {
                 "min_notional": f"{threshold:.2f}",
-                "include_related_markets": True,
+                "include_related_markets": include_related_markets,
                 "include_blockchain": True,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": 0,
                 "candidate_trade_count": 0,
                 "existing_flagged_count": 0,
@@ -2306,12 +2600,23 @@ class EventForensicAnalyzer:
         end_at: datetime | None = None,
     ) -> dict[str, object]:
         eligibility = self._eligibility_payload(resolved)
+        scope_product_metadata = _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+        scope_summary_metadata = _scope_summary_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
         report = {
             "analysis_version": EVENT_ANALYSIS_VERSION,
             "generated_at": started_at.isoformat(),
             "status": "stopped",
             "input_url": resolved.input_value,
             **_analysis_scope_metadata(resolved, scope_context),
+            **scope_product_metadata,
             "target_resolution": self._resolved_target_payload(resolved, scope_context),
             "event": {
                 "id": resolved.event_id,
@@ -2331,12 +2636,16 @@ class EventForensicAnalyzer:
                 "include_related_markets": include_related_markets,
                 "include_blockchain": include_blockchain,
                 "analysis_scope": scope_context.analysis_scope,
+                "primary_scoring_scope": scope_product_metadata["primaryScoringScope"],
+                "related_markets_context_included": scope_product_metadata["relatedMarketsContextIncluded"],
+                "sibling_markets_primary_scored": scope_product_metadata["siblingMarketsPrimaryScored"],
                 "selected_condition_id": scope_context.selected_condition_id,
                 "selected_market_slug": scope_context.selected_market_slug,
                 "start_at": start_at.isoformat() if start_at else "",
                 "end_at": end_at.isoformat() if end_at else "",
             },
             "summary": {
+                **scope_summary_metadata,
                 "raw_trade_count": len(raw_trades),
                 "candidate_trade_count": 0,
                 "existing_flagged_count": 0,
@@ -2432,7 +2741,7 @@ class EventForensicAnalyzer:
             wallet_joined_at = str(getattr(wallet_inspection, "first_trade_at", "") or "")
             winner = winners_by_condition.get(trade.condition_id)
             outcome_known = bool(winner)
-            later_won = bool(raw.get("trade_state") == "increase" and winner and trade.outcome == winner)
+            later_won = bool(raw.get("trade_state") == "increase" and _case_economic_side_won(case, winner))
             related_count = related_by_wallet.get(wallet, 0)
             scored_related_count = 0 if analysis_scope == "market" else related_count
             sibling_activity = sibling_market_activity.get(
@@ -2444,8 +2753,7 @@ class EventForensicAnalyzer:
                 1
                 for item in wallet_cases
                 if item.raw_metrics.get("trade_state") == "increase"
-                and winners_by_condition.get(item.trade.condition_id)
-                and item.trade.outcome == winners_by_condition.get(item.trade.condition_id)
+                and _case_economic_side_won(item, winners_by_condition.get(item.trade.condition_id))
             )
             wallet_opening_entries = sum(
                 1 for item in wallet_cases if item.raw_metrics.get("trade_state") == "increase"
@@ -2467,6 +2775,11 @@ class EventForensicAnalyzer:
                 later_won=later_won,
                 opening_exposure=raw.get("opening_exposure_flag") == "Yes" or raw.get("trade_state") == "increase",
             )
+            side_outcome_context = normalize_side_outcome(trade.side, trade.outcome, trade.price).to_payload()
+            cluster_context = normalize_cluster_direction(trade.side, trade.outcome, trade.price).to_payload()
+            model_probability = side_outcome_context.get("economicSideProbability")
+            if not isinstance(model_probability, (int, float)):
+                model_probability = float(trade.price)
             strong_risk_attribution = {
                 field: raw.get(field, "")
                 for field in STRONG_RISK_ATTRIBUTION_FIELDS
@@ -2487,7 +2800,7 @@ class EventForensicAnalyzer:
                     "retrospective_event_forensic": True,
                     "later_correctness": later_won,
                     "winner_rank": winning_entry_ranks.get(trade.trade_id) or "",
-                    "low_probability_winner": bool(trade.price <= Decimal("0.35")),
+                    "low_probability_winner": bool(model_probability <= 0.35),
                     "dormant_after_win": "dormant_after_win" in flags,
                     "resolved_event_only": True,
                     "live_detectable": False,
@@ -2606,6 +2919,8 @@ class EventForensicAnalyzer:
                     "side": trade.outcome,
                     "orderSide": trade.side,
                     "price": float(trade.price),
+                    **side_outcome_context,
+                    **cluster_context,
                     "positionSize": float(trade.notional),
                     "liquidityShare": raw.get("liquidity_ratio", "Unavailable"),
                     "openingExposure": raw.get("trade_state") == "increase",
@@ -3754,9 +4069,10 @@ class EventForensicAnalyzer:
     ) -> list[dict[str, object]]:
         points: list[dict[str, object]] = []
         for trade in suspicious_trades[:12]:
+            price_context = _side_outcome_label_for_trade(trade)
             note = (
                 f"{trade['walletShort']} {trade['orderSide']} {trade['side']} for "
-                f"${trade['positionSize']:,.0f}. {trade['summary']}"
+                f"${trade['positionSize']:,.0f}. {price_context}. {trade['summary']}"
             )
             points.append(
                 {
@@ -3805,6 +4121,7 @@ class EventForensicAnalyzer:
             or (report.get("target_resolution") or {}).get("parentEventSlug")
             or ""
         )
+        scope_product_metadata = _report_scope_product_metadata(report)
         lines = [
             "# InsPoly Event Forensic Report",
             "",
@@ -3819,6 +4136,11 @@ class EventForensicAnalyzer:
             f"- Unique wallets in loaded {'selected-market' if analysis_scope == 'market' else 'event'} sample: {summary.get('unique_wallet_count', 0)}",
             f"- Parent event slug: {parent_event_slug or 'Unknown'}",
             f"- Scope: {report.get('scope_note', 'Event-wide review across all wallets active in the loaded event.')}",
+            f"- Product scope: {scope_product_metadata['analysisScope']}",
+            f"- Primary scoring scope: {scope_product_metadata['primaryScoringScope']}",
+            f"- Related markets context included: {'yes' if scope_product_metadata['relatedMarketsContextIncluded'] else 'no'}",
+            f"- Sibling markets primary-scored: {'yes' if scope_product_metadata['siblingMarketsPrimaryScored'] else 'no'}",
+            f"- Scope explanation: {scope_product_metadata['scopeExplanation']}",
             "",
         ]
         if analysis_scope == "market":
@@ -3881,6 +4203,11 @@ class EventForensicAnalyzer:
             lines.append("")
 
         top_trades = (report.get("display_trades") or report.get("suspicious_trades", []))[:8]
+        review_required_trades = (
+            report.get("display_review_required_trades")
+            or report.get("review_required_trades")
+            or []
+        )[:8]
         top_wallets = (report.get("display_wallets") or report.get("suspicious_wallets", []))[:8]
         clusters = (report.get("display_clusters") or report.get("wallet_clusters", []))[:5]
         primary_story = _primary_story_lines(report, top_trades, top_wallets, clusters)
@@ -3894,6 +4221,18 @@ class EventForensicAnalyzer:
             lines.extend(other_candidates)
         else:
             lines.append("- No secondary wallet or trade lead cleared the on-screen review threshold.")
+
+        if review_required_trades:
+            lines.extend(["", "## Review-Required Context", ""])
+            lines.append(
+                "- These rows remain exported but are kept out of the primary trade list by the weak-history near-certainty policy."
+            )
+            for trade in review_required_trades:
+                lines.append(
+                    f"- `{trade.get('walletShort') or _short_wallet(str(trade.get('wallet') or ''))}` "
+                    f"{trade.get('orderSide') or ''} {trade.get('side') or ''} in **{trade.get('market') or 'Unknown market'}**: "
+                    f"{trade.get('weakHistoryNearCertaintyReviewReason') or WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON}"
+                )
 
         lines.extend(["", "## What To Inspect Next", ""])
         lines.extend(_next_action_lines(report, primary_story, clusters))
@@ -4083,6 +4422,7 @@ class EventForensicAnalyzer:
         related_markets: list[dict[str, object]],
         candidate_audit_rows: list[dict[str, object]],
         raw_bundle: dict[str, object],
+        indexer_warehouse_pointer: dict[str, object] | None = None,
     ) -> dict[str, str]:
         suffix = "_stopped" if report.get("status") == "stopped" else ""
         base_name = started_at.strftime("event_forensic_%Y%m%d_%H%M%S") + suffix
@@ -4134,6 +4474,14 @@ class EventForensicAnalyzer:
         persisted_report["report_json_path"] = str(report_json_path)
         persisted_report["report_md_path"] = str(event_report_md_path)
         persisted_report["report_txt_path"] = str(event_report_md_path)
+        if indexer_warehouse_pointer is not None:
+            persisted_report = attach_indexer_warehouse_pointer(
+                persisted_report,
+                indexer_warehouse_pointer,
+                source_report_id=str(report_json_path),
+                generated_at=started_at,
+            )
+            report[POINTER_FIELD] = persisted_report[POINTER_FIELD]
 
         report_json = json.dumps(persisted_report, ensure_ascii=False, indent=2)
         report_json_path.write_text(report_json, encoding="utf-8")
@@ -4186,6 +4534,22 @@ class EventForensicAnalyzer:
                 "market",
                 "side",
                 "orderSide",
+                "rawTokenOutcome",
+                "rawOrderSide",
+                "rawTokenPrice",
+                "rawTokenPriceLabel",
+                "economicSide",
+                "economicSideProbability",
+                "economicSideProbabilityLabel",
+                "economicDirectionNormalized",
+                "modelProbabilityBasis",
+                "modelEconomicDirection",
+                "sideOutcomeNormalizationStatus",
+                "sideOutcomeFallbackReason",
+                "clusterDirection",
+                "clusterDirectionBasis",
+                "clusterNormalizationStatus",
+                "clusterDirectionFallbackReason",
                 "positionSize",
                 "liquidityShare",
                 "laterWon",
@@ -4195,6 +4559,10 @@ class EventForensicAnalyzer:
                 "existingModelScore",
                 "existingModelClass",
                 "eventForensicScore",
+                "weakHistoryNearCertaintyReviewDemotion",
+                "weakHistoryNearCertaintyReviewReason",
+                "reviewBucketBeforePolicy",
+                "reviewBucketAfterPolicy",
                 "hardEvidenceSources",
                 "hardEvidenceStrength",
                 "hardEvidencePrimaryReason",
@@ -4579,6 +4947,22 @@ def _candidate_audit_fieldnames() -> list[str]:
         "side",
         "outcome",
         "orderSide",
+        "rawTokenOutcome",
+        "rawOrderSide",
+        "rawTokenPrice",
+        "rawTokenPriceLabel",
+        "economicSide",
+        "economicSideProbability",
+        "economicSideProbabilityLabel",
+        "economicDirectionNormalized",
+        "modelProbabilityBasis",
+        "modelEconomicDirection",
+        "sideOutcomeNormalizationStatus",
+        "sideOutcomeFallbackReason",
+        "clusterDirection",
+        "clusterDirectionBasis",
+        "clusterNormalizationStatus",
+        "clusterDirectionFallbackReason",
         "notionalUsd",
         "currentModelScore",
         "currentModelSeverity",
@@ -4591,6 +4975,10 @@ def _candidate_audit_fieldnames() -> list[str]:
         "hardEvidenceReviewTier",
         "hardEvidenceSources",
         "eventForensicScore",
+        "weakHistoryNearCertaintyReviewDemotion",
+        "weakHistoryNearCertaintyReviewReason",
+        "reviewBucketBeforePolicy",
+        "reviewBucketAfterPolicy",
         "eventForensicFlags",
         "eventForensicBoosters",
         "eventForensicReducers",
@@ -4710,6 +5098,22 @@ def _candidate_audit_row_from_trade_payload(
         "side": item.get("side", ""),
         "outcome": item.get("side", ""),
         "orderSide": item.get("orderSide", ""),
+        "rawTokenOutcome": item.get("rawTokenOutcome", ""),
+        "rawOrderSide": item.get("rawOrderSide", ""),
+        "rawTokenPrice": item.get("rawTokenPrice", ""),
+        "rawTokenPriceLabel": item.get("rawTokenPriceLabel", ""),
+        "economicSide": item.get("economicSide", ""),
+        "economicSideProbability": item.get("economicSideProbability", ""),
+        "economicSideProbabilityLabel": item.get("economicSideProbabilityLabel", ""),
+        "economicDirectionNormalized": item.get("economicDirectionNormalized", ""),
+        "modelProbabilityBasis": item.get("modelProbabilityBasis", ""),
+        "modelEconomicDirection": item.get("modelEconomicDirection", ""),
+        "sideOutcomeNormalizationStatus": item.get("sideOutcomeNormalizationStatus", ""),
+        "sideOutcomeFallbackReason": item.get("sideOutcomeFallbackReason", ""),
+        "clusterDirection": item.get("clusterDirection", ""),
+        "clusterDirectionBasis": item.get("clusterDirectionBasis", ""),
+        "clusterNormalizationStatus": item.get("clusterNormalizationStatus", ""),
+        "clusterDirectionFallbackReason": item.get("clusterDirectionFallbackReason", ""),
         "notionalUsd": item.get("positionSize", ""),
         "currentModelScore": item.get("existingModelScore", ""),
         "currentModelSeverity": item.get("existingModelClass", ""),
@@ -4722,6 +5126,10 @@ def _candidate_audit_row_from_trade_payload(
         "hardEvidenceReviewTier": hard_evidence_tier,
         "hardEvidenceSources": hard_evidence_sources,
         "eventForensicScore": item.get("eventForensicScore", ""),
+        "weakHistoryNearCertaintyReviewDemotion": item.get("weakHistoryNearCertaintyReviewDemotion", ""),
+        "weakHistoryNearCertaintyReviewReason": item.get("weakHistoryNearCertaintyReviewReason", ""),
+        "reviewBucketBeforePolicy": item.get("reviewBucketBeforePolicy", ""),
+        "reviewBucketAfterPolicy": item.get("reviewBucketAfterPolicy", ""),
         "eventForensicFlags": event_flags,
         "eventForensicBoosters": event_flags,
         "eventForensicReducers": event_reducers,
@@ -4775,6 +5183,14 @@ def _candidate_audit_display_tier(
         else:
             reason = f"Event Forensic score {score} met the primary threshold {EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD}."
         return "primary_event_forensic", reason, "Shown in the primary UI review list."
+    if _is_weak_history_near_certainty_review_demoted(item):
+        reason = str(item.get("weakHistoryNearCertaintyReviewReason") or WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON)
+        before_bucket = str(item.get("reviewBucketBeforePolicy") or "primary_review")
+        return (
+            WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER,
+            reason,
+            f"Kept in exports and candidate audit, but moved from `{before_bucket}` to secondary review-required context.",
+        )
     demotion_bits = _dedupe_labels([*reducers, *suppressors])
     demotion_text = "; ".join(demotion_bits[:4]) if demotion_bits else f"Event Forensic score {score} stayed below primary threshold {EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD}."
     if current_severity == "Strong Risk":
@@ -4985,6 +5401,7 @@ def _candidate_audit_markdown(report: dict[str, object], rows: list[dict[str, ob
             "## Notes",
             "",
             "- `primary_event_forensic` rows are the rows shown in the primary Event Forensic trade list.",
+            f"- `{WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER}` rows matched the approved weak-history near-certainty later-win placement policy and remain in exports/candidate audit.",
             "- `current_model_*_demoted` rows were visible to the current/base model but did not survive Event Forensic primary review.",
             "- `not_flagged_candidate` rows are exported so analysts can see the full selected-market candidate stack.",
             "- Funding disabled/cache-miss rows must be interpreted as funding `unknown`, not clean funding.",
@@ -5162,6 +5579,52 @@ def _analysis_scope_metadata(
     }
 
 
+def _scope_product_metadata(
+    resolved: ResolvedEvent,
+    scope_context: AnalysisScopeContext,
+    *,
+    include_related_markets: bool,
+) -> dict[str, object]:
+    selected_scope = scope_context.analysis_scope == "market"
+    product_scope = "selected_market" if selected_scope else "whole_event"
+    selected_market_question = scope_context.selected_market_title or ""
+    if selected_scope:
+        scope_explanation = (
+            "Selected-market report: primary scoring and ranking use only the selected market. "
+            "Related or sibling markets are context-only unless whole-event scope is explicitly selected."
+        )
+    else:
+        scope_explanation = (
+            "Whole-event report: primary scoring and ranking use the explicitly loaded event markets. "
+            "Related case-family markets can contribute only because whole-event scope is active."
+        )
+    return {
+        "analysisScope": product_scope,
+        "primaryScoringScope": product_scope,
+        "selectedMarketSlug": scope_context.selected_market_slug or "",
+        "selectedMarketQuestion": selected_market_question,
+        "eventSlug": resolved.event_slug,
+        "relatedMarketsContextIncluded": bool(include_related_markets),
+        "siblingMarketsPrimaryScored": bool(not selected_scope and include_related_markets),
+        "scopeExplanation": scope_explanation,
+    }
+
+
+def _scope_summary_metadata(
+    resolved: ResolvedEvent,
+    scope_context: AnalysisScopeContext,
+    *,
+    include_related_markets: bool,
+) -> dict[str, object]:
+    return dict(
+        _scope_product_metadata(
+            resolved,
+            scope_context,
+            include_related_markets=include_related_markets,
+        )
+    )
+
+
 def _scope_note(scope_context: AnalysisScopeContext) -> str:
     if scope_context.analysis_scope == "market":
         market_title = scope_context.selected_market_title or "the selected child market"
@@ -5315,6 +5778,63 @@ def _report_selected_market_title(report: dict[str, object]) -> str | None:
     return str(value) if value else None
 
 
+def _report_scope_product_metadata(report: dict[str, object]) -> dict[str, object]:
+    summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
+    settings = report.get("analysis_settings") if isinstance(report.get("analysis_settings"), dict) else {}
+    event = report.get("event") if isinstance(report.get("event"), dict) else {}
+    legacy_scope = _report_analysis_scope(report)
+    product_scope = str(
+        report.get("analysisScope")
+        or summary.get("analysisScope")
+        or ("selected_market" if legacy_scope == "market" else "whole_event")
+    )
+    primary_scope = str(
+        report.get("primaryScoringScope")
+        or summary.get("primaryScoringScope")
+        or settings.get("primary_scoring_scope")
+        or product_scope
+    )
+    related_context = report.get("relatedMarketsContextIncluded", summary.get("relatedMarketsContextIncluded"))
+    if related_context is None:
+        related_context = bool(report.get("related_markets") or [])
+    sibling_primary = report.get("siblingMarketsPrimaryScored", summary.get("siblingMarketsPrimaryScored"))
+    if sibling_primary is None:
+        sibling_primary = bool(legacy_scope == "event" and settings.get("include_related_markets", False))
+    explanation = str(report.get("scopeExplanation") or summary.get("scopeExplanation") or report.get("scope_note") or "")
+    if not explanation:
+        explanation = (
+            "Selected-market report: primary scoring and ranking use only the selected market; related or sibling markets are context-only."
+            if legacy_scope == "market"
+            else "Whole-event report: primary scoring and ranking use the explicitly loaded event markets."
+        )
+    selected_market_title = _report_selected_market_title(report) or ""
+    return {
+        "analysisScope": product_scope,
+        "primaryScoringScope": primary_scope,
+        "selectedMarketSlug": str(
+            report.get("selectedMarketSlug")
+            or summary.get("selectedMarketSlug")
+            or _report_selected_market_slug(report)
+            or ""
+        ),
+        "selectedMarketQuestion": str(
+            report.get("selectedMarketQuestion")
+            or summary.get("selectedMarketQuestion")
+            or selected_market_title
+        ),
+        "eventSlug": str(
+            report.get("eventSlug")
+            or summary.get("eventSlug")
+            or event.get("slug")
+            or report.get("parent_event_slug")
+            or ""
+        ),
+        "relatedMarketsContextIncluded": bool(related_context),
+        "siblingMarketsPrimaryScored": bool(sibling_primary),
+        "scopeExplanation": explanation,
+    }
+
+
 def _report_resolution_status(report: dict[str, object]) -> str:
     eligibility = report.get("eligibility") or {}
     event = report.get("event") or {}
@@ -5454,9 +5974,21 @@ def _annotate_wallet_domain_diversity(
     *,
     wallet_history_trades: list[Trade],
     focus_markets: dict[str, Market],
+    domain_counts_cache: dict[str, dict[str, int]] | None = None,
+    profile: dict[str, int] | None = None,
 ) -> None:
     raw = case.raw_metrics
-    domain_counts = _wallet_review_domain_counts(wallet_history_trades, focus_markets)
+    cache_key = case.trade.wallet if domain_counts_cache is not None else ""
+    if cache_key and cache_key in domain_counts_cache:
+        domain_counts = domain_counts_cache[cache_key]
+        if profile is not None:
+            profile["cache_hits"] = int(profile.get("cache_hits", 0)) + 1
+    else:
+        domain_counts = _wallet_review_domain_counts(wallet_history_trades, focus_markets)
+        if cache_key:
+            domain_counts_cache[cache_key] = domain_counts
+        if profile is not None:
+            profile["cache_misses"] = int(profile.get("cache_misses", 0)) + 1
     nonzero_domains = {domain: count for domain, count in domain_counts.items() if count > 0}
     trade_domain = str(raw.get("trade_domain") or "Other")
     sports_count = int(nonzero_domains.get("Sports", 0))
@@ -5840,7 +6372,7 @@ def _wallet_hard_evidence_attribution(
     for item in items:
         raw = item.get("rawMetrics") if isinstance(item.get("rawMetrics"), dict) else {}
         flags = _payload_flag_set(item.get("eventForensicFlags"))
-        price = _metric_float(item.get("price")) or 0.0
+        price = _payload_model_probability(item, raw)
         winner_rank_value = _metric_int(item.get("winnerRank"))
         later_won = bool(item.get("laterWon"))
         saved_hard_sources = _text_values(item.get("hardEvidenceSources")) or _text_values(
@@ -6750,11 +7282,13 @@ def _primary_story_lines(
     if top_trades:
         trade = top_trades[0]
         wallet = str(trade.get("wallet") or "")
+        price_context = _side_outcome_label_for_trade(trade)
         lines = [
             f"- Primary trade: **{trade.get('walletShort') or _short_wallet(wallet)}** on **{trade.get('market') or 'Unknown market'}**.",
             (
                 f"- What happened: {trade.get('orderSide') or 'TRADE'} {trade.get('side') or ''} "
-                f"for {_money_label(trade.get('positionSize'))} at {trade.get('displayTime') or 'an unknown time'}."
+                f"for {_money_label(trade.get('positionSize'))} at {trade.get('displayTime') or 'an unknown time'}. "
+                f"{price_context}."
             ),
             f"- Why it matters: {str(trade.get('summary') or 'This is the strongest trade lead in the loaded data.')}",
         ]
@@ -6809,11 +7343,23 @@ def _other_candidate_lines(
         lines.append(
             f"- **{trade.get('walletShort') or _short_wallet(wallet_address)}** on **{trade.get('market') or 'Unknown market'}**: "
             f"{trade.get('orderSide') or 'TRADE'} {trade.get('side') or ''} for {_money_label(trade.get('positionSize'))} "
-            f"at {trade.get('displayTime') or 'an unknown time'}."
+            f"at {trade.get('displayTime') or 'an unknown time'}. {_side_outcome_label_for_trade(trade)}."
         )
         if len(lines) >= limit:
             break
     return lines
+
+
+def _side_outcome_label_for_trade(trade: dict[str, object]) -> str:
+    raw_label = str(trade.get("rawTokenPriceLabel") or "").strip()
+    economic_label = str(trade.get("economicSideProbabilityLabel") or "").strip()
+    if raw_label and economic_label:
+        return f"{raw_label}; {economic_label}"
+    price = trade.get("price")
+    if price not in (None, ""):
+        normalized = normalize_side_outcome(trade.get("orderSide"), trade.get("side"), price)
+        return f"{normalized.raw_token_price_label}; {normalized.economic_side_probability_label}"
+    return "Token price unavailable; economic probability unavailable"
 
 
 def _suspicious_funding_quality_note(row: dict[str, object]) -> str:
@@ -7157,7 +7703,11 @@ def _winning_entry_ranks(cases: list[FlaggedCase], winners_by_condition: dict[st
     grouped: dict[str, list[FlaggedCase]] = defaultdict(list)
     for case in cases:
         winner = winners_by_condition.get(case.trade.condition_id)
-        if winner and case.trade.outcome == winner and case.raw_metrics.get("trade_state") == "increase":
+        if (
+            winner
+            and _case_economic_side_won(case, winner)
+            and case.raw_metrics.get("trade_state") == "increase"
+        ):
             grouped[case.trade.condition_id].append(case)
     result: dict[str, int] = {}
     for market_cases in grouped.values():
@@ -7165,6 +7715,38 @@ def _winning_entry_ranks(cases: list[FlaggedCase], winners_by_condition: dict[st
         for index, case in enumerate(ordered, start=1):
             result[case.trade.trade_id] = index
     return result
+
+
+def _normalize_winner_outcome(value: object) -> str:
+    text = str(value or "").strip().upper()
+    if text in {"YES", "Y"}:
+        return "YES"
+    if text in {"NO", "N"}:
+        return "NO"
+    return UNKNOWN
+
+
+def _case_side_outcome_model(case: FlaggedCase):
+    return normalize_side_outcome(case.trade.side, case.trade.outcome, case.trade.price)
+
+
+def _case_economic_side_won(case: FlaggedCase, winner: object) -> bool:
+    winner_outcome = _normalize_winner_outcome(winner)
+    normalized = _case_side_outcome_model(case)
+    return bool(winner_outcome != UNKNOWN and normalized.economic_side == winner_outcome)
+
+
+def _payload_model_probability(item: dict[str, object], raw: dict[str, object]) -> float:
+    for value in (
+        item.get("economicSideProbability"),
+        raw.get("economic_side_probability"),
+        raw.get("model_probability"),
+        item.get("price"),
+    ):
+        probability = _metric_float(value)
+        if probability is not None:
+            return probability / 100.0 if probability > 1 else probability
+    return 0.0
 
 
 def _event_forensic_score(
@@ -7184,9 +7766,16 @@ def _event_forensic_score(
     dormant_gap_days = _metric_float(raw.get("days_since_prior_wallet_trade"))
     post_trade_gap_days = _metric_float(raw.get("days_to_next_wallet_trade"))
     try:
-        entry_price = float(case.trade.price)
+        raw_entry_price = float(case.trade.price)
     except (TypeError, ValueError):
-        entry_price = 0.0
+        raw_entry_price = 0.0
+    normalized_side_outcome = _case_side_outcome_model(case)
+    if normalized_side_outcome.economic_side_probability is None:
+        entry_price = raw_entry_price
+        entry_probability_basis = "raw_token_price_fallback"
+    else:
+        entry_price = float(normalized_side_outcome.economic_side_probability)
+        entry_probability_basis = normalized_side_outcome.model_probability_basis
     near_certainty_entry = entry_price >= NEAR_CERTAINTY_PRICE
     poor_history = _poor_wallet_history(raw)
     independent_proof = _has_independent_forensic_proof(
@@ -7358,6 +7947,8 @@ def _event_forensic_score(
                 "High-impact repricing source quality is weak without non-repricing hard evidence."
             )
 
+    raw["event_forensic_model_probability"] = f"{entry_price:.6f}".rstrip("0").rstrip(".")
+    raw["event_forensic_model_probability_basis"] = entry_probability_basis
     score = max(0, min(100, score))
     if not notes:
         notes.extend(case.explanation[:2])
@@ -7375,6 +7966,105 @@ def _dedupe_trade_payloads(rows: list[dict[str, object]]) -> list[dict[str, obje
         seen.add(key)
         result.append(row)
     return result
+
+
+def _annotate_weak_history_near_certainty_review_policy(rows: list[dict[str, object]]) -> None:
+    for item in rows:
+        before_bucket = _review_bucket_before_weak_history_policy(item)
+        demote, reason = _weak_history_near_certainty_review_demotion(item)
+        item["reviewBucketBeforePolicy"] = before_bucket
+        item["weakHistoryNearCertaintyReviewDemotion"] = "Yes" if demote else "No"
+        item["weakHistoryNearCertaintyReviewReason"] = reason
+        item["reviewBucketAfterPolicy"] = (
+            WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REQUIRED_TIER if demote else before_bucket
+        )
+
+
+def _is_weak_history_near_certainty_review_demoted(item: dict[str, object]) -> bool:
+    return str(item.get("weakHistoryNearCertaintyReviewDemotion") or "") == "Yes"
+
+
+def _review_bucket_before_weak_history_policy(item: dict[str, object]) -> str:
+    current_strong = str(item.get("existingModelClass") or "") == "Strong Risk"
+    retrospective_strong = str(item.get("finalEventJudgment") or "").startswith("Strong Risk")
+    if current_strong or retrospective_strong:
+        return "current_or_retrospective_strong_risk"
+    if item.get("hardEvidenceReviewTier") == HARD_EVIDENCE_REVIEW_TIER:
+        return "hard_evidence_review"
+    if _metric_int(item.get("eventForensicScore")) >= EVENT_FORENSIC_PRIMARY_TRADE_THRESHOLD:
+        return "event_forensic_primary_threshold"
+    return "secondary_context"
+
+
+def _weak_history_near_certainty_review_demotion(item: dict[str, object]) -> tuple[bool, str]:
+    raw = item.get("rawMetrics")
+    raw_metrics = raw if isinstance(raw, dict) else {}
+    before_bucket = _review_bucket_before_weak_history_policy(item)
+    if before_bucket == "secondary_context":
+        return False, "already_secondary_review_context"
+    if not _payload_later_won_true(item):
+        return False, "later_correctness_unknown_or_false"
+    probability = _weak_history_policy_probability(item, raw_metrics)
+    if probability is None:
+        return False, "economic_side_probability_unavailable"
+    if probability < NEAR_CERTAINTY_PRICE:
+        return False, "economic_side_probability_not_near_certainty"
+    if not _payload_has_weak_history_signal(item, raw_metrics):
+        return False, "weak_history_signal_absent_or_unknown"
+    return True, WEAK_HISTORY_NEAR_CERTAINTY_REVIEW_REASON
+
+
+def _payload_later_won_true(item: dict[str, object]) -> bool:
+    value = item.get("laterWon")
+    if isinstance(value, bool):
+        return value
+    text = str(value or "").strip().lower()
+    return text in {"true", "yes", "1"}
+
+
+def _weak_history_policy_probability(item: dict[str, object], raw_metrics: dict[str, object]) -> float | None:
+    status = str(
+        item.get("sideOutcomeNormalizationStatus")
+        or raw_metrics.get("sideOutcomeNormalizationStatus")
+        or raw_metrics.get("side_outcome_normalization_status")
+        or ""
+    ).strip()
+    if status and status != "normalized":
+        return None
+    for value in (
+        item.get("economicSideProbability"),
+        raw_metrics.get("event_forensic_model_probability"),
+        raw_metrics.get("economic_side_probability"),
+        raw_metrics.get("model_probability"),
+    ):
+        probability = _metric_float(value)
+        if probability is not None:
+            return probability / 100.0 if probability > 1 else probability
+    return None
+
+
+def _payload_has_weak_history_signal(item: dict[str, object], raw_metrics: dict[str, object]) -> bool:
+    flags = _text_values(item.get("eventForensicFlags"))
+    if "weak_wallet_track_record" in flags:
+        return True
+    text_parts = [
+        *_text_values(item.get("eventForensicFlags")),
+        *_text_values(item.get("eventForensicReducers")),
+        *_text_values(item.get("reducesConcern")),
+        str(item.get("summary") or ""),
+        str(raw_metrics.get("wallet_economic_history_note") or ""),
+        str(raw_metrics.get("economic_history_note") or ""),
+        str(raw_metrics.get("weak_wallet_track_record") or ""),
+    ]
+    text = " ".join(part.lower() for part in text_parts if str(part).strip())
+    if "strong track record" in text or "history is not weak" in text:
+        return False
+    return (
+        "weak_wallet_track_record" in text
+        or "weak economic history" in text
+        or "weak economic track" in text
+        or "broader losing record" in text
+    )
 
 
 def _event_trade_sort_key(item: dict[str, object]) -> tuple[int, int, int, int, float]:
@@ -7528,13 +8218,13 @@ def _timing_clusters(
     trade_payloads: list[dict[str, object]],
     suspicious_wallet_lookup: set[str],
 ) -> list[list[dict[str, object]]]:
-    grouped: dict[tuple[str, str, str], list[dict[str, object]]] = defaultdict(list)
+    grouped: dict[tuple[str, ...], list[dict[str, object]]] = defaultdict(list)
     for item in trade_payloads:
         if item["wallet"] not in suspicious_wallet_lookup:
             continue
         if item["eventForensicScore"] < 45 and item.get("hardEvidenceReviewTier") != HARD_EVIDENCE_REVIEW_TIER:
             continue
-        key = (item["marketSlug"], item["orderSide"], item["side"])
+        key = _timing_cluster_key(item)
         grouped[key].append(item)
 
     clusters: list[list[dict[str, object]]] = []
@@ -7556,6 +8246,17 @@ def _timing_clusters(
         if len({trade["wallet"] for trade in current}) >= 2:
             clusters.append(current[:])
     return clusters
+
+
+def _timing_cluster_key(item: dict[str, object]) -> tuple[str, ...]:
+    cluster_direction = str(item.get("clusterDirection") or "").strip()
+    if cluster_direction in {"long_yes", "long_no"} and item.get("clusterNormalizationStatus") == "normalized":
+        return (str(item.get("marketSlug") or ""), cluster_direction)
+    return (
+        str(item.get("marketSlug") or ""),
+        str(item.get("orderSide") or ""),
+        str(item.get("side") or ""),
+    )
 
 
 def _suggest_model_improvements(

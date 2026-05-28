@@ -1,0 +1,42 @@
+{
+  "capital": {
+    "currentRawNotional": "20.00",
+    "hypotheticalSellMaxLoss": "80.00",
+    "observedCash": "unknown",
+    "qualityNotes": [
+      "saved_report_row_is_audit_evidence_not_runtime_source"
+    ],
+    "safeForSellMaxLoss": false,
+    "sourceQuality": "safe_for_display_only"
+  },
+  "generatedAt": "2026-05-25T12:36:30.495286+00:00",
+  "identity": {
+    "event": "",
+    "market": "cond-phase3-c",
+    "wallet": "0xphase303"
+  },
+  "networkUsed": false,
+  "packetId": "phase3-sensitive-capital-001",
+  "productionIntegration": false,
+  "recommendation": "needs_source_fields",
+  "recommendationReason": "The row needs stronger source fields before Phase 3 capital semantics can be trusted.",
+  "runtimeImplementationAllowed": false,
+  "sensitiveOverlap": true,
+  "sidecarOnly": true,
+  "source": {
+    "artifactFamily": "phase3_synthetic_json",
+    "artifactPath": "tests/fixtures/side_outcome_phase3_capital_at_risk/cases.json",
+    "rowId": "phase3-sell-yes-020",
+    "sourceProvenance": "synthetic_fixture",
+    "sourceType": "phase3_synthetic_json"
+  },
+  "trade": {
+    "economicSide": "NO",
+    "economicSideProbability": "0.80",
+    "rawOrderSide": "SELL",
+    "rawTokenOutcome": "YES",
+    "rawTokenPrice": "0.20",
+    "size": "100",
+    "usdcSize": "unknown"
+  }
+}

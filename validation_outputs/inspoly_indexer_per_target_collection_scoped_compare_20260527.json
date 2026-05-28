@@ -1,0 +1,712 @@
+{
+  "baseDbs": [
+    ".inspoly_indexer/bounded_live_multitarget_repeat2_20260527/indexer.sqlite3",
+    ".inspoly_indexer/bounded_live_multitarget_repeat_20260527/indexer.sqlite3",
+    ".inspoly_indexer/bounded_live_repeat_20260527/indexer.sqlite3"
+  ],
+  "candidateDb": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+  "classification": {
+    "duplicateOrMalformedRisk": false,
+    "intendedCollectionPolicyDrift": true,
+    "providerOrCollectionDriftCount": 9,
+    "storageIdentityRisk": false,
+    "targetCoverageImproved": true,
+    "unsupportedCompareLimitations": []
+  },
+  "comparisons": {
+    "previousHardeningAggregateDbVsPerTargetDbSameThreeTargets": {
+      "baseDbPath": ".inspoly_indexer/bounded_live_multitarget_repeat_20260527/indexer.sqlite3",
+      "candidateDbPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+      "comparisonMode": "fresh_live",
+      "cursorComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 2,
+        "candidateCount": 2,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "statusErrorChangedCount": 0,
+        "statusErrorChangedSamples": [],
+        "valueChangedCount": 1,
+        "valueChangedSamples": [
+          "bounded_live_sidecar::public_trades"
+        ]
+      },
+      "findings": [
+        "table_count_drift_allowed_for_fresh_live_review",
+        "cursor_value_drift_requires_operator_review",
+        "scoped_trade_identity_or_row_drift_outside_fresh_live_tolerance"
+      ],
+      "generatedAt": "2026-05-27T12:32:53.795293+00:00",
+      "marketComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 3,
+        "candidateCount": 3,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "valueChangedCount": 0,
+        "valueChangedSamples": []
+      },
+      "networkUsed": false,
+      "productionIntegration": false,
+      "rawHashComparison": {
+        "marketRawHashChangedCount": 0,
+        "tradeRawHashChangedCount": 0
+      },
+      "readOnly": true,
+      "readiness": {
+        "base": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+          "recommendedNextAction": "use_as_operator_review_input_only_live_indexer_still_requires_approval",
+          "schemaStatus": "complete",
+          "staleCursorCount": 0,
+          "tableCounts": {
+            "indexed_markets": 3,
+            "indexed_trades": 200,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        },
+        "candidate": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+          "recommendedNextAction": "use_as_operator_review_input_only_live_indexer_still_requires_approval",
+          "schemaStatus": "complete",
+          "staleCursorCount": 0,
+          "tableCounts": {
+            "indexed_markets": 3,
+            "indexed_trades": 180,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        }
+      },
+      "reportType": "indexer_sidecar_db_compare",
+      "runtimeImplementationAllowed": false,
+      "schemaVersion": "indexer_sidecar_db_compare_v1",
+      "scope": {
+        "enabled": true,
+        "missingConditionIds": [],
+        "missingMarketSlugs": [],
+        "requestedConditionIds": [],
+        "requestedMarketSlugs": [
+          "russia-x-ukraine-ceasefire-by-january-31-2026",
+          "maduro-in-us-custody-by-january-31",
+          "khamenei-out-as-supreme-leader-of-iran-by-february-28"
+        ],
+        "resolvedConditionIds": [
+          "0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce",
+          "0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d",
+          "0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8"
+        ],
+        "unsupportedCompareReason": ""
+      },
+      "sidecarOnly": true,
+      "summary": {
+        "baseDbExists": true,
+        "baseReadinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+        "candidateDbExists": true,
+        "candidateReadinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+        "cursorDriftCount": 1,
+        "gateDecision": "indexer_sidecar_compare_warn_provider_drift",
+        "marketIdentityDriftCount": 0,
+        "providerDriftCount": 3,
+        "rawHashDriftCount": 0,
+        "recommendedNextAction": "operator_review_provider_drift_before_repeat_run_expansion",
+        "storageRiskCount": 0,
+        "tableCountDriftCount": 1,
+        "tradeIdentityDriftCount": 260
+      },
+      "tableCounts": {
+        "comparisonMode": "fresh_live",
+        "driftCount": 1,
+        "tables": {
+          "indexed_markets": {
+            "base": 3,
+            "candidate": 3,
+            "delta": 0,
+            "status": "match"
+          },
+          "indexed_trades": {
+            "base": 200,
+            "candidate": 180,
+            "delta": -20,
+            "status": "drift"
+          },
+          "indexer_cursors": {
+            "base": 2,
+            "candidate": 2,
+            "delta": 0,
+            "status": "match"
+          },
+          "orderbook_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "score_history": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "wallet_index_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          }
+        }
+      },
+      "tolerances": {
+        "tradeRowDriftToleranceAbs": 25,
+        "tradeRowDriftTolerancePct": 10.0
+      },
+      "tradeComparison": {
+        "addedTradeIdCount": 120,
+        "addedTradeIdSamples": [
+          "bounded_live_sidecar:0x00f82b41d673603098e2c43d252842241c8120c722a6726eb3bef606a0b6351c:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769922982:50.05:0.999",
+          "bounded_live_sidecar:0x0140d728abd08475f8d018bbe028288e76b667b8428baf6800ed9afeeb2d1fa3:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767744267:250000:0.001",
+          "bounded_live_sidecar:0x016de48c9124450bed1a4eeb9b10fefdd6b6771692ae6331b242daca1b4fd6b4:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767737999:3440:0.001",
+          "bounded_live_sidecar:0x0482b5c61a4587f4d4bcbc7ee47a4b4bf13807213964be81140aed6e2095e5b8:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769918474:20.02:0.999",
+          "bounded_live_sidecar:0x0bfb4f7d1338d1876f17f3302ddf5b6d3bf86c0f593dcf62ccf531028970dc8e:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769918434:1.03:0.999",
+          "bounded_live_sidecar:0x0cddfd200bf04404f843bf1d5aef013ea8826d78bd5aeee0c807821450aa1147:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767745049:1000:0.001",
+          "bounded_live_sidecar:0x0d63c8418d16925ba8bad9c94a85370877a18422b96aa6256e7463108dc6ce4d:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767732809:1000:0.001",
+          "bounded_live_sidecar:0x0ed8087bd923748cded21d8d628dd87d10d62205579a0048d4e9fa83f49b1dba:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767741335:50000:0.001",
+          "bounded_live_sidecar:0x15ad0287999c66a189720060762fb42208e81cfa662fe633d57f527a42b1291f:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769912150:1:0.999",
+          "bounded_live_sidecar:0x174d6d24b8fa3f0a6584904ffba1d608601c1746f69c243f7755c8024a4ada76:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769923962:64.5:0.999",
+          "bounded_live_sidecar:0x17c5e935f4b075dc1dede677cc2f2f784874630c1e3f99417069e33d6474ce1e:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767733989:1000:0.001",
+          "bounded_live_sidecar:0x1a4dd3db8d9b7cc4475e6bf7c6fc9db5e70c9f7c76d4211057f3c8db97d7b81c:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767741889:249.99:0.001",
+          "bounded_live_sidecar:0x1b7c4d212fc90920f3ab8e81fe1be8e1d75f7fd7d288e34a4d110f757a39b102:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767739627:40000:0.001",
+          "bounded_live_sidecar:0x1b8bdd43f63116e841aa43cc268c5b7589bccea3c9a9b0d35a74bc1ba63c4d2c:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:7023463941941580393623777508894165086142929841541805476418845616988817847686:SELL:Yes:1767732123:20.77:0.999",
+          "bounded_live_sidecar:0x1bcb49c870e28e47881373abe54fbb4b9e5955f9bee96bc185086462f34736c9:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769917918:10:0.999",
+          "bounded_live_sidecar:0x1da6b7f0f5d856a84792ca49b662707afb9ddc42017ba51945559c8b47e89a31:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769917706:10000:0.998",
+          "bounded_live_sidecar:0x1dc4b2b369dda73255a0790eb5a19e12b804c08a31eae9cee5252611bc7cdf33:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769925506:103.73:0.999",
+          "bounded_live_sidecar:0x1dff85673110d49974422d3d83f14c3938176ba1a4c48883ac8bdc192ee24b83:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767739041:5000:0.001",
+          "bounded_live_sidecar:0x1fd24826028b551ccacc282a3130111a1a75754e77eda674ce2b82897a12c2cb:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767736971:4000:0.001",
+          "bounded_live_sidecar:0x27eb61e868cd5bcf1fb476963775771a01f9bf914347b1fb1ec31ddea9129a9a:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767732457:7800:0.001"
+        ],
+        "allowedRowDrift": 25,
+        "baseCount": 200,
+        "candidateCount": 180,
+        "commonRawHashChangedCount": 0,
+        "commonRawHashChangedSamples": [],
+        "commonValueChangedCount": 0,
+        "commonValueChangedSamples": [],
+        "missingTradeIdCount": 140,
+        "missingTradeIdSamples": [
+          "bounded_live_sidecar:0x036cc623d7bc95e4efbbedce6c46d6fd74135e57f139e385bc1e5f92426b64bb:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582583:1000:0.001",
+          "bounded_live_sidecar:0x070b504c51b2df3346aa6ec0c6be6d50d82de93742961c80768c2a9f976377cd:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772579991:105.04:0.998",
+          "bounded_live_sidecar:0x075e9775d36a9bf1a2b1bea4745f9cad12aa80e3c419d443fbdf39550a19aec3:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772581585:182.18:0.999",
+          "bounded_live_sidecar:0x089ebff4e56583d1753476d9785f273fd5285630ca6e5a023a2aa4a004d9d89a:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582715:1000:0.001",
+          "bounded_live_sidecar:0x08a026f2c6f97085faf248bbb2edc277b70de9d1fc00f771adda7fa270e8ec94:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772583213:103180.72:0.999",
+          "bounded_live_sidecar:0x093a422f66557821103763a87b8417082f3eaaa2d6c58fa93d8873f63732b291:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772580009:104.934:0.999",
+          "bounded_live_sidecar:0x0d02b9fdc16d6577a9ecc0816fd1b26db7652e0bb134e859eea587ccaebbad8e:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580385:195:0.001",
+          "bounded_live_sidecar:0x0d4dfcbd5fa50952a12e843f1ee5cb2f7c5661a19b647a92777544dd8ad586f7:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582491:2500:0.002",
+          "bounded_live_sidecar:0x0d6f2d48e6807567df8d3fa754f3ed77ae41fa9f0674218597d8e8ac3cb52db1:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772581327:2000:0.002",
+          "bounded_live_sidecar:0x0d744cdd53ecf57ac521abce3313d4be75f6f603f615fecf32a29f954b5e7b79:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582305:500:0.002",
+          "bounded_live_sidecar:0x0ffa363509f96257ea8c1652ffb830d7f700971b12ed069a2528e85582e91e64:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772580045:45213.68:0.999",
+          "bounded_live_sidecar:0x12c76435698c54bbefa85cb5ec446a190ec8eeb7157b5e663c72c1810dafed06:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582941:1000:0.001",
+          "bounded_live_sidecar:0x13b9eeca0d8e3ebae316a50d252a8c9d75be12c7503455a8675e07b8174e69d8:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772582037:21.891:0.999",
+          "bounded_live_sidecar:0x177ed6e1c98439bf2dc233d0abb7fd3f37a0fc7a38f2af31eb8cc597a23c2e34:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580297:2500:0.002",
+          "bounded_live_sidecar:0x1ae3b62b6580f4f1bcc017dad3fc96ab17ae97b2e674db41fee175948a575ba8:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772581343:2500:0.002",
+          "bounded_live_sidecar:0x1d36799e9d0da865f67501c4a4bec59c67bd4969d8c7c33f9dcba2f6955de1f4:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580449:3000:0.002",
+          "bounded_live_sidecar:0x1e81f52a493f04731797f9e8bc3ea81d9eb898bc00b99e484f0cb30bed09dcee:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772580473:104.72:0.998",
+          "bounded_live_sidecar:0x21e482ded41fdf86c4ed018a41574193ccc0ea398fede50ddb5ce3439a3fff55:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772582429:1537.61:0.998",
+          "bounded_live_sidecar:0x23281367e760ad6b2180970c706dff1f8024084497b004437c0e22e062b699cb:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772583201:50000:0.001",
+          "bounded_live_sidecar:0x235893917f995849ec4aa83228e9b63b9ddb4f1ab3aa4c27c3bb48175fd11e27:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582165:2025:0.002"
+        ],
+        "rowDelta": -20,
+        "status": "drift_blocked"
+      }
+    },
+    "repeat2AggregateDbVsPerTargetDbSameThreeTargets": {
+      "baseDbPath": ".inspoly_indexer/bounded_live_multitarget_repeat2_20260527/indexer.sqlite3",
+      "candidateDbPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+      "comparisonMode": "fresh_live",
+      "cursorComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 2,
+        "candidateCount": 2,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "statusErrorChangedCount": 0,
+        "statusErrorChangedSamples": [],
+        "valueChangedCount": 1,
+        "valueChangedSamples": [
+          "bounded_live_sidecar::public_trades"
+        ]
+      },
+      "findings": [
+        "table_count_drift_allowed_for_fresh_live_review",
+        "cursor_value_drift_requires_operator_review",
+        "scoped_trade_identity_or_row_drift_outside_fresh_live_tolerance"
+      ],
+      "generatedAt": "2026-05-27T12:32:53.774229+00:00",
+      "marketComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 3,
+        "candidateCount": 3,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "valueChangedCount": 0,
+        "valueChangedSamples": []
+      },
+      "networkUsed": false,
+      "productionIntegration": false,
+      "rawHashComparison": {
+        "marketRawHashChangedCount": 0,
+        "tradeRawHashChangedCount": 0
+      },
+      "readOnly": true,
+      "readiness": {
+        "base": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+          "recommendedNextAction": "use_as_operator_review_input_only_live_indexer_still_requires_approval",
+          "schemaStatus": "complete",
+          "staleCursorCount": 0,
+          "tableCounts": {
+            "indexed_markets": 3,
+            "indexed_trades": 200,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        },
+        "candidate": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+          "recommendedNextAction": "use_as_operator_review_input_only_live_indexer_still_requires_approval",
+          "schemaStatus": "complete",
+          "staleCursorCount": 0,
+          "tableCounts": {
+            "indexed_markets": 3,
+            "indexed_trades": 180,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        }
+      },
+      "reportType": "indexer_sidecar_db_compare",
+      "runtimeImplementationAllowed": false,
+      "schemaVersion": "indexer_sidecar_db_compare_v1",
+      "scope": {
+        "enabled": true,
+        "missingConditionIds": [],
+        "missingMarketSlugs": [],
+        "requestedConditionIds": [],
+        "requestedMarketSlugs": [
+          "russia-x-ukraine-ceasefire-by-january-31-2026",
+          "maduro-in-us-custody-by-january-31",
+          "khamenei-out-as-supreme-leader-of-iran-by-february-28"
+        ],
+        "resolvedConditionIds": [
+          "0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce",
+          "0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d",
+          "0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8"
+        ],
+        "unsupportedCompareReason": ""
+      },
+      "sidecarOnly": true,
+      "summary": {
+        "baseDbExists": true,
+        "baseReadinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+        "candidateDbExists": true,
+        "candidateReadinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+        "cursorDriftCount": 1,
+        "gateDecision": "indexer_sidecar_compare_warn_provider_drift",
+        "marketIdentityDriftCount": 0,
+        "providerDriftCount": 3,
+        "rawHashDriftCount": 0,
+        "recommendedNextAction": "operator_review_provider_drift_before_repeat_run_expansion",
+        "storageRiskCount": 0,
+        "tableCountDriftCount": 1,
+        "tradeIdentityDriftCount": 260
+      },
+      "tableCounts": {
+        "comparisonMode": "fresh_live",
+        "driftCount": 1,
+        "tables": {
+          "indexed_markets": {
+            "base": 3,
+            "candidate": 3,
+            "delta": 0,
+            "status": "match"
+          },
+          "indexed_trades": {
+            "base": 200,
+            "candidate": 180,
+            "delta": -20,
+            "status": "drift"
+          },
+          "indexer_cursors": {
+            "base": 2,
+            "candidate": 2,
+            "delta": 0,
+            "status": "match"
+          },
+          "orderbook_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "score_history": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "wallet_index_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          }
+        }
+      },
+      "tolerances": {
+        "tradeRowDriftToleranceAbs": 25,
+        "tradeRowDriftTolerancePct": 10.0
+      },
+      "tradeComparison": {
+        "addedTradeIdCount": 120,
+        "addedTradeIdSamples": [
+          "bounded_live_sidecar:0x00f82b41d673603098e2c43d252842241c8120c722a6726eb3bef606a0b6351c:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769922982:50.05:0.999",
+          "bounded_live_sidecar:0x0140d728abd08475f8d018bbe028288e76b667b8428baf6800ed9afeeb2d1fa3:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767744267:250000:0.001",
+          "bounded_live_sidecar:0x016de48c9124450bed1a4eeb9b10fefdd6b6771692ae6331b242daca1b4fd6b4:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767737999:3440:0.001",
+          "bounded_live_sidecar:0x0482b5c61a4587f4d4bcbc7ee47a4b4bf13807213964be81140aed6e2095e5b8:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769918474:20.02:0.999",
+          "bounded_live_sidecar:0x0bfb4f7d1338d1876f17f3302ddf5b6d3bf86c0f593dcf62ccf531028970dc8e:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769918434:1.03:0.999",
+          "bounded_live_sidecar:0x0cddfd200bf04404f843bf1d5aef013ea8826d78bd5aeee0c807821450aa1147:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767745049:1000:0.001",
+          "bounded_live_sidecar:0x0d63c8418d16925ba8bad9c94a85370877a18422b96aa6256e7463108dc6ce4d:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767732809:1000:0.001",
+          "bounded_live_sidecar:0x0ed8087bd923748cded21d8d628dd87d10d62205579a0048d4e9fa83f49b1dba:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767741335:50000:0.001",
+          "bounded_live_sidecar:0x15ad0287999c66a189720060762fb42208e81cfa662fe633d57f527a42b1291f:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769912150:1:0.999",
+          "bounded_live_sidecar:0x174d6d24b8fa3f0a6584904ffba1d608601c1746f69c243f7755c8024a4ada76:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769923962:64.5:0.999",
+          "bounded_live_sidecar:0x17c5e935f4b075dc1dede677cc2f2f784874630c1e3f99417069e33d6474ce1e:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767733989:1000:0.001",
+          "bounded_live_sidecar:0x1a4dd3db8d9b7cc4475e6bf7c6fc9db5e70c9f7c76d4211057f3c8db97d7b81c:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767741889:249.99:0.001",
+          "bounded_live_sidecar:0x1b7c4d212fc90920f3ab8e81fe1be8e1d75f7fd7d288e34a4d110f757a39b102:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767739627:40000:0.001",
+          "bounded_live_sidecar:0x1b8bdd43f63116e841aa43cc268c5b7589bccea3c9a9b0d35a74bc1ba63c4d2c:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:7023463941941580393623777508894165086142929841541805476418845616988817847686:SELL:Yes:1767732123:20.77:0.999",
+          "bounded_live_sidecar:0x1bcb49c870e28e47881373abe54fbb4b9e5955f9bee96bc185086462f34736c9:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769917918:10:0.999",
+          "bounded_live_sidecar:0x1da6b7f0f5d856a84792ca49b662707afb9ddc42017ba51945559c8b47e89a31:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769917706:10000:0.998",
+          "bounded_live_sidecar:0x1dc4b2b369dda73255a0790eb5a19e12b804c08a31eae9cee5252611bc7cdf33:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769925506:103.73:0.999",
+          "bounded_live_sidecar:0x1dff85673110d49974422d3d83f14c3938176ba1a4c48883ac8bdc192ee24b83:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767739041:5000:0.001",
+          "bounded_live_sidecar:0x1fd24826028b551ccacc282a3130111a1a75754e77eda674ce2b82897a12c2cb:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767736971:4000:0.001",
+          "bounded_live_sidecar:0x27eb61e868cd5bcf1fb476963775771a01f9bf914347b1fb1ec31ddea9129a9a:0xbfa45527ec959aacc36f7c312bd4f328171a7681ef1aeb3a7e34db5fb47d3f1d:106316402112581431871296425427771662624401052300497693181318308091815990317059:BUY:No:1767732457:7800:0.001"
+        ],
+        "allowedRowDrift": 25,
+        "baseCount": 200,
+        "candidateCount": 180,
+        "commonRawHashChangedCount": 0,
+        "commonRawHashChangedSamples": [],
+        "commonValueChangedCount": 0,
+        "commonValueChangedSamples": [],
+        "missingTradeIdCount": 140,
+        "missingTradeIdSamples": [
+          "bounded_live_sidecar:0x036cc623d7bc95e4efbbedce6c46d6fd74135e57f139e385bc1e5f92426b64bb:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582583:1000:0.001",
+          "bounded_live_sidecar:0x070b504c51b2df3346aa6ec0c6be6d50d82de93742961c80768c2a9f976377cd:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772579991:105.04:0.998",
+          "bounded_live_sidecar:0x075e9775d36a9bf1a2b1bea4745f9cad12aa80e3c419d443fbdf39550a19aec3:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772581585:182.18:0.999",
+          "bounded_live_sidecar:0x089ebff4e56583d1753476d9785f273fd5285630ca6e5a023a2aa4a004d9d89a:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582715:1000:0.001",
+          "bounded_live_sidecar:0x08a026f2c6f97085faf248bbb2edc277b70de9d1fc00f771adda7fa270e8ec94:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772583213:103180.72:0.999",
+          "bounded_live_sidecar:0x093a422f66557821103763a87b8417082f3eaaa2d6c58fa93d8873f63732b291:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772580009:104.934:0.999",
+          "bounded_live_sidecar:0x0d02b9fdc16d6577a9ecc0816fd1b26db7652e0bb134e859eea587ccaebbad8e:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580385:195:0.001",
+          "bounded_live_sidecar:0x0d4dfcbd5fa50952a12e843f1ee5cb2f7c5661a19b647a92777544dd8ad586f7:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582491:2500:0.002",
+          "bounded_live_sidecar:0x0d6f2d48e6807567df8d3fa754f3ed77ae41fa9f0674218597d8e8ac3cb52db1:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772581327:2000:0.002",
+          "bounded_live_sidecar:0x0d744cdd53ecf57ac521abce3313d4be75f6f603f615fecf32a29f954b5e7b79:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582305:500:0.002",
+          "bounded_live_sidecar:0x0ffa363509f96257ea8c1652ffb830d7f700971b12ed069a2528e85582e91e64:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772580045:45213.68:0.999",
+          "bounded_live_sidecar:0x12c76435698c54bbefa85cb5ec446a190ec8eeb7157b5e663c72c1810dafed06:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582941:1000:0.001",
+          "bounded_live_sidecar:0x13b9eeca0d8e3ebae316a50d252a8c9d75be12c7503455a8675e07b8174e69d8:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:BUY:Yes:1772582037:21.891:0.999",
+          "bounded_live_sidecar:0x177ed6e1c98439bf2dc233d0abb7fd3f37a0fc7a38f2af31eb8cc597a23c2e34:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580297:2500:0.002",
+          "bounded_live_sidecar:0x1ae3b62b6580f4f1bcc017dad3fc96ab17ae97b2e674db41fee175948a575ba8:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772581343:2500:0.002",
+          "bounded_live_sidecar:0x1d36799e9d0da865f67501c4a4bec59c67bd4969d8c7c33f9dcba2f6955de1f4:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772580449:3000:0.002",
+          "bounded_live_sidecar:0x1e81f52a493f04731797f9e8bc3ea81d9eb898bc00b99e484f0cb30bed09dcee:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772580473:104.72:0.998",
+          "bounded_live_sidecar:0x21e482ded41fdf86c4ed018a41574193ccc0ea398fede50ddb5ce3439a3fff55:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:39317885422026394259056328144566743331998444273202427934141325790266108570112:SELL:Yes:1772582429:1537.61:0.998",
+          "bounded_live_sidecar:0x23281367e760ad6b2180970c706dff1f8024084497b004437c0e22e062b699cb:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772583201:50000:0.001",
+          "bounded_live_sidecar:0x235893917f995849ec4aa83228e9b63b9ddb4f1ab3aa4c27c3bb48175fd11e27:0xd4bbf7f6707c67beb736135ad32a41f6db41f8ae52d3ac4919650de9eeb94ed8:37975265083682450969967223199653164268542375291978582835346444673615244164455:BUY:No:1772582165:2025:0.002"
+        ],
+        "rowDelta": -20,
+        "status": "drift_blocked"
+      }
+    },
+    "sameSlugRepeatDbVsPerTargetDbRussiaAnchor": {
+      "baseDbPath": ".inspoly_indexer/bounded_live_repeat_20260527/indexer.sqlite3",
+      "candidateDbPath": ".inspoly_indexer/bounded_live_multitarget_per_target_20260527/indexer.sqlite3",
+      "comparisonMode": "fresh_live",
+      "cursorComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 2,
+        "candidateCount": 2,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "statusErrorChangedCount": 0,
+        "statusErrorChangedSamples": [],
+        "valueChangedCount": 2,
+        "valueChangedSamples": [
+          "bounded_live_sidecar::markets",
+          "bounded_live_sidecar::public_trades"
+        ]
+      },
+      "findings": [
+        "table_count_drift_allowed_for_fresh_live_review",
+        "cursor_value_drift_requires_operator_review",
+        "scoped_trade_identity_or_row_drift_outside_fresh_live_tolerance"
+      ],
+      "generatedAt": "2026-05-27T12:32:53.812074+00:00",
+      "marketComparison": {
+        "addedKeyCount": 0,
+        "addedKeySamples": [],
+        "baseCount": 1,
+        "candidateCount": 1,
+        "identityChangedCount": 0,
+        "identityChangedSamples": [],
+        "missingKeyCount": 0,
+        "missingKeySamples": [],
+        "rawHashChangedCount": 0,
+        "rawHashChangedSamples": [],
+        "valueChangedCount": 0,
+        "valueChangedSamples": []
+      },
+      "networkUsed": false,
+      "productionIntegration": false,
+      "rawHashComparison": {
+        "marketRawHashChangedCount": 0,
+        "tradeRawHashChangedCount": 0
+      },
+      "readOnly": true,
+      "readiness": {
+        "base": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_warn_stale_cursors",
+          "recommendedNextAction": "refresh_or_accept_stale_cursor_state_before_live_indexer_review",
+          "schemaStatus": "complete",
+          "staleCursorCount": 2,
+          "tableCounts": {
+            "indexed_markets": 1,
+            "indexed_trades": 200,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        },
+        "candidate": {
+          "cursorCount": 2,
+          "cursorErrorCount": 0,
+          "dbExists": true,
+          "duplicateIndicatorCount": 0,
+          "expectedTablesMissing": 0,
+          "expectedTablesPresent": 6,
+          "malformedRawJsonCount": 0,
+          "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+          "recommendedNextAction": "use_as_operator_review_input_only_live_indexer_still_requires_approval",
+          "schemaStatus": "complete",
+          "staleCursorCount": 0,
+          "tableCounts": {
+            "indexed_markets": 3,
+            "indexed_trades": 180,
+            "indexer_cursors": 2,
+            "orderbook_snapshots": 0,
+            "score_history": 0,
+            "wallet_index_snapshots": 0
+          }
+        }
+      },
+      "reportType": "indexer_sidecar_db_compare",
+      "runtimeImplementationAllowed": false,
+      "schemaVersion": "indexer_sidecar_db_compare_v1",
+      "scope": {
+        "enabled": true,
+        "missingConditionIds": [],
+        "missingMarketSlugs": [],
+        "requestedConditionIds": [],
+        "requestedMarketSlugs": [
+          "russia-x-ukraine-ceasefire-by-january-31-2026"
+        ],
+        "resolvedConditionIds": [
+          "0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce"
+        ],
+        "unsupportedCompareReason": ""
+      },
+      "sidecarOnly": true,
+      "summary": {
+        "baseDbExists": true,
+        "baseReadinessGate": "indexer_sidecar_readiness_warn_stale_cursors",
+        "candidateDbExists": true,
+        "candidateReadinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+        "cursorDriftCount": 2,
+        "gateDecision": "indexer_sidecar_compare_warn_provider_drift",
+        "marketIdentityDriftCount": 0,
+        "providerDriftCount": 3,
+        "rawHashDriftCount": 0,
+        "recommendedNextAction": "operator_review_provider_drift_before_repeat_run_expansion",
+        "storageRiskCount": 0,
+        "tableCountDriftCount": 1,
+        "tradeIdentityDriftCount": 140
+      },
+      "tableCounts": {
+        "comparisonMode": "fresh_live",
+        "driftCount": 1,
+        "tables": {
+          "indexed_markets": {
+            "base": 1,
+            "candidate": 1,
+            "delta": 0,
+            "status": "match"
+          },
+          "indexed_trades": {
+            "base": 200,
+            "candidate": 60,
+            "delta": -140,
+            "status": "drift"
+          },
+          "indexer_cursors": {
+            "base": 2,
+            "candidate": 2,
+            "delta": 0,
+            "status": "match"
+          },
+          "orderbook_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "score_history": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          },
+          "wallet_index_snapshots": {
+            "base": 0,
+            "candidate": 0,
+            "delta": 0,
+            "status": "match"
+          }
+        }
+      },
+      "tolerances": {
+        "tradeRowDriftToleranceAbs": 25,
+        "tradeRowDriftTolerancePct": 10.0
+      },
+      "tradeComparison": {
+        "addedTradeIdCount": 0,
+        "addedTradeIdSamples": [],
+        "allowedRowDrift": 25,
+        "baseCount": 200,
+        "candidateCount": 60,
+        "commonRawHashChangedCount": 0,
+        "commonRawHashChangedSamples": [],
+        "commonValueChangedCount": 0,
+        "commonValueChangedSamples": [],
+        "missingTradeIdCount": 140,
+        "missingTradeIdSamples": [
+          "bounded_live_sidecar:0x025d88d33bfd6fa8d03cb4f151545529507c11d1633824c4d7d13f1ea7881faf:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769888542:184.27:0.998",
+          "bounded_live_sidecar:0x03c4eb02e32cd4dc7d5c0ba424ae781ff941794e4133e4b5c4dc3df350971771:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769885732:5000:0.998",
+          "bounded_live_sidecar:0x042e785b416d6ac3c62832576d3c8f51342ff4d59a4ad6f363c273c4c26cb8b3:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769905804:25.025024:0.9989999609990384",
+          "bounded_live_sidecar:0x050c2651ae14c5d71b346385c7737fa63e1c0d5779749128731287ee57eee3cd:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769896988:35.03:0.999",
+          "bounded_live_sidecar:0x05d9b3eb148a052dc9bf4820ee9e8993320b81ecde0cb95ad0e76d16981b861c:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769905992:1000:0.998",
+          "bounded_live_sidecar:0x0a5159d92de36e571a5ec9c5b9f764473cbc28796ac254abc931677bda159cf2:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769901752:33.33:0.001",
+          "bounded_live_sidecar:0x0e1efec07a96be798b573c1f6b3fc15dcf599ba5eaafb484bbf80bc8a7e58acd:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769904422:333.33:0.001",
+          "bounded_live_sidecar:0x0fd8cd6b25b276cc02e158868a058736d4330883c3f3ed7c3de28b22ed9874da:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769882838:1.001001:0.999000000999",
+          "bounded_live_sidecar:0x10a616fd2b2f002d374f7b08f48c5672b5afdc8dd8c4ede34fbadec1f295fd78:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769884390:2858.93:0.001",
+          "bounded_live_sidecar:0x1105b11de1c52d84c0983004e62c33603e4951f79b74f55a7ad9a58c25a663bf:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769906534:92:0.999",
+          "bounded_live_sidecar:0x1287c286c82826bb72851bb5fa64cd1b851ebd9fd171860fafad8f603750fb00:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769888544:2.72:0.998",
+          "bounded_live_sidecar:0x14ab81ab0d965739b7c9fdc3d2f065de02adc9061840379c4770630b937098d4:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769884816:40000:0.998",
+          "bounded_live_sidecar:0x16810e164523e79af7e65e3e12241f7c1bd65095c62dbfb61b29c211376c212d:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769888550:1.001001:0.999000000999",
+          "bounded_live_sidecar:0x18136e060a3888adb0df4445a0eb795d6e2c8feae874f66ddef1b1656233103f:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769889030:52000:0.001",
+          "bounded_live_sidecar:0x192ea021ce7dc9ed2f77fdad5acda731ad49cda316aeef60abc44e57a12cc907:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:SELL:No:1769888646:0.47:0.998",
+          "bounded_live_sidecar:0x1c562f01322f642da6b694dca5bd327a3fb35a633f1fe21ca25bd810e40e2d48:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:BUY:Yes:1769888424:378:0.002",
+          "bounded_live_sidecar:0x1d2d7ebb5902b98f765313373ef577257e22f80ae26503f2bc8788b95eb90c7a:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769906990:200:0.999",
+          "bounded_live_sidecar:0x1e5d9d695042e502469e61b62fbac91d2a0ed783569f2f6b926dde02839be317:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769881916:142.85:0.001",
+          "bounded_live_sidecar:0x1e6536bec3695869f55d582ae5fe4460ce2695466aa602bbd863950d7ba9e4ab:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:14705029091296171110674089399091656949154521086160164017708184564241023149952:SELL:Yes:1769889292:8000:0.001",
+          "bounded_live_sidecar:0x1f3de5b0eb9c45a2e788346a18dcd39ef01da4df13ea705afae4392efea05bdd:0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce:28770223306876042609349339320023940766830944760118437790167392789285879039304:BUY:No:1769885862:105:0.999"
+        ],
+        "rowDelta": -140,
+        "status": "drift_blocked"
+      }
+    }
+  },
+  "generatedAt": "2026-05-27T12:32:53.824408+00:00",
+  "networkUsed": false,
+  "productionIntegration": false,
+  "readOnly": true,
+  "reportType": "indexer_per_target_collection_scoped_compare",
+  "runtimeImplementationAllowed": false,
+  "schemaVersion": "indexer_per_target_collection_scoped_compare_v1",
+  "scopeMarketSlugs": [
+    "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "maduro-in-us-custody-by-january-31",
+    "khamenei-out-as-supreme-leader-of-iran-by-february-28"
+  ],
+  "sidecarOnly": true,
+  "summary": {
+    "gateDecision": "indexer_per_target_collection_compare_ready_no_storage_risk",
+    "providerDriftCount": 9,
+    "recommendedNextAction": "use_as_warehouse_rfc_readiness_input_no_runtime_integration",
+    "storageRiskCount": 0
+  }
+}

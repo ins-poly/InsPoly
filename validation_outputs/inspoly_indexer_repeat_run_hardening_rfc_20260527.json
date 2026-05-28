@@ -1,0 +1,67 @@
+{
+  "approvalStatus": {
+    "repeatRunApprovedNow": false,
+    "requiresExplicitOperatorApproval": true,
+    "runtimeIntegrationApproved": false,
+    "warehouseModeApproved": false
+  },
+  "currentEvidence": {
+    "firstRunGate": "bounded_live_indexer_success_needs_operator_hardening",
+    "firstRunRows": {
+      "indexedMarkets": 1,
+      "indexedTrades": 200,
+      "indexerCursors": 2
+    },
+    "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+    "targetSlug": "russia-x-ukraine-ceasefire-by-january-31-2026"
+  },
+  "generatedAt": "2026-05-27T10:55:24+00:00",
+  "policies": {
+    "cursorPolicy": {
+      "cursorKeyMismatch": "storage_risk_blocker",
+      "freshLiveCursorValueDrift": "operator_review_provider_drift_if_trade_drift_within_tolerance",
+      "idempotentReplayCursorValueDrift": "storage_risk_blocker"
+    },
+    "duplicatePolicy": "any_duplicate_indicator_blocks_repeat_expansion_and_warehouse_runtime_review",
+    "malformedRawJsonPolicy": "any_malformed_raw_json_blocks_repeat_run_approval",
+    "providerDriftTaxonomy": [
+      "provider_drift_within_tolerance",
+      "provider_payload_drift",
+      "provider_contract_risk",
+      "storage_risk"
+    ],
+    "retentionPolicy": {
+      "commitCompactJson": true,
+      "commitRawDbByDefault": false,
+      "commitRawRunnerSummariesByDefault": false,
+      "localDbRoot": ".inspoly_indexer/"
+    },
+    "rowCountDriftTolerance": {
+      "absoluteRows": 25,
+      "percentOfBaseline": 10
+    }
+  },
+  "recommendedGate": "indexer_repeat_run_ready_for_operator_approval",
+  "reportPath": "docs/inspoly_indexer_repeat_run_hardening_rfc_20260527.md",
+  "reportType": "indexer_repeat_run_hardening_rfc",
+  "schemaVersion": "indexer_repeat_run_hardening_rfc_v1",
+  "sidecarOnly": true,
+  "tooling": {
+    "compareTool": "tools/indexer_sidecar_db_compare.py",
+    "comparisonModes": [
+      "self_compare",
+      "idempotent_replay",
+      "fresh_live"
+    ],
+    "networkUsed": false,
+    "readOnly": true
+  },
+  "warehouseRuntimeBlockers": [
+    "no_second_run_operator_approval_yet",
+    "target_expansion_not_approved",
+    "warehouse_mode_not_approved",
+    "production_runtime_imports_not_approved",
+    "storage_schema_changes_not_approved",
+    "orderbook_endpoint_contract_not_approved"
+  ]
+}

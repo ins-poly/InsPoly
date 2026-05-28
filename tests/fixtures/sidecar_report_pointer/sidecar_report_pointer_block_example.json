@@ -1,0 +1,19 @@
+{
+  "sidecarPointerVersion": "sidecar_report_pointer_v1",
+  "sidecarOnly": true,
+  "artifactType": "shadow_context_preview",
+  "artifactPath": "shadow_context_preview_outputs/example/shadow_context_preview_20260527_000000.json",
+  "artifactId": "example-shadow-context-preview",
+  "generatedAt": "2026-05-27T00:00:00+00:00",
+  "sourceReportId": "example-report-id",
+  "advisoryScope": "analyst_context_only",
+  "metricsCopied": false,
+  "scoringEffect": false,
+  "routingEffect": false,
+  "runtimeRequired": false,
+  "qualityNotes": [
+    "example_only_not_runtime_wired",
+    "do_not_copy_metrics_into_report",
+    "old_reports_must_remain_absent_safe"
+  ]
+}

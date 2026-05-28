@@ -1,0 +1,42 @@
+{
+  "commitsCreated": [
+    {
+      "hash": "795f4e4",
+      "title": "Add archive and event completeness audit sidecar"
+    },
+    {
+      "hash": "d678f4c",
+      "title": "Add Event Forensic performance and replay schedule sidecars"
+    },
+    {
+      "hash": "58ac09c",
+      "title": "Add browser asset, timeline, and gamma fallback sidecars"
+    },
+    {
+      "hash": "47bf594",
+      "title": "Fix bounded performance preflight env handling"
+    }
+  ],
+  "finalGate": "long_run_local_completion_ready_with_operator_blockers",
+  "generatedAt": "2026-05-25",
+  "liveRpcUsed": false,
+  "programGates": {
+    "archiveEventCompleteness": "archive_event_completeness_local_ready",
+    "behaviorPreservingPerformanceRfc": "needs_more_measurement",
+    "boundedPerformanceMeasurement": "performance_measurement_blocked_missing_env",
+    "browserOfflineAssets": "browser_offline_assets_blocked_missing_assets",
+    "gammaFallbackDriftMonitor": "gamma_fallback_monitor_ready",
+    "paginationStrategy": "pagination_requires_operator_plan_before_live_expansion",
+    "replayScheduleSidecar": "replay_schedule_sidecar_ready",
+    "timelineEnrichmentTemplate": "timeline_template_pack_ready"
+  },
+  "pushPerformed": false,
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "storageSchemaChanged": false,
+  "tests": {
+    "focusedTestsPassed": true,
+    "fullUnittestDiscover": "1004 tests OK"
+  },
+  "uiSortingChanged": false
+}

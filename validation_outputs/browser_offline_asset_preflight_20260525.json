@@ -1,0 +1,65 @@
+{
+  "dependencyRows": [
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_chain_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polygonscan.com/address/${text}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_chain_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polygonscan.com/tx/${text}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_profile_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polymarket.com/profile/${address}"
+    },
+    {
+      "analystNavigationOnly": true,
+      "assetKind": "external_market_link",
+      "file": "app/browser_event_forensic_ui.html",
+      "localAssetCandidate": "",
+      "localAssetExists": false,
+      "risk": "navigation_only_or_dynamic",
+      "runtimeRequiredForUiBoot": false,
+      "url": "https://polymarket.com/event/..."
+    }
+  ],
+  "gateDecision": "browser_offline_assets_ready_for_patch",
+  "generatedAt": "2026-05-26T14:35:13.967318+00:00",
+  "networkUsed": false,
+  "reportType": "browser_offline_asset_preflight",
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "browser_offline_asset_preflight_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "analystNavigationLinkCount": 4,
+    "assetKindCounts": {
+      "external_chain_link": 2,
+      "external_market_link": 1,
+      "external_profile_link": 1
+    },
+    "dependencyCount": 4,
+    "fileCount": 2,
+    "offlineRisk": "low",
+    "runtimeRequiredDependencyCount": 0,
+    "runtimeRequiredMissingLocalAssetCount": 0
+  },
+  "uiRuntimeChanged": false
+}

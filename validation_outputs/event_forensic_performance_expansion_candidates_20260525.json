@@ -1,0 +1,295 @@
+{
+  "bounds": {
+    "maxCandidateWalletsPerMarket": 150,
+    "maxEvents": 1,
+    "maxMarkets": 8,
+    "maxNewTargetCandidatesToResolve": 12,
+    "maxTotalTradeRows": 50000,
+    "maxWallMinutes": 30,
+    "maxWallSeconds": 1800
+  },
+  "candidates": [
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "us-x-iran-permanent-peace-deal-by",
+      "eventTitle": "US x Iran permanent peace deal by...?",
+      "expansionPriority": 11178985,
+      "expansionSources": [
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/us-x-iran-permanent-peace-deal-by",
+      "likelyWithinLiveMarketBound": true,
+      "savedAnalysisMarketCount": 6,
+      "savedBoundRiskReasons": [],
+      "savedCandidateTradeCount": 1552,
+      "savedCandidateWalletCount": 427,
+      "savedDominantBottleneck": "prefetch_wallet_context_seconds",
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 13465,
+      "savedTotalEventMarketCount": 6,
+      "savedTotalSeconds": 34.06,
+      "savedTruncatedMarketCount": 2,
+      "savedWalletContextCount": 427,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+      "whySelectedForExpansion": "6 saved analysis market(s); 13,465 saved raw rows; 1,552 saved candidate rows; 2 saved truncation marker(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "maduro-in-us-custody-by-january-31",
+      "eventTitle": "Maduro in U.S. custody by January 31?",
+      "expansionPriority": 11004097,
+      "expansionSources": [
+        "previous_safe_target_not_yet_measured",
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/maduro-in-us-custody-by-january-31",
+      "likelyWithinLiveMarketBound": true,
+      "savedAnalysisMarketCount": 1,
+      "savedBoundRiskReasons": [],
+      "savedCandidateTradeCount": 158,
+      "savedCandidateWalletCount": 102,
+      "savedDominantBottleneck": "unknown",
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 2517,
+      "savedTotalEventMarketCount": 1,
+      "savedTotalSeconds": 0.0,
+      "savedTruncatedMarketCount": 0,
+      "savedWalletContextCount": 102,
+      "selectedMarketSlug": "",
+      "selectionSource": "previous_target_resolution",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+      "whySelectedForExpansion": "1 saved analysis market(s); 2,517 saved raw rows; 158 saved candidate rows"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+      "eventTitle": "NBA: Will the Mavericks beat the Grizzlies by more than 5.5 points in their December 4 matchup?",
+      "expansionPriority": 11000000,
+      "expansionSources": [
+        "previous_safe_target_not_yet_measured",
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+      "likelyWithinLiveMarketBound": true,
+      "savedAnalysisMarketCount": 1,
+      "savedBoundRiskReasons": [],
+      "savedCandidateTradeCount": 0,
+      "savedCandidateWalletCount": 0,
+      "savedDominantBottleneck": "unknown",
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 0,
+      "savedTotalEventMarketCount": 1,
+      "savedTotalSeconds": 0.0,
+      "savedTruncatedMarketCount": 0,
+      "savedWalletContextCount": 0,
+      "selectedMarketSlug": "",
+      "selectionSource": "previous_target_resolution",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
+      "whySelectedForExpansion": "1 saved analysis market(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "maduro-out-in-2025",
+      "eventTitle": "Maduro out by...?",
+      "expansionPriority": 1204755,
+      "expansionSources": [
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/maduro-out-in-2025",
+      "likelyWithinLiveMarketBound": true,
+      "savedAnalysisMarketCount": 6,
+      "savedBoundRiskReasons": [
+        "saved_candidate_wallets_exceed_per_market_bound"
+      ],
+      "savedCandidateTradeCount": 3521,
+      "savedCandidateWalletCount": 1158,
+      "savedDominantBottleneck": "prefetch_wallet_context_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 19545,
+      "savedTotalEventMarketCount": 6,
+      "savedTotalSeconds": 92.64,
+      "savedTruncatedMarketCount": 5,
+      "savedWalletContextCount": 1158,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260424_160244/event_analysis.json",
+      "whySelectedForExpansion": "6 saved analysis market(s); 19,545 saved raw rows; 3,521 saved candidate rows; 5 saved truncation marker(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+      "eventTitle": "Khamenei out as Supreme Leader of Iran by February 28?",
+      "expansionPriority": 1059380,
+      "expansionSources": [
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/khamenei-out-as-supreme-leader-of-iran-by-february-28",
+      "likelyWithinLiveMarketBound": true,
+      "savedAnalysisMarketCount": 1,
+      "savedBoundRiskReasons": [
+        "saved_candidate_wallets_exceed_per_market_bound"
+      ],
+      "savedCandidateTradeCount": 578,
+      "savedCandidateWalletCount": 278,
+      "savedDominantBottleneck": "prefetch_wallet_context_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 3600,
+      "savedTotalEventMarketCount": 1,
+      "savedTotalSeconds": 48.04,
+      "savedTruncatedMarketCount": 1,
+      "savedWalletContextCount": 278,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
+      "whySelectedForExpansion": "1 saved analysis market(s); 3,600 saved raw rows; 578 saved candidate rows; 1 saved truncation marker(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "us-strikes-iran-by",
+      "eventTitle": "US strikes Iran by...?",
+      "expansionPriority": 386546,
+      "expansionSources": [
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/us-strikes-iran-by",
+      "likelyWithinLiveMarketBound": false,
+      "savedAnalysisMarketCount": 65,
+      "savedBoundRiskReasons": [
+        "saved_market_count_exceeds_bound",
+        "saved_raw_rows_exceed_bound"
+      ],
+      "savedCandidateTradeCount": 10706,
+      "savedCandidateWalletCount": 2726,
+      "savedDominantBottleneck": "score_candidates_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 179486,
+      "savedTotalEventMarketCount": 65,
+      "savedTotalSeconds": 1572.28,
+      "savedTruncatedMarketCount": 0,
+      "savedWalletContextCount": 2726,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260424_083714/event_analysis.json",
+      "whySelectedForExpansion": "65 saved analysis market(s); 179,486 saved raw rows; 10,706 saved candidate rows"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "eventTitle": "Strait of Hormuz traffic returns to normal by end of April?",
+      "expansionPriority": 252455,
+      "expansionSources": [
+        "previous_target_inventory",
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "likelyWithinLiveMarketBound": false,
+      "savedAnalysisMarketCount": 97,
+      "savedBoundRiskReasons": [
+        "saved_market_count_exceeds_bound",
+        "saved_raw_rows_exceed_bound"
+      ],
+      "savedCandidateTradeCount": 2193,
+      "savedCandidateWalletCount": 729,
+      "savedDominantBottleneck": "collect_event_trades_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 80525,
+      "savedTotalEventMarketCount": 97,
+      "savedTotalSeconds": 87.3,
+      "savedTruncatedMarketCount": 6,
+      "savedWalletContextCount": 729,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260427_145109/event_analysis.json",
+      "whySelectedForExpansion": "97 saved analysis market(s); 80,525 saved raw rows; 2,193 saved candidate rows; 6 saved truncation marker(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "who-will-win-dem-nomination-for-nyc-mayor",
+      "eventTitle": "Who will win Dem nomination for NYC Mayor?",
+      "expansionPriority": 193191,
+      "expansionSources": [
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/who-will-win-dem-nomination-for-nyc-mayor",
+      "likelyWithinLiveMarketBound": false,
+      "savedAnalysisMarketCount": 23,
+      "savedBoundRiskReasons": [
+        "saved_market_count_exceeds_bound"
+      ],
+      "savedCandidateTradeCount": 341,
+      "savedCandidateWalletCount": 149,
+      "savedDominantBottleneck": "prefetch_wallet_context_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 39781,
+      "savedTotalEventMarketCount": 23,
+      "savedTotalSeconds": 79.25,
+      "savedTruncatedMarketCount": 11,
+      "savedWalletContextCount": 148,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260504_081546/event_analysis.json",
+      "whySelectedForExpansion": "23 saved analysis market(s); 39,781 saved raw rows; 341 saved candidate rows; 11 saved truncation marker(s)"
+    },
+    {
+      "alreadyMeasured": false,
+      "analysisScope": "whole_event",
+      "eventSlug": "highest-temperature-in-london-on-april-22-2026",
+      "eventTitle": "Highest temperature in London on April 22?",
+      "expansionPriority": 109239,
+      "expansionSources": [
+        "rebuilt_local_performance_inventory"
+      ],
+      "inputValue": "https://polymarket.com/event/highest-temperature-in-london-on-april-22-2026",
+      "likelyWithinLiveMarketBound": false,
+      "savedAnalysisMarketCount": 11,
+      "savedBoundRiskReasons": [
+        "saved_market_count_exceeds_bound"
+      ],
+      "savedCandidateTradeCount": 0,
+      "savedCandidateWalletCount": 0,
+      "savedDominantBottleneck": "collect_event_trades_seconds",
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 9239,
+      "savedTotalEventMarketCount": 11,
+      "savedTotalSeconds": 8.97,
+      "savedTruncatedMarketCount": 0,
+      "savedWalletContextCount": 21,
+      "selectedMarketSlug": "",
+      "selectionSource": "local_performance_inventory",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260503_183442/event_analysis.json",
+      "whySelectedForExpansion": "11 saved analysis market(s); 9,239 saved raw rows"
+    }
+  ],
+  "generatedAt": "2026-05-25T14:23:54.928907+00:00",
+  "networkUsed": false,
+  "previousMeasuredEventSlugs": [
+    "russia-x-ukraine-ceasefire-by-january-31-2026"
+  ],
+  "reportType": "event_forensic_performance_measurement_expansion_candidates",
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_performance_measurement_expansion_candidates_v1",
+  "sidecarOnly": true,
+  "summary": {
+    "candidateCount": 9,
+    "previousSafeUnmeasuredCount": 2,
+    "savedLocalSafeCount": 3,
+    "withTruncationMarkerCount": 5
+  }
+}

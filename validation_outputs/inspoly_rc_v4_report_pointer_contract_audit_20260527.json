@@ -1,0 +1,24 @@
+{
+  "auditDate": "2026-05-27",
+  "browserUiChangeRequired": false,
+  "copiedMetricsAllowed": false,
+  "decision": "narrow_top_level_pointer_safe_if_absent_by_default",
+  "oldReportsRemainValid": true,
+  "pointerField": "indexerWarehousePointer",
+  "reportType": "rc_v4_report_pointer_contract_audit",
+  "rowLevelContextAllowed": false,
+  "safePlacement": "top_level_optional_metadata_object",
+  "schemaVersion": "rc_v4_report_pointer_contract_audit_v1",
+  "scoringGateEffectAllowed": false,
+  "storageMigrationRequired": false,
+  "unknownTopLevelKeyTolerance": {
+    "archiveBrowser": true,
+    "eventForensicDesktop": true,
+    "recentScannerBrowser": true
+  },
+  "writersAudited": [
+    "app/scanner.py",
+    "app/archive_scanner.py",
+    "app/event_forensic.py"
+  ]
+}

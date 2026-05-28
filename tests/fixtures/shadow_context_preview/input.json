@@ -1,0 +1,30 @@
+{
+  "wallet": "wallet-preview",
+  "profile": {
+    "wallet": "wallet-preview",
+    "trade_count": 2,
+    "high_volume_public_user": true
+  },
+  "positions": [
+    {
+      "remaining_shares": "100",
+      "total_pnl": "15"
+    }
+  ],
+  "trades": [
+    {
+      "wallet": "wallet-preview",
+      "condition_id": "cond-preview",
+      "token_id": "yes-preview",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "100",
+      "price": "0.4",
+      "usdcSize": "40",
+      "postEntryPrice": "0.55"
+    }
+  ],
+  "current_prices": {
+    "wallet-preview|cond-preview|yes-preview|YES": "0.55"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "reportType": "indexer_warehouse_w1_manual_command_approval_packet",
+  "schemaVersion": "indexer_warehouse_w1_manual_command_approval_packet_v1",
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "packetStatus": "ready_for_owner_review",
+  "implementationStatus": "not_implemented",
+  "approvalRequired": true,
+  "exactW1Scope": [
+    "manual_cli_invocation_only",
+    "explicit_config_required",
+    "target_registry_or_exact_market_slugs_required",
+    "config_validation_before_network",
+    "public_read_only_gamma_data_api_only_if_run_approved",
+    "per_target_public_trade_caps",
+    "aggregate_safety_caps",
+    "local_sqlite_sidecar_output",
+    "compact_run_summary_readiness_audit_scoped_compare"
+  ],
+  "forbiddenByDefault": [
+    "automatic_startup",
+    "daemon",
+    "scheduler",
+    "background_worker",
+    "repeat_loop",
+    "report_writer_browser_integration",
+    "production_runtime_imports",
+    "production_storage_schema_migration",
+    "scoring_gate_her_funding_candidate_changes",
+    "phase3_runtime",
+    "clob_auth_private_keys_signatures_trading_order_placement_external_writes"
+  ],
+  "outputPolicy": {
+    "defaultRoot": ".inspoly_indexer/warehouse_w1_<date>/",
+    "rawDbLocalOnlyDefault": true,
+    "compactSummariesMayBeCommittedWhenIntentional": true,
+    "rejectRemoteOrServicePaths": true
+  },
+  "targetPolicy": {
+    "allowedSources": [
+      "approved_target_registry_json",
+      "exact_approved_market_slug_list"
+    ],
+    "forbiddenSources": [
+      "wildcard",
+      "category_discovery",
+      "broad_event_family",
+      "automatic_target_discovery"
+    ],
+    "requiredMetadata": [
+      "input_slug",
+      "canonical_market_slug",
+      "condition_id",
+      "market_event_ambiguity_classification",
+      "expected_market_row_count",
+      "allowed_cap_profile",
+      "candidate_classification"
+    ]
+  },
+  "validationRequired": [
+    "json_validation",
+    "py_compile_changed_python",
+    "focused_w1_command_tests",
+    "config_validator_tests",
+    "storage_readiness_compare_contract_tests",
+    "runtime_import_scan",
+    "local_output_path_tests",
+    "no_network_dry_run_tests",
+    "git_diff_check",
+    "git_diff_cached_check"
+  ],
+  "rollback": [
+    "stop_invoking_w1_command",
+    "delete_local_sidecar_warehouse_output_directory",
+    "production_runtime_storage_reports_unchanged",
+    "revert_w1_sidecar_code_if_needed"
+  ],
+  "stopConditions": [
+    "production_runtime_integration_needed",
+    "report_browser_changes_needed",
+    "production_storage_migration_needed",
+    "live_scope_exceeds_approved_targets_or_caps",
+    "append_mode_requires_unapproved_schema_migration",
+    "auth_private_key_trading_external_write_field_appears",
+    "background_worker_scheduler_daemon_appears",
+    "saved_report_mutation_appears",
+    "raw_db_commit_required"
+  ],
+  "blockedAfterW1": [
+    "scheduled_background_warehouse_mode",
+    "production_runtime_imports",
+    "report_pointer_browser_panel",
+    "copied_metrics_in_saved_reports",
+    "scoring_gate_funding_phase3_use",
+    "broad_target_discovery",
+    "hosted_service_storage",
+    "clob_auth_trading_behavior"
+  ],
+  "recommendedFirstW1Step": "no_network_fixture_implementation_and_generated_local_db_tests_before_any_separate_live_run_approval"
+}

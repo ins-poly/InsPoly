@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "release_candidate_v3_state_v1",
+  "generatedAt": "2026-05-27",
+  "verifiedHeadBeforeReport": "2dd851f",
+  "branch": "main",
+  "aheadBehindBeforeReport": {
+    "ahead": 48,
+    "behind": 0
+  },
+  "gateDecision": "release_candidate_v3_state_ready",
+  "runtimeChangedInCampaign": false,
+  "liveRpcUsed": false,
+  "pushPrPerformed": false,
+  "postAd27400CommitCount": 7,
+  "postAd27400Commits": [
+    {
+      "hash": "f2c8547",
+      "title": "Consolidate strategic control layer",
+      "category": "process/control",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "8300754",
+      "title": "Expand known-case benchmark controls",
+      "category": "benchmark",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "2d932ee",
+      "title": "Add public-case benchmark source labels",
+      "category": "public-case evidence",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "82fbfab",
+      "title": "Add public-case evidence bridge",
+      "category": "public-case evidence",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "90e2434",
+      "title": "Add public-case human labeling packet",
+      "category": "public-case intake",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "a8af847",
+      "title": "Add known-case benchmark maintenance checklist",
+      "category": "docs/process",
+      "runtimeChanged": false
+    },
+    {
+      "hash": "2dd851f",
+      "title": "Freeze legacy Tk UI as reference-only",
+      "category": "UI launch-path docs/test",
+      "runtimeChanged": false
+    }
+  ],
+  "gateMatrix": {
+    "browserStrictOffline": "browser_strict_offline_ready",
+    "phase3CapitalRuntime": "phase3_blocked_until_new_source_fields",
+    "replayPersistence": "replay_keep_sidecar_only_final",
+    "paginationProviderRuntimeExpansion": "blocked_rfc_only",
+    "knownCaseBenchmark": "known_case_benchmark_maintenance_ready",
+    "publicExactWalletLabels": "0_labels_human_intake_required",
+    "legacyTkUi": "legacy_tk_ui_frozen_reference_only",
+    "pushPr": "push_pr_user_gated"
+  },
+  "benchmarkState": {
+    "totalCases": 30,
+    "sideOutcomeContractCases": 16,
+    "sidecarContextControls": 4,
+    "falsePositiveControls": 4,
+    "publicControls": 6,
+    "exactWalletPublicLabels": 0,
+    "namedUserLocalWalletCandidates": 0,
+    "namedUserOnlyPublicCases": 2,
+    "patternLevelOnlyPublicCases": 2,
+    "marketLevelOnlyPublicCases": 2,
+    "publicCasesRequiringHumanReview": 6
+  },
+  "localOnlyArtifacts": {
+    "releaseManifests": {
+      "files": 22,
+      "bytes": 76249,
+      "policy": "keep_local_unless_owner_requests"
+    },
+    "shadowReviewPackets": {
+      "files": 58,
+      "bytes": 58511,
+      "policy": "keep_local_only"
+    },
+    "sideOutcomeReviewPackets": {
+      "files": 7,
+      "bytes": 510108,
+      "policy": "keep_local_only"
+    },
+    "validationOutputs": {
+      "files": 668,
+      "bytes": 5417935417,
+      "policy": "commit_only_intentional_compact_summaries"
+    },
+    "projectMemory": {
+      "path": "PROJECT_MEMORY.md",
+      "policy": "local_only_do_not_stage"
+    }
+  },
+  "verification": {
+    "focusedMatrix": {
+      "tests": 586,
+      "status": "passed"
+    },
+    "fullSuite": {
+      "tests": 1122,
+      "status": "passed",
+      "command": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    },
+    "compileall": {
+      "status": "passed",
+      "scope": "app tools tests"
+    },
+    "vendorHashes": {
+      "react_18_3_1": "28348fef6cb0ed8b2ceeb22deaf824428fd13875d84c73d38f77dd216fc24e7f",
+      "reactDom_18_3_1": "f9044a5e9c39db8bb1a204dff924e526ec0a621e695bb69de1035811be8709e4",
+      "babelStandalone_7_29_7": "7f55bd5c3efadeaa83d4de97dc91da8bf0733789801cf28b9273c4284739798e"
+    },
+    "knownNonFailingNoise": [
+      "sqlite ResourceWarning messages for unclosed test database connections",
+      "validation-interrupted terminal failure artifact message from validation-corpus test path"
+    ]
+  },
+  "safetyScans": {
+    "noRuntimeDiffBeforeReport": true,
+    "noScoringModelGateChange": true,
+    "noPhase3RuntimeChange": true,
+    "noStorageSchemaChange": true,
+    "noUiSortingFilteringChange": true,
+    "noProductionPaginationExpansion": true,
+    "noHardRemoteBrowserBootDependency": true,
+    "noTradingOrOrderPlacementImplementation": true,
+    "projectMemoryNotStaged": true,
+    "reviewPacketsNotStaged": true
+  },
+  "futurePushChecklist": "docs/inspoly_future_push_pr_checklist_v3_20260527.md",
+  "rankedRoadmap": [
+    {
+      "rank": 1,
+      "campaign": "Future push/PR packaging and draft PR description",
+      "trigger": "Owner says to publish or asks for PR packaging"
+    },
+    {
+      "rank": 2,
+      "campaign": "Analyst report clarity polish around warning surfaces",
+      "trigger": "A concrete current output ambiguity is identified"
+    },
+    {
+      "rank": 3,
+      "campaign": "Known-case benchmark periodic maintenance / source refresh",
+      "trigger": "New public sources or human labels arrive"
+    },
+    {
+      "rank": 4,
+      "campaign": "Replay top-slice embedding RFC",
+      "trigger": "Product wants portable report replay beyond sidecars"
+    },
+    {
+      "rank": 5,
+      "campaign": "Browser build-pipeline / remove runtime Babel RFC",
+      "trigger": "Product wants smaller assets or no runtime Babel"
+    }
+  ]
+}

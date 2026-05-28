@@ -1,0 +1,88 @@
+{
+  "approvalPackagePath": "docs/inspoly_event_forensic_subset_measurement_approval_package_20260525.md",
+  "blockReason": "",
+  "bounds": {
+    "maxCandidateWalletsPerMarket": 150,
+    "maxEvents": 1,
+    "maxMarkets": 8,
+    "maxTotalTradeRows": 50000,
+    "maxWallMinutes": 30,
+    "maxWallSeconds": 1800
+  },
+  "eventSlug": "us-x-iran-permanent-peace-deal-by",
+  "forbiddenActions": [
+    "Do not broaden discovery beyond the selected event.",
+    "Do not use private keys, CLOB auth, trading credentials, or order placement.",
+    "Do not change scoring, thresholds, gates, storage schema, Phase 3, or UI sorting.",
+    "Do not write to normal app storage or mutate saved reports."
+  ],
+  "gateDecision": "subset_selection_ready",
+  "generatedAt": "2026-05-25T15:17:05.007460+00:00",
+  "inputValue": "https://polymarket.com/event/us-x-iran-permanent-peace-deal-by",
+  "networkUsed": false,
+  "reportType": "event_forensic_subset_performance_measurement_selection",
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_subset_performance_measurement_v1",
+  "selectedMarketCount": 6,
+  "selectedMarketSlugs": [
+    "us-x-iran-permanent-peace-deal-by-april-22-2026",
+    "us-x-iran-permanent-peace-deal-by-april-30-2026-925",
+    "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871",
+    "us-x-iran-permanent-peace-deal-by-june-30-2026-837",
+    "us-x-iran-permanent-peace-deal-by-april-24-2026",
+    "us-x-iran-permanent-peace-deal-by-may-15-2026"
+  ],
+  "selectedMarkets": [
+    {
+      "conditionId": "0xbbc6689d0f6d57ea42168836712237c7308b3e0118c8914d31b6126d0f3254c5",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-april-22-2026",
+      "marketTitle": "US x Iran permanent peace deal by April 22, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "No"
+    },
+    {
+      "conditionId": "0xceb6dfaa2cf5abc9d47ebc867b984a7715104944249274e8a483a2e17473e5f5",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-april-30-2026-925",
+      "marketTitle": "US x Iran permanent peace deal by April 30, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "Unknown"
+    },
+    {
+      "conditionId": "0x0e4a0c937b8934c2475613b6322b3f8edc8dedc24762e01e42b0e6f87424a089",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871",
+      "marketTitle": "US x Iran permanent peace deal by May 31, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "Unknown"
+    },
+    {
+      "conditionId": "0x6114a8a3f9ac214f48a7e20d169f1c7a5c84082cb6f7058ed9fe1137b11fd0e7",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-june-30-2026-837",
+      "marketTitle": "US x Iran permanent peace deal by June 30, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "Unknown"
+    },
+    {
+      "conditionId": "0x084a4aac9da433824013ad192196193d7d1bd8293c0fedc9eb7e687909fd1d0f",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-april-24-2026",
+      "marketTitle": "US x Iran permanent peace deal by April 24, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "No"
+    },
+    {
+      "conditionId": "0x1db02ba50e2312a62b4104de691cc7a76065d8d0da40decf93eb1b914a3217b7",
+      "marketSlug": "us-x-iran-permanent-peace-deal-by-may-15-2026",
+      "marketTitle": "US x Iran permanent peace deal by May 15, 2026?",
+      "source": "saved_event_analysis_markets",
+      "winner": "Unknown"
+    }
+  ],
+  "selectionSource": "explicit_market_slug_allowlist_from_local_saved_report_family",
+  "sidecarOnly": true,
+  "sourceReportPath": "event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+  "storageMutated": false,
+  "subsetOnly": true,
+  "wholeEventCompletenessClaim": false,
+  "whySelected": "Local saved report family contains a 6-market analysis for the larger Iran peace-deal event; the current live whole-event scope exceeds the 8-market full-measurement cap.",
+  "whySubsetIsNotWholeEvent": "The approved subset is not the full event. The current live event resolves beyond the approved subset, so this run may measure timing and truncation within the explicit market allowlist only and cannot claim whole-event completeness."
+}

@@ -1,0 +1,117 @@
+{
+  "candidates": [
+    {
+      "candidateClassification": "preferred_repeat_anchor",
+      "expectedScope": "single_market",
+      "liveResolverPreflightNeeded": true,
+      "marketEventAmbiguity": "low",
+      "priority": 10,
+      "provenance": [
+        "bounded_live_first_run",
+        "same_slug_repeat_probe",
+        "multi_target_partial_probe"
+      ],
+      "reason": "Stored market rows and public trades in first, repeat, and multi-target sidecar DBs with clean readiness.",
+      "slug": "russia-x-ukraine-ceasefire-by-january-31-2026"
+    },
+    {
+      "candidateClassification": "preferred_repeat_anchor",
+      "expectedScope": "single_market",
+      "liveResolverPreflightNeeded": true,
+      "marketEventAmbiguity": "low",
+      "priority": 20,
+      "provenance": [
+        "multi_target_partial_probe",
+        "event_forensic_performance_measurement_expansion"
+      ],
+      "reason": "Stored one market row in the multi-target sidecar DB; local performance evidence says one-market scope.",
+      "slug": "maduro-in-us-custody-by-january-31"
+    },
+    {
+      "candidateClassification": "failed_needs_review",
+      "expectedScope": "event_family_or_ambiguous",
+      "liveResolverPreflightNeeded": true,
+      "marketEventAmbiguity": "high",
+      "priority": 30,
+      "provenance": [
+        "multi_target_failed_lookup",
+        "event_forensic_performance_target_selection",
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Failed as an indexer marketSlug but local Event Forensic evidence treats it as useful event-family evidence; do not use directly without a canonical one-market slug.",
+      "slug": "us-x-iran-permanent-peace-deal-by"
+    },
+    {
+      "candidateClassification": "replacement_candidate",
+      "expectedScope": "single_market",
+      "liveResolverPreflightNeeded": true,
+      "marketEventAmbiguity": "medium",
+      "priority": 40,
+      "provenance": [
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Fixed first replacement candidate from local evidence: one saved analysis market and 3,600 saved raw rows.",
+      "slug": "khamenei-out-as-supreme-leader-of-iran-by-february-28"
+    },
+    {
+      "candidateClassification": "sparse_control",
+      "expectedScope": "single_market_zero_rows",
+      "liveResolverPreflightNeeded": true,
+      "marketEventAmbiguity": "medium",
+      "priority": 50,
+      "provenance": [
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Fallback sparse control from local evidence: one saved analysis market and zero saved raw rows.",
+      "slug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup"
+    },
+    {
+      "candidateClassification": "do_not_use",
+      "expectedScope": "large_event_family",
+      "liveResolverPreflightNeeded": false,
+      "marketEventAmbiguity": "high",
+      "priority": 90,
+      "provenance": [
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Local evidence records 65 saved analysis markets and 179,486 saved raw rows, beyond this campaign's bounds.",
+      "slug": "us-strikes-iran-by"
+    },
+    {
+      "candidateClassification": "do_not_use",
+      "expectedScope": "large_event_family",
+      "liveResolverPreflightNeeded": false,
+      "marketEventAmbiguity": "high",
+      "priority": 91,
+      "provenance": [
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Local evidence records 97 saved analysis markets and 80,525 saved raw rows, beyond this campaign's bounds.",
+      "slug": "strait-of-hormuz-traffic-returns-to-normal-by-april-30"
+    },
+    {
+      "candidateClassification": "do_not_use",
+      "expectedScope": "large_event_family",
+      "liveResolverPreflightNeeded": false,
+      "marketEventAmbiguity": "high",
+      "priority": 92,
+      "provenance": [
+        "event_forensic_performance_expansion_candidates"
+      ],
+      "reason": "Local evidence records 23 saved analysis markets, beyond this campaign's bounds.",
+      "slug": "who-will-win-dem-nomination-for-nyc-mayor"
+    }
+  ],
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "preferredAnchors": [
+    "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "maduro-in-us-custody-by-january-31"
+  ],
+  "replacementPriority": [
+    "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+    "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup"
+  ],
+  "reportType": "indexer_probe_target_registry",
+  "schemaVersion": "indexer_probe_target_registry_v1",
+  "sidecarOnly": true
+}

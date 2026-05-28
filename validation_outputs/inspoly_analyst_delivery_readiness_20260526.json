@@ -1,0 +1,208 @@
+{
+  "generatedAt": "2026-05-26T13:52:39+0300",
+  "reportType": "inspoly_analyst_delivery_readiness",
+  "schemaVersion": 1,
+  "networkUsed": false,
+  "runtimeBehaviorChanged": false,
+  "uiRuntimeChanged": false,
+  "storageSchemaChanged": false,
+  "pushOrPrPerformed": false,
+  "overallGate": "analyst_delivery_ready_local",
+  "gates": {
+    "analystDelivery": "analyst_delivery_ready_local",
+    "replayPersistence": "replay_persistence_rfc_ready_no_runtime",
+    "browserOfflineAssets": "browser_offline_assets_need_product_decision",
+    "phase3Capital": "phase3_sidecar_only_final",
+    "phase3RuntimeBlocker": "phase3_blocked_until_new_source_fields",
+    "paginationProviderSemantics": "provider_query_semantics_rfc_ready_no_runtime_change",
+    "pushPr": "deferred_by_user"
+  },
+  "analystSurfaces": [
+    {
+      "surface": "browser_main_ui",
+      "readiness": "usable_with_cdn_runtime_assets",
+      "trust": [
+        "local_scanner_archive_reports",
+        "side_outcome_labels",
+        "truncation_diagnostics"
+      ],
+      "limits": [
+        "strict_offline_boot_blocked_by_missing_assets"
+      ]
+    },
+    {
+      "surface": "event_forensic_browser_ui",
+      "readiness": "usable_with_cdn_runtime_assets",
+      "trust": [
+        "scope_semantics",
+        "weak_history_caveats",
+        "pagination_warnings",
+        "raw_and_economic_probability_labels"
+      ],
+      "limits": [
+        "old_reports_may_lack_new_additive_fields"
+      ]
+    },
+    {
+      "surface": "report_exports",
+      "readiness": "ready_with_compatibility_caveats",
+      "trust": [
+        "raw_token_fields",
+        "economic_side_fields",
+        "review_buckets",
+        "warnings"
+      ],
+      "limits": [
+        "old_reports_remain_partial_or_legacy",
+        "phase3_capital_runtime_blocked"
+      ]
+    },
+    {
+      "surface": "replay_snapshot_sidecar",
+      "readiness": "sidecar_ready",
+      "trust": [
+        "candidate_ids",
+        "scope",
+        "timing",
+        "score_review_metadata_from_source_report"
+      ],
+      "limits": [
+        "no_live_rerun",
+        "no_scoring_engine",
+        "no_storage_persistence"
+      ]
+    },
+    {
+      "surface": "review_packets",
+      "readiness": "local_only_useful",
+      "trust": [
+        "human_readable_sidecar_evidence"
+      ],
+      "limits": [
+        "generated_noisy_local_only_by_default"
+      ]
+    }
+  ],
+  "warningMetadataAudit": [
+    {
+      "topic": "selected_market_vs_whole_event_scope",
+      "visibility": "event_forensic_report_metadata_and_browser_summary",
+      "gapClassification": "acceptable_for_new_reports_old_reports_fallback",
+      "decision": "no_patch"
+    },
+    {
+      "topic": "context_only_sibling_markets",
+      "visibility": "event_forensic_ui_copy",
+      "gapClassification": "acceptable",
+      "decision": "no_patch"
+    },
+    {
+      "topic": "pagination_truncation_risk",
+      "visibility": "report_warnings_summary_counts_progress_metrics_browser_narrative",
+      "gapClassification": "acceptable_provider_semantics_docs_remain_operator_facing",
+      "decision": "no_runtime_patch"
+    },
+    {
+      "topic": "weak_history_near_certainty_demotion",
+      "visibility": "additive_fields_browser_copy_review_bucket_state",
+      "gapClassification": "acceptable",
+      "decision": "no_patch"
+    },
+    {
+      "topic": "raw_token_vs_economic_probability",
+      "visibility": "browser_main_and_event_forensic_labels",
+      "gapClassification": "acceptable",
+      "decision": "no_patch"
+    },
+    {
+      "topic": "phase3_capital_sidecar_only",
+      "visibility": "docs_benchmarks_sidecar_outputs",
+      "gapClassification": "acceptable_for_now_runtime_inactive",
+      "decision": "defer_report_ui_embedding_until_phase3_sidecar_embedding_decision"
+    },
+    {
+      "topic": "provider_query_semantics_uncertainty",
+      "visibility": "docs_and_report_warnings",
+      "gapClassification": "acceptable",
+      "decision": "no_patch"
+    },
+    {
+      "topic": "replay_persistence_status",
+      "visibility": "docs_and_sidecar_json",
+      "gapClassification": "acceptable_for_sidecar_only",
+      "decision": "defer_browser_embedding_until_product_decision"
+    }
+  ],
+  "replayReadiness": {
+    "gate": "replay_persistence_rfc_ready_no_runtime",
+    "safeNow": [
+      "build_snapshots_from_saved_reports",
+      "generate_planned_only_schedule_stages",
+      "preserve_scope_candidate_timing_score_review_metadata",
+      "detect_restricted_secret_like_keys",
+      "load_old_reports_absent_safe"
+    ],
+    "blockedPromotions": [
+      "storage_backed_replay_table",
+      "automatic_background_scheduler",
+      "live_replay_without_operator_bounds",
+      "browser_embedded_replay_report_without_product_decision"
+    ]
+  },
+  "browserOfflineReadiness": {
+    "gate": "browser_offline_assets_need_product_decision",
+    "htmlFilesInspected": 2,
+    "externalDependenciesFound": 12,
+    "runtimeRequiredBootDependencies": 6,
+    "missingLocalRuntimeAssets": 6,
+    "remoteFontDependency": true,
+    "assetsVendoredThisCampaign": false,
+    "safeFutureLocalAssets": [
+      "app/vendor/react.development.js",
+      "app/vendor/react-dom.development.js",
+      "app/vendor/babel.min.js"
+    ]
+  },
+  "blockedPromotions": [
+    {
+      "promotion": "strict_offline_browser_release",
+      "blocker": "missing_local_react_reactdom_babel_font_assets_and_product_decision"
+    },
+    {
+      "promotion": "storage_backed_replay_persistence",
+      "blocker": "storage_schema_rfc_and_product_approval_required"
+    },
+    {
+      "promotion": "automatic_replay_scheduling",
+      "blocker": "operator_approval_live_rpc_bounds_and_persistence_design_required"
+    },
+    {
+      "promotion": "production_pagination_expansion",
+      "blocker": "provider_query_semantics_and_material_new_row_evidence_insufficient"
+    },
+    {
+      "promotion": "phase3_capital_runtime",
+      "blocker": "direct_sensitive_sell_evidence_source_fields_missing"
+    },
+    {
+      "promotion": "push_pr",
+      "blocker": "user_gated"
+    }
+  ],
+  "invariantsPreserved": [
+    "no_phase3_capital_runtime",
+    "no_scoring_weight_threshold_gate_changes",
+    "no_strong_risk_her_funding_candidate_admission_changes",
+    "no_production_pagination_expansion",
+    "no_storage_schema_changes",
+    "no_ui_sorting_filtering_changes",
+    "no_saved_artifact_mutation",
+    "no_private_key_clob_auth_trading_order_placement",
+    "no_external_assets_vendored",
+    "no_push_pr"
+  ],
+  "recommendedNextCampaign": {
+    "primary": "bounded_browser_offline_asset_implementation_after_product_asset_approval",
+    "fallback": "replay_persistence_report_embedding_rfc_without_storage_migration"
+  }
+}

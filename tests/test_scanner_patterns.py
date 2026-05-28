@@ -54,7 +54,7 @@ from app.funding_context import (
     unknown_funding_context,
 )
 from app.models import FlaggedCase, Market, Trade, WalletInspection
-from app.archive_scanner import _visibility_tier_for_case, _write_flagged_csv
+from app.archive_scanner import _visibility_tier_for_case, _write_flagged_csv, _write_trades_csv
 from app.archive_scanner import _to_markdown as _archive_to_markdown
 from app.polymarket import PolymarketClient, polygon_rpc_urls
 from app.scanner import (
@@ -65,6 +65,7 @@ from app.scanner import (
     SUSPICIOUS_FUNDING_QUALITY_WEAK,
     STRUCTURAL_PRE_ADMISSION_MAX_FLOOR_USD,
     STRUCTURAL_PRE_ADMISSION_FLOOR_USD,
+    build_score_trade_prepared_context,
     _annotate_hard_evidence_review,
     _annotate_shared_funding_links,
     _apply_candidate_admission_metadata,
@@ -1175,6 +1176,73 @@ class ScannerPatternTests(unittest.TestCase):
             self.assertIn("split_wallet_pattern", rows[0]["walletHardEvidenceSources"])
             self.assertIn("strict_shared_funding_source", rows[0]["walletHardEvidenceSources"])
             self.assertIn("shared_funding_cluster_size=3", rows[0]["walletHardEvidenceSourceDetails"])
+
+    def test_event_forensic_suspicious_trade_csv_exports_additive_side_outcome_fields(self) -> None:
+        analyzer = self._event_analyzer()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reports_dir = root / "reports"
+            reports_dir.mkdir()
+            analyzer._config = AppConfig(
+                data_dir=root,
+                db_path=root / "ignored.sqlite3",
+                reports_dir=reports_dir,
+                outputs_dir=root / "outputs",
+            )
+            exports = analyzer._write_report_bundle(
+                datetime(2026, 4, 30, 12, 0, tzinfo=UTC),
+                reports_dir,
+                {
+                    "status": "completed",
+                    "event_report_markdown": "",
+                    "model_gap_markdown": "",
+                    "performance": {},
+                    "summary": {},
+                    "analysis_settings": {},
+                    "event": {},
+                },
+                suspicious_trades=[
+                    {
+                        "analysisScope": "event",
+                        "selectedConditionId": "",
+                        "selectedMarketSlug": "",
+                        "selectedMarketTitle": "",
+                        "parentEventSlug": "event-side",
+                        "conditionId": "cond-side",
+                        "wallet": "0xtrade",
+                        "username": "Trader",
+                        "timestamp": "2026-04-30T12:00:00+00:00",
+                        "market": "Side market",
+                        "side": "YES",
+                        "orderSide": "SELL",
+                        "rawTokenOutcome": "YES",
+                        "rawOrderSide": "SELL",
+                        "rawTokenPrice": 0.2,
+                        "rawTokenPriceLabel": "Raw token: Yes @ 20.0%",
+                        "economicSide": "NO",
+                        "economicSideProbability": 0.8,
+                        "economicSideProbabilityLabel": "Economic side: No @ 80.0%",
+                        "economicDirectionNormalized": "long_no",
+                        "positionSize": 200.0,
+                        "eventForensicScore": 42,
+                        "existingModelScore": 31,
+                    }
+                ],
+                suspicious_wallets=[],
+                ranked_wallets=[],
+                wallet_clusters=[],
+                wallet_graph={"nodes": [], "edges": []},
+                related_markets=[],
+                candidate_audit_rows=[],
+                raw_bundle={},
+            )
+            with Path(exports["suspicious_trades_csv_path"]).open("r", encoding="utf-8", newline="") as handle:
+                row = next(csv.DictReader(handle))
+
+        self.assertEqual(row["side"], "YES")
+        self.assertEqual(row["orderSide"], "SELL")
+        self.assertEqual(row["rawTokenPriceLabel"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(row["economicSideProbabilityLabel"], "Economic side: No @ 80.0%")
 
     def test_ai_case_reviewer_writes_outputs_without_auto_code_changes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -2921,6 +2989,78 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertFalse(payloads[0]["laterWon"])
         self.assertEqual(payloads[0]["winningOutcome"], "Unknown")
 
+    def test_event_forensic_payload_exposes_raw_token_and_economic_probability_for_sell_yes(self) -> None:
+        analyzer = self._event_analyzer()
+        trade = _trade(
+            trade_id="event-sell-yes",
+            wallet="0xwallet",
+            condition_id="cond-event-side",
+            asset_id="asset-yes",
+            timestamp=datetime(2026, 4, 27, 12, 0, tzinfo=UTC),
+            side="SELL",
+            outcome="YES",
+            price="0.20",
+            size="1000",
+            title="Will the event happen?",
+            slug="event-side-market",
+            event_slug="event-side",
+        )
+        market = _market(
+            condition_id="cond-event-side",
+            slug="event-side-market",
+            question="Will the event happen?",
+        )
+        resolved_event = ResolvedEvent(
+            input_value="https://polymarket.com/event/event-side",
+            canonical_url="https://polymarket.com/event/event-side",
+            event_id="event-side",
+            event_slug="event-side",
+            event_title="Event side",
+            event_description="",
+            event_category="Politics",
+            event_closed=False,
+            event_end_date=datetime(2026, 5, 1, tzinfo=UTC).isoformat(),
+            source_market_slug=None,
+            source_condition_id=None,
+            event_payload={},
+            markets={"cond-event-side": market},
+            market_payloads={"cond-event-side": {"closed": False}},
+            event_family_id="event-side",
+            family_tokens={"event", "side"},
+        )
+        case = _flagged_case(
+            trade=trade,
+            market=market,
+            raw_metrics={"trade_state": "increase", "opening_exposure_flag": "Yes"},
+            flags=[],
+        )
+
+        payloads = analyzer._build_trade_payloads(
+            resolved=resolved_event,
+            cases=[case],
+            wallet_cache={},
+            winners_by_condition={"cond-event-side": None},
+            related_market_rows=[],
+            analysis_scope="event",
+            sibling_market_activity={},
+            scope_context=_resolve_analysis_scope_context(
+                resolved_event,
+                analysis_scope="event",
+                selected_condition_id=None,
+                selected_market_slug=None,
+            ),
+        )
+
+        payload = payloads[0]
+        self.assertEqual(payload["side"], "YES")
+        self.assertEqual(payload["orderSide"], "SELL")
+        self.assertEqual(payload["price"], 0.2)
+        self.assertEqual(payload["rawTokenPriceLabel"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(payload["economicSide"], "NO")
+        self.assertEqual(payload["economicSideProbability"], 0.8)
+        self.assertEqual(payload["economicSideProbabilityLabel"], "Economic side: No @ 80.0%")
+        self.assertEqual(payload["economicDirectionNormalized"], "long_no")
+
     def test_event_forensic_ui_has_selection_aware_structured_stories(self) -> None:
         html = Path("app/browser_event_forensic_ui.html").read_text(encoding="utf-8")
 
@@ -3357,6 +3497,130 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertEqual(execution_state, "increase_short")
         self.assertTrue(_is_opening_exposure(execution_state))
         self.assertEqual(_capital_at_risk_usdc(trade, execution_state), trade.notional)
+
+    def test_score_trade_prepared_context_preserves_score_and_raw_metrics(self) -> None:
+        current_trade = _trade(
+            trade_id="prepared-current",
+            wallet="0xprepared",
+            condition_id="cond-prepared",
+            asset_id="asset-yes",
+            timestamp=datetime(2026, 4, 7, 12, 0, tzinfo=UTC),
+            price="0.22",
+            size="8000",
+            title="US x Iran peace deal by April 7, 2026?",
+            slug="us-x-iran-peace-deal-by-april-7-2026",
+            event_slug="us-x-iran-peace-deal-by-april-7-2026",
+        )
+        wallet_history = [
+            _trade(
+                trade_id="prepared-prior-1",
+                wallet="0xprepared",
+                condition_id="cond-prepared",
+                asset_id="asset-yes",
+                timestamp=current_trade.timestamp - timedelta(days=7),
+                price="0.18",
+                size="2000",
+                title=current_trade.title,
+                slug=current_trade.slug,
+                event_slug=current_trade.event_slug,
+            ),
+            _trade(
+                trade_id="prepared-prior-2",
+                wallet="0xprepared",
+                condition_id="cond-other",
+                asset_id="asset-other",
+                timestamp=current_trade.timestamp - timedelta(days=2),
+                price="0.30",
+                size="2500",
+                title="Related market",
+                slug="related-market",
+                event_slug=current_trade.event_slug,
+            ),
+            current_trade,
+        ]
+        wallet_window_trades = [
+            wallet_history[0],
+            current_trade,
+            _trade(
+                trade_id="prepared-related",
+                wallet="0xprepared",
+                condition_id="cond-related",
+                asset_id="asset-related",
+                timestamp=current_trade.timestamp + timedelta(minutes=20),
+                price="0.25",
+                size="1500",
+                title="Related event market",
+                slug="related-event-market",
+                event_slug=current_trade.event_slug,
+            ),
+        ]
+        market_window_trades = [
+            wallet_history[0],
+            current_trade,
+            _trade(
+                trade_id="prepared-peer-after",
+                wallet="0xpeer",
+                condition_id="cond-prepared",
+                asset_id="asset-yes",
+                timestamp=current_trade.timestamp + timedelta(minutes=18),
+                price="0.34",
+                size="3000",
+                title=current_trade.title,
+                slug=current_trade.slug,
+                event_slug=current_trade.event_slug,
+            ),
+        ]
+        market = _market(
+            condition_id="cond-prepared",
+            slug=current_trade.slug,
+            question=current_trade.title,
+        )
+        prepared = build_score_trade_prepared_context(
+            trade=current_trade,
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+        )
+        baseline = _score_trade(
+            trade=current_trade,
+            market=market,
+            trade_domain="Middle East",
+            wallet_inspection=_wallet_inspection(len(wallet_history)),
+            wallet_performance=_wallet_performance(),
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+            domain_window_trades=market_window_trades,
+            event_context=_event_context(),
+            funding_context=FundingContext(funding_found=False),
+            include_below_threshold=True,
+        )
+        optimized = _score_trade(
+            trade=current_trade,
+            market=market,
+            trade_domain="Middle East",
+            wallet_inspection=_wallet_inspection(len(wallet_history)),
+            wallet_performance=_wallet_performance(),
+            wallet_window_trades=wallet_window_trades,
+            wallet_history_trades=wallet_history,
+            market_window_trades=market_window_trades,
+            domain_window_trades=market_window_trades,
+            event_context=_event_context(),
+            funding_context=FundingContext(funding_found=False),
+            include_below_threshold=True,
+            prepared_context=prepared,
+        )
+
+        self.assertIsNotNone(baseline)
+        self.assertIsNotNone(optimized)
+        assert baseline is not None
+        assert optimized is not None
+        self.assertEqual(optimized.suspicion_score, baseline.suspicion_score)
+        self.assertEqual(optimized.severity, baseline.severity)
+        self.assertEqual(optimized.flags, baseline.flags)
+        self.assertEqual(optimized.raw_metrics, baseline.raw_metrics)
+        self.assertEqual(len(prepared.same_outcome_market_trades), 3)
+        self.assertEqual(len(prepared.related_window_trades), 2)
 
     def test_should_trace_funding_for_high_conviction_and_forensic_modes(self) -> None:
         inspection = WalletInspection(
@@ -5270,6 +5534,84 @@ class ScannerPatternTests(unittest.TestCase):
                 row = next(reader)
             self.assertEqual(row["candidateAdmissionReason"], "strict_shared_funding_group")
             self.assertEqual(row["groupedCandidateFundingGrade"], "direct_strict")
+
+    def test_archive_trade_csv_exports_additive_side_outcome_fields(self) -> None:
+        trade = _trade(
+            trade_id="archive-sell-yes",
+            wallet="0xarchive",
+            condition_id="cond-archive-side",
+            asset_id="asset-yes",
+            timestamp=datetime(2026, 4, 7, 12, 0, tzinfo=UTC),
+            side="SELL",
+            outcome="YES",
+            price="0.20",
+            size="500",
+            title="Archive side?",
+            slug="archive-side",
+            event_slug="archive-side",
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "trades.csv"
+            _write_trades_csv(path, [trade])
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                row = next(csv.DictReader(handle))
+
+        self.assertEqual(row["side"], "SELL")
+        self.assertEqual(row["outcome"], "YES")
+        self.assertEqual(row["price"], "0.20")
+        self.assertEqual(row["raw_token_price_label"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(row["economic_side"], "NO")
+        self.assertEqual(row["economic_side_probability_label"], "Economic side: No @ 80.0%")
+        self.assertEqual(row["economic_direction_normalized"], "long_no")
+
+    def test_archive_flagged_csv_exports_additive_side_outcome_fields_without_renaming_old_columns(self) -> None:
+        market = _market(
+            condition_id="cond-flagged-side",
+            slug="flagged-side",
+            question="Flagged side?",
+        )
+        trade = _trade(
+            trade_id="flagged-sell-yes",
+            wallet="0xflagged",
+            condition_id=market.condition_id,
+            asset_id="asset-yes",
+            timestamp=datetime(2026, 4, 7, 12, 0, tzinfo=UTC),
+            side="SELL",
+            outcome="YES",
+            price="0.20",
+            size="500",
+            title=market.question,
+            slug=market.slug,
+            event_slug=market.slug,
+        )
+        case = _flagged_case(
+            trade=trade,
+            market=market,
+            raw_metrics={
+                "trade_state": "increase",
+                "raw_token_outcome": "YES",
+                "raw_order_side": "SELL",
+                "raw_token_price": "0.20",
+                "raw_token_price_label": "Raw token: Yes @ 20.0%",
+                "economic_side": "NO",
+                "economic_side_probability": "0.80",
+                "economic_side_probability_label": "Economic side: No @ 80.0%",
+                "economic_direction_normalized": "long_no",
+            },
+            flags=[],
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "flagged.csv"
+            _write_flagged_csv(path, [case])
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                row = next(csv.DictReader(handle))
+
+        self.assertIn("side", row)
+        self.assertIn("outcome", row)
+        self.assertEqual(row["side"], "SELL")
+        self.assertEqual(row["outcome"], "YES")
+        self.assertEqual(row["raw_token_price_label"], "Raw token: Yes @ 20.0%")
+        self.assertEqual(row["economic_side_probability_label"], "Economic side: No @ 80.0%")
 
     def test_candidate_admission_funnel_files_roundtrip_and_absent_when_disabled(self) -> None:
         trade = _trade(
@@ -7853,7 +8195,7 @@ class ScannerPatternTests(unittest.TestCase):
     def test_event_forensic_ui_exposes_entry_probability_and_time_window_controls(self) -> None:
         html = Path("app/browser_event_forensic_ui.html").read_text(encoding="utf-8")
         self.assertIn('maxEntryProbability: ""', html)
-        self.assertIn('aria-label="Maximum entry probability percent"', html)
+        self.assertIn('aria-label="Maximum raw token price percent"', html)
         self.assertIn("filterRowsForTab(activeTab, baseRows, filters)", html)
         self.assertIn("Show all trade rows", html)
         self.assertIn('startDateTime: ""', html)
@@ -7866,8 +8208,11 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertIn('aria-label="Analysis end date"', html)
         self.assertIn('aria-label="Analysis end time"', html)
         self.assertIn("tradeEntryProbabilitySortValue", html)
+        self.assertIn("function tradeTokenPriceLabel", html)
+        self.assertIn("function tradeEconomicProbabilityLabel", html)
+        self.assertIn('return "Economic side: unknown";', html)
         self.assertIn('value: "forensic-desc", label: "Event forensic priority (recommended)"', html)
-        self.assertIn('value: "entryProbability-asc", label: "Lowest entry price / implied probability"', html)
+        self.assertIn('value: "entryProbability-asc", label: "Lowest token price / raw implied probability"', html)
         self.assertIn('value: "existingModelScore-desc", label: "Base scanner score (diagnostic)"', html)
         self.assertIn('if (mode === "forensic-desc") return compareTradeConcern(left, right);', html)
         self.assertIn("numericValue(right.eventForensicScore) - numericValue(left.eventForensicScore)", html)
@@ -7896,6 +8241,7 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertNotIn('label: "Highest forensic concern"', trade_sort_options)
         self.assertNotIn('label: "Highest current-model score"', trade_sort_options)
         self.assertNotIn('label: "Lowest entry probability"', trade_sort_options)
+        self.assertNotIn('label: "Lowest entry price / implied probability"', trade_sort_options)
 
     def test_collect_event_trades_invokes_market_callback(self) -> None:
         analyzer = EventForensicAnalyzer(

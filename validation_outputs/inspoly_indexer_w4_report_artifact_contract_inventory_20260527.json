@@ -1,0 +1,109 @@
+{
+  "browserLoaders": [
+    {
+      "compatibilityAssessment": "unknown_top_level_fields_not_used_for_sorting_or_filtering",
+      "path": "app/browser_desktop.py",
+      "relevantBehavior": "normalizes known cases and builds payloads from known fields"
+    },
+    {
+      "compatibilityAssessment": "old_event_reports_absent_safe",
+      "path": "app/event_forensic_desktop.py",
+      "relevantBehavior": "deep-copies report payloads and refreshes text from known fields"
+    },
+    {
+      "compatibilityAssessment": "frontend_uses_server_payload_or_known_report_fields",
+      "path": "app/browser_ui.html",
+      "relevantBehavior": "does not inspect arbitrary future pointer fields"
+    },
+    {
+      "compatibilityAssessment": "frontend_uses_known_event_forensic_fields",
+      "path": "app/browser_event_forensic_ui.html",
+      "relevantBehavior": "has explicit fallback helpers for older report fields"
+    }
+  ],
+  "currentSavedReportFamilies": {
+    "archiveResearcher": [
+      "generated_at",
+      "range_start",
+      "range_end",
+      "raw_trade_count",
+      "filtered_trade_count",
+      "candidate_trade_count",
+      "cases",
+      "secondary_review_cases",
+      "wallet_rollups_top",
+      "market_rollups_top",
+      "export_files"
+    ],
+    "eventForensic": [
+      "generated_at",
+      "event",
+      "analysis_scope",
+      "summary",
+      "markets",
+      "display_trades",
+      "display_wallets",
+      "display_clusters",
+      "wallet_graph",
+      "related_markets",
+      "model_gap",
+      "export_files"
+    ],
+    "recentScanner": [
+      "generated_at",
+      "lookback",
+      "topic_scope",
+      "raw_trade_count",
+      "filtered_trade_count",
+      "candidate_trade_count",
+      "flagged_case_count",
+      "trade_collection_diagnostics",
+      "analysis_settings",
+      "cases"
+    ]
+  },
+  "forbiddenPointerContent": [
+    "copied_warehouse_metrics",
+    "row_level_sidecar_context",
+    "scoring_gate_or_routing_effects",
+    "funding_or_phase3_conclusions",
+    "live_refresh_instructions",
+    "raw_db_query_instructions",
+    "browser_panel_requirements",
+    "clob_auth_private_key_trading_or_external_write_details"
+  ],
+  "futurePointerLocation": {
+    "field": "indexerWarehousePointer",
+    "placement": "top_level_optional_object",
+    "why": "additive_absent_safe_metadata_only"
+  },
+  "generatedAt": "2026-05-27T00:00:00+03:00",
+  "implementationStatus": "not_implemented",
+  "oldReportCompatibilityAssessment": "rfc_ready_but_requires_future_tests_before_implementation",
+  "productionRuntimeChanged": false,
+  "reportType": "indexer_w4_report_artifact_contract_inventory",
+  "reportWriters": [
+    {
+      "path": "app/scanner.py",
+      "writer": "Scanner._write_report_files"
+    },
+    {
+      "path": "app/archive_scanner.py",
+      "writer": "ArchiveScanner._write_report_files"
+    },
+    {
+      "path": "app/event_forensic.py",
+      "writer": "EventForensicAnalyzer._write_report_bundle"
+    }
+  ],
+  "schemaVersion": "indexer_w4_report_artifact_contract_inventory_v1",
+  "savedReportsMutated": false,
+  "topLevelUnknownKeyTolerance": "current_loaders_ignore_or_preserve_extra_top_level_fields_without_behavior_effect",
+  "validationNeededBeforeFutureImplementation": [
+    "old_report_absent_safe_tests",
+    "new_report_pointer_writer_tests",
+    "browser_loader_no_sort_filter_effect_tests",
+    "no_copied_metrics_tests",
+    "runtime_import_scan"
+  ]
+}

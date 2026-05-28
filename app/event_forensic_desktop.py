@@ -14,6 +14,7 @@ from pathlib import Path
 from time import perf_counter
 from urllib.parse import parse_qs, urlparse
 
+from app.browser_static_assets import is_browser_vendor_asset_path, load_browser_vendor_asset
 from app.config import FUNDING_TRACE_MODE_LIVE_RPC, AppConfig, funding_trace_mode, normalize_funding_trace_mode
 from app.event_forensic import EventForensicAnalyzer
 from app.polymarket import PolymarketClient
@@ -123,6 +124,14 @@ class EventForensicBrowserApp:
                     parsed = urlparse(self.path)
                     if parsed.path == "/":
                         self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8")
+                        return
+                    vendor_asset = load_browser_vendor_asset(parsed.path)
+                    if vendor_asset:
+                        data, content_type = vendor_asset
+                        self._send_bytes(data, content_type)
+                        return
+                    if is_browser_vendor_asset_path(parsed.path):
+                        self.send_error(HTTPStatus.NOT_FOUND, "Not found")
                         return
                     if parsed.path == "/api/bootstrap":
                         self._send_json(app.bootstrap_payload())

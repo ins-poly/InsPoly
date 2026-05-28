@@ -1,0 +1,35 @@
+{
+  "finalGate": "indexer_warehouse_w2_registry_retention_ready",
+  "inputRegistryJson": "validation_outputs/inspoly_indexer_warehouse_registry_20260527.json",
+  "liveNetworkUsed": false,
+  "productionIntegration": false,
+  "rawDbMutation": false,
+  "registrySummary": {
+    "activeReviewCandidates": 1,
+    "blockedNotW0Ready": 0,
+    "cleanupCandidates": 0,
+    "duplicateIndicatorCount": 0,
+    "malformedRawJsonCount": 0,
+    "retainedReferences": 2,
+    "runCount": 3,
+    "totalCursors": 6,
+    "totalMarkets": 5,
+    "totalTrades": 580
+  },
+  "reportType": "indexer_warehouse_w2_registry_retention_decision",
+  "schemaMigration": false,
+  "schemaVersion": "indexer_warehouse_w2_registry_retention_decision_v1",
+  "stillBlocked": [
+    "live_ingestion",
+    "warehouse_writer_copy_pipeline",
+    "scheduler_background_daemon",
+    "production_runtime_imports",
+    "report_browser_integration",
+    "production_storage_schema_migration",
+    "saved_report_mutation",
+    "scoring_gate_funding_phase3_changes",
+    "clob_auth_private_keys_trading_order_placement_external_writes",
+    "push_or_pr"
+  ],
+  "w3PacketPrepared": true
+}

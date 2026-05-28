@@ -1,0 +1,32 @@
+{
+  "allowedDataTypes": [
+    "markets",
+    "public_trades",
+    "orderbook_snapshots",
+    "cursors",
+    "optional_health_rows"
+  ],
+  "disallowedDataTypes": [
+    "private_user_socket_data",
+    "auth",
+    "orders",
+    "private_keys",
+    "trading"
+  ],
+  "gateDecision": "indexer_live_blocked_needs_operator_approval",
+  "liveIndexingImplemented": false,
+  "operatorInputsRequired": [
+    "target_market_or_event_list",
+    "max_markets",
+    "max_pages",
+    "max_rows",
+    "timeout",
+    "dry_run_mode",
+    "output_db_path"
+  ],
+  "productionIntegrationAllowed": false,
+  "reportType": "indexer_live_operator_plan_rfc",
+  "rollback": "delete_sidecar_db_and_disable_operator_command_no_production_rollback",
+  "schemaVersion": "indexer_live_operator_plan_rfc_v1",
+  "storagePolicy": "sqlite_sidecar_first_postgres_redis_future_rfc_only"
+}

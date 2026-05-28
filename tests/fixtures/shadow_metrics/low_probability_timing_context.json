@@ -1,0 +1,24 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-timing",
+      "condition_id": "cond-timing",
+      "token_id": "yes-timing",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "25000",
+      "price": "0.12",
+      "usdcSize": "3000",
+      "postEntryPrice": "0.19",
+      "suspicious_timing_context": true,
+      "timestamp": 1
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 12,
+    "winning_trades": 8
+  },
+  "current_prices": {
+    "wallet-timing|cond-timing|yes-timing|YES": "0.19"
+  }
+}

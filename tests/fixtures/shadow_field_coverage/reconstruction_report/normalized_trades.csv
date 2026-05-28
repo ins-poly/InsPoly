@@ -1,0 +1,2 @@
+sequence,timestamp_utc,side,outcome,market_title,slug,eventSlug,conditionId,asset,shares,price,api_usdc_size,recomputed_size_x_price,api_minus_recomputed
+1,2026-05-06T16:23:34+00:00,BUY,YES,Market?,market,event,cond-1,token-yes-1,533.6,0.18,99.21,96.04,3.17

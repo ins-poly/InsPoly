@@ -1,0 +1,17 @@
+metric,value,notes
+total_trade_rows,4,
+total_yes_bought,110,
+total_no_bought,5,
+total_yes_sold,25,
+total_no_sold,0,
+total_yes_buy_cost,43,
+total_no_buy_cost,3.50,
+total_yes_sale_proceeds,13.75,
+total_no_sale_proceeds,0,
+total_buy_api_cash,46.50,Uses Data API /activity.usdcSize.
+total_sell_api_cash,13.75,
+remaining_yes_shares,85,
+remaining_no_shares,5,
+current_yes_size_api,85,
+current_no_size_api,5,
+reconciliation_yes_delta_ledger_vs_position,0,

@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsPoly Event Forensic Analyzer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+  <script src="/vendor/browser/react/18.3.1/react.development.js"></script>
+  <script src="/vendor/browser/react-dom/18.3.1/react-dom.development.js"></script>
+  <script src="/vendor/browser/babel-standalone/7.29.7/babel.min.js"></script>
   <style>
     :root {
       --bg: #08111f;
@@ -37,7 +36,7 @@
         radial-gradient(circle at bottom left, rgba(102, 198, 217, 0.08), transparent 28%),
         var(--bg);
       color: var(--text);
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: var(--font-size);
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
@@ -51,7 +50,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #35507c; }
     * { scrollbar-width: thin; scrollbar-color: #23395d transparent; }
 
-    .mono { font-family: "JetBrains Mono", monospace; }
+    .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
     .panel {
       background: rgba(13, 26, 43, 0.92);
       border: 1px solid var(--border);
@@ -123,7 +122,7 @@
       text-underline-offset: 2px;
     }
     .entity-link.wallet {
-      font-family: "JetBrains Mono", monospace;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       color: var(--cyan);
     }
     .entity-link.group {
@@ -369,10 +368,30 @@
       return price <= 1 ? price * 100 : price;
     }
 
-    function tradeEntryProbabilityLabel(trade) {
+    function sideDisplay(value) {
+      const text = String(value || "").toLowerCase();
+      if (text === "yes") return "Yes";
+      if (text === "no") return "No";
+      return value || "unknown";
+    }
+
+    function tradeTokenPriceLabel(trade) {
+      if (trade?.rawTokenPriceLabel) return trade.rawTokenPriceLabel;
       const percent = tradeEntryProbabilityPercent(trade);
-      if (percent === null) return "entry unavailable";
-      return `entry ${percent.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+      if (percent === null) return "Raw token: unknown";
+      const outcome = sideDisplay(trade?.rawTokenOutcome || trade?.side);
+      return `Raw token: ${outcome} @ ${percent.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+    }
+
+    function tradeEconomicProbabilityLabel(trade) {
+      if (trade?.economicSideProbabilityLabel) return trade.economicSideProbabilityLabel;
+      const tokenPercent = tradeEntryProbabilityPercent(trade);
+      const side = String(trade?.orderSide || "").toUpperCase();
+      const outcome = String(trade?.side || "").toUpperCase();
+      if (tokenPercent === null || !["BUY", "SELL"].includes(side) || !["YES", "NO"].includes(outcome)) return "Economic side: unknown";
+      const economicSide = side === "SELL" ? (outcome === "YES" ? "No" : "Yes") : sideDisplay(outcome);
+      const economicPercent = side === "SELL" ? 100 - tokenPercent : tokenPercent;
+      return `Economic side: ${economicSide} @ ${economicPercent.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
     }
 
     function tradeEntryProbabilitySortValue(trade) {
@@ -463,7 +482,7 @@
       }
       return [
         { value: "forensic-desc", label: "Event forensic priority (recommended)" },
-        { value: "entryProbability-asc", label: "Lowest entry price / implied probability" },
+        { value: "entryProbability-asc", label: "Lowest token price / raw implied probability" },
         { value: "positionSize-desc", label: "Largest position" },
         { value: "timestamp-desc", label: "Newest first" },
         { value: "timestamp-asc", label: "Oldest first" },
@@ -729,6 +748,39 @@
 
     function reportParentEventSlug(report) {
       return report?.parent_event_slug || report?.event?.slug || report?.target_resolution?.parentEventSlug || "";
+    }
+
+    function reportScopeSemantics(report) {
+      const summary = report?.summary || {};
+      const legacyScope = reportAnalysisScope(report);
+      const productScope = report?.analysisScope || summary.analysisScope || (legacyScope === "market" ? "selected_market" : "whole_event");
+      const primaryScope = report?.primaryScoringScope || summary.primaryScoringScope || report?.analysis_settings?.primary_scoring_scope || productScope;
+      const relatedContext = (
+        report && "relatedMarketsContextIncluded" in report
+          ? report.relatedMarketsContextIncluded
+          : "relatedMarketsContextIncluded" in summary
+          ? summary.relatedMarketsContextIncluded
+          : Array.isArray(report?.related_markets) && report.related_markets.length > 0
+      );
+      const siblingPrimary = (
+        report && "siblingMarketsPrimaryScored" in report
+          ? report.siblingMarketsPrimaryScored
+          : "siblingMarketsPrimaryScored" in summary
+          ? summary.siblingMarketsPrimaryScored
+          : legacyScope === "event" && !!report?.analysis_settings?.include_related_markets
+      );
+      return {
+        analysisScope: productScope,
+        primaryScoringScope: primaryScope,
+        selectedMarketSlug: report?.selectedMarketSlug || summary.selectedMarketSlug || reportSelectedMarketSlug(report) || "",
+        selectedMarketQuestion: report?.selectedMarketQuestion || summary.selectedMarketQuestion || reportSelectedMarketTitle(report) || "",
+        eventSlug: report?.eventSlug || summary.eventSlug || reportParentEventSlug(report) || "",
+        relatedMarketsContextIncluded: !!relatedContext,
+        siblingMarketsPrimaryScored: !!siblingPrimary,
+        scopeExplanation: report?.scopeExplanation || summary.scopeExplanation || report?.scope_note || (legacyScope === "market"
+          ? "Selected-market report: primary scoring and ranking use only the selected market; related or sibling markets are context-only."
+          : "Whole-event report: primary scoring and ranking use the explicitly loaded event markets.")
+      };
     }
 
     function syncFiltersWithResolvedTarget(current, resolvedTarget) {
@@ -1638,6 +1690,7 @@
       const resolvedEvent = resolvedTarget?.event || null;
       const selectedMarket = availableMarkets.find(item => item.conditionId === filters.selectedConditionId) || null;
       const showChildMarketPicker = analysisScope === "market" || availableMarkets.length > 0;
+      const scopeSemantics = reportScopeSemantics(report);
       return (
         <div className="column">
           <div style={{overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 12, paddingRight: 2}}>
@@ -1785,14 +1838,14 @@
                 className="btn mono"
                 style={{width: "100%", marginBottom: 12}}
               />
-              <div className="section-label">Max entry probability %</div>
+              <div className="section-label">Max token price %</div>
               <input
                 value={filters.maxEntryProbability || ""}
                 onChange={event => setFilters(current => ({ ...current, maxEntryProbability: event.target.value }))}
                 onFocus={event => event.target.select()}
                 inputMode="decimal"
                 placeholder="Optional, e.g. 80"
-                aria-label="Maximum entry probability percent"
+                aria-label="Maximum raw token price percent"
                 className="btn mono"
                 style={{width: "100%", marginBottom: 12}}
               />
@@ -1965,13 +2018,16 @@
                     Condition ID: {reportSelectedConditionId(report) || "All child markets"}{"\n"}
                     Market slug: {reportSelectedMarketSlug(report) || "All child markets"}{"\n"}
                     Parent event slug: {reportParentEventSlug(report) || "Unknown"}{"\n"}
+                    Primary scoring scope: {scopeSemantics.primaryScoringScope}{"\n"}
+                    Related context included: {scopeSemantics.relatedMarketsContextIncluded ? "Yes" : "No"}{"\n"}
+                    Sibling markets primary-scored: {scopeSemantics.siblingMarketsPrimaryScored ? "Yes" : "No"}{"\n"}
                     Unique wallets: {summary?.unique_wallet_count || 0}{"\n"}
                     Existing model flagged: {summary?.existing_flagged_count || 0}{"\n"}
                     Clusters: {summary?.wallet_cluster_count || 0}
                   </div>
-                  {report?.scope_note ? (
+                  {scopeSemantics.scopeExplanation ? (
                     <div className="secondary selectable" style={{lineHeight: 1.65, marginTop: 10}}>
-                      {report.scope_note}
+                      {scopeSemantics.scopeExplanation}
                     </div>
                   ) : null}
                   {Array.isArray(report?.evidence_warnings) && report.evidence_warnings.length ? (
@@ -2178,7 +2234,7 @@
                 </div>
                 <div className="secondary selectable" style={{lineHeight: 1.65}}>
                   <EntityLink entity={walletEntity(item, item.walletShort)} onNavigate={onNavigateEntity} /> · <EntityLink entity={walletEntity(item, walletAliasLabel(item))} onNavigate={onNavigateEntity} />{"\n"}
-                  {item.orderSide} {item.side} · ${item.positionSize.toLocaleString()} · {tradeEntryProbabilityLabel(item)} · {item.displayTime}{"\n"}
+                  {item.orderSide} {item.side} · ${item.positionSize.toLocaleString()} · {tradeTokenPriceLabel(item)} · {tradeEconomicProbabilityLabel(item)} · {item.displayTime}{"\n"}
                   {item.summary}
                 </div>
               </div>
@@ -2349,6 +2405,8 @@
                     Polymarket label: <EntityLink entity={walletEntity(trade, walletAliasLabel(trade))} onNavigate={onNavigateEntity} />{"\n"}
                     Time: {trade.displayTime}{"\n"}
                     Position: {trade.orderSide} {trade.side}{"\n"}
+                    Token price: {tradeTokenPriceLabel(trade)}{"\n"}
+                    Economic probability: {tradeEconomicProbabilityLabel(trade)}{"\n"}
                     Notional: ${trade.positionSize.toLocaleString()}{"\n"}
                     Base scanner score: {numericValueAvailable(trade.existingModelScore) ? `${numericValue(trade.existingModelScore)}/100` : "Unavailable"}{"\n"}
                     Opening exposure: {trade.openingExposure ? "Yes" : "No"}{"\n"}

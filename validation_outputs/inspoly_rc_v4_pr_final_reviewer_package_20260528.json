@@ -1,0 +1,21 @@
+{
+  "ciAdded": false,
+  "ciPolicyDoc": "docs/inspoly_rc_v4_no_ci_release_policy_20260528.md",
+  "docs": [
+    "docs/inspoly_rc_v4_final_reviewer_addendum_20260528.md",
+    "docs/inspoly_rc_v4_no_ci_release_policy_20260528.md",
+    "docs/inspoly_rc_v4_pr_body_replacement_20260528.md",
+    "docs/inspoly_rc_v4_merge_checklist_20260528.md",
+    "docs/inspoly_rc_v4_post_merge_smoke_checklist_20260528.md",
+    "docs/inspoly_rc_v4_not_included_still_blocked_20260528.md",
+    "docs/inspoly_rc_v4_pr_finalization_decision_20260528.md"
+  ],
+  "finalGate": "rc_v4_ready_for_owner_mark_ready_review",
+  "prBodyReplacementDoc": "docs/inspoly_rc_v4_pr_body_replacement_20260528.md",
+  "prBodyUpdateBlockedReason": "local_gh_cli_unavailable_and_github_integration_403_resource_not_accessible",
+  "prBodyUpdated": false,
+  "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "releaseManifestsCleanedFromPr": true,
+  "reportType": "rc_v4_pr_final_reviewer_package",
+  "schemaVersion": "rc_v4_pr_final_reviewer_package_v1"
+}

@@ -148,7 +148,7 @@ class CrossModeScoringContractTests(unittest.TestCase):
 
         self.assertIn("Event forensic priority (recommended)", event_html)
         self.assertIn("Base scanner score (diagnostic)", event_html)
-        self.assertIn("Lowest entry price / implied probability", event_html)
+        self.assertIn("Lowest token price / raw implied probability", event_html)
         self.assertIn("Event concern", event_html)
         self.assertIn("Base scanner:", event_html)
         self.assertIn("existingModelScore", event_html)

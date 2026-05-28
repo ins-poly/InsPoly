@@ -1,0 +1,28 @@
+{
+  "branchDecisions": {
+    "A_indexer_warehouse": {
+      "gateDecision": "indexer_live_blocked_needs_operator_approval",
+      "runtimeChanged": false
+    },
+    "B_sidecar_context": {
+      "gateDecision": "sidecar_context_report_pointer_rfc_ready",
+      "runtimeChanged": false
+    },
+    "C_pusd_collateral_phase3": {
+      "gateDecision": "pusd_collateral_research_rfc_ready",
+      "runtimeChanged": false
+    }
+  },
+  "finalCombinedGate": "three_branch_execplan_no_safe_runtime_changes",
+  "nextThreeCampaignRoadmap": [
+    "bounded_live_indexer_approval_packet",
+    "sidecar_report_pointer_product_decision",
+    "pusd_collateral_verified_source_research"
+  ],
+  "noPhase3Runtime": true,
+  "noProductionIntegration": true,
+  "noPushOrPr": true,
+  "reportType": "donor_remaining_three_branch_decision",
+  "runtimeChanged": false,
+  "schemaVersion": "donor_remaining_three_branch_decision_v1"
+}

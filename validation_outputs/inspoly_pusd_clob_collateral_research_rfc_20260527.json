@@ -1,0 +1,27 @@
+{
+  "acceptableSourceTypes": [
+    "official_docs",
+    "verified_contract",
+    "local_chain_artifact",
+    "trusted_explorer"
+  ],
+  "gateDecision": "pusd_collateral_research_rfc_ready",
+  "runtimeApprovalRequired": true,
+  "runtimeIntegrationImplemented": false,
+  "schemaVersion": "pusd_clob_collateral_research_rfc_v1",
+  "unacceptableSourceTypes": [
+    "blogs_without_addresses",
+    "timing_inference",
+    "heuristic_wallet_clustering",
+    "screenshots_without_verifiable_addresses",
+    "private_auth_or_trading_sources"
+  ],
+  "unknownSafeBehaviorRequired": true,
+  "verifiedFactsNeeded": [
+    "canonical_pusd_token_address",
+    "canonical_clob_collateral_address",
+    "exchange_onramp_wrapping_settlement_addresses",
+    "collateral_or_max_loss_source_field"
+  ],
+  "reportType": "pusd_clob_collateral_research_rfc"
+}

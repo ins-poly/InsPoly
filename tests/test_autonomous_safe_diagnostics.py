@@ -418,9 +418,10 @@ class AutonomousSafeDiagnosticsTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["coverageInventoryStatus"], "high_priority_app_modules_unreferenced")
         self.assertFalse(payload["summary"]["modelBehaviorChanged"])
 
-    def test_ui_runtime_dependency_audit_finds_runtime_cdn_risk(self) -> None:
+    def test_ui_runtime_dependency_audit_reports_current_boot_risk(self) -> None:
         payload = build_ui_audit([Path("app/browser_ui.html"), Path("app/browser_event_forensic_ui.html")])
-        self.assertGreaterEqual(payload["summary"]["runtimeRequiredDependencyCount"], 1)
+        self.assertEqual(payload["summary"]["runtimeRequiredDependencyCount"], 0)
+        self.assertEqual(payload["summary"]["cdnRuntimeDependencyCount"], 0)
         self.assertIn(payload["summary"]["offlineRisk"], {"low", "high"})
         self.assertFalse(payload["summary"]["modelBehaviorChanged"])
 

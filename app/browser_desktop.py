@@ -14,9 +14,11 @@ from statistics import median
 from urllib.parse import parse_qs, urlparse
 
 from app.archive_scanner import ArchiveResearchScanner, default_archive_range, parse_local_datetime
+from app.browser_static_assets import is_browser_vendor_asset_path, load_browser_vendor_asset
 from app.config import AppConfig, funding_trace_mode, normalize_funding_trace_mode
 from app.polymarket import PolymarketClient, WalletPosition
 from app.scanner import ProgressEvent, Scanner
+from app.side_outcome import normalize_side_outcome
 from app.site_categories import SITE_CATEGORY_CANDIDATES, SiteCategory
 from app.storage import Storage
 from app.wallet_analytics import (
@@ -156,6 +158,14 @@ class BrowserDesktopApp:
                     parsed = urlparse(self.path)
                     if parsed.path == "/":
                         self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8")
+                        return
+                    vendor_asset = load_browser_vendor_asset(parsed.path)
+                    if vendor_asset:
+                        data, content_type = vendor_asset
+                        self._send_bytes(data, content_type)
+                        return
+                    if is_browser_vendor_asset_path(parsed.path):
+                        self.send_error(HTTPStatus.NOT_FOUND, "Not found")
                         return
                     if parsed.path == "/api/bootstrap":
                         self._send_json(app.bootstrap_payload())
@@ -621,6 +631,7 @@ class BrowserDesktopApp:
         metrics = case["raw_metrics"]
         flags = set(case.get("flags", []))
         entry_probability = self._entry_probability_percent(case)
+        side_outcome = self._side_outcome_payload(case)
         timing_raw = metrics.get("hours_to_resolution", "99999")
         try:
             timing_hours = float(timing_raw or 99999)
@@ -651,6 +662,7 @@ class BrowserDesktopApp:
             "position": self._format_money_no_sign(float(metrics.get("trade_notional_usdc", "0"))),
             "entryProbability": entry_probability,
             "entryProbabilityLabel": self._format_entry_probability(entry_probability),
+            **side_outcome,
             "walletPredictions": wallet_predictions,
             "walletPredictionsLabel": str(wallet_predictions) if wallet_predictions is not None else "Unavailable",
             "liquidityShare": metrics.get("liquidity_ratio", "Unavailable"),
@@ -696,6 +708,8 @@ class BrowserDesktopApp:
             "riskLabel": case["severity"],
             "caseType": case.get("case_type"),
             "entryProbability": self._format_entry_probability(self._entry_probability_percent(case)),
+            "rawTokenPriceLabel": self._side_outcome_payload(case)["rawTokenPriceLabel"],
+            "economicSideProbabilityLabel": self._side_outcome_payload(case)["economicSideProbabilityLabel"],
             "timeToResolution": self._hours_label(case["raw_metrics"].get("hours_to_resolution", "Unavailable")),
             "keyContext": [value for _label, value in self._key_context_items(case)],
             "humanSummary": human_summary,
@@ -1005,7 +1019,11 @@ class BrowserDesktopApp:
                 "Position-size meaning",
                 "Displayed trade size is executed trade notional from the Polymarket Data API; profile-page position value can be much smaller after reductions, closes, or price moves.",
             ),
-            ("Entry probability", f"Entry probability at trade: {self._format_entry_probability(self._entry_probability_percent(case))}."),
+            ("Token price", f"Token price at trade: {self._side_outcome_payload(case)['rawTokenPriceLabel']}."),
+            (
+                "Economic probability",
+                f"Economic-side probability at trade: {self._side_outcome_payload(case)['economicSideProbabilityLabel']}.",
+            ),
             (
                 "Wallet predictions",
                 f"Wallet public prediction count: {self._case_wallet_prediction_count(case) if self._case_wallet_prediction_count(case) is not None else 'Unavailable'}.",
@@ -1117,7 +1135,8 @@ class BrowserDesktopApp:
             f"Verdict: {case.get('verdict', 'Unknown')}",
             f"Case type: {case.get('case_type') or 'Standard risk case'}",
             f"Window: {self._format_timestamp(case.get('window_start', ''))} to {self._format_timestamp(case.get('window_end', ''))}",
-            f"Entry probability at trade: {self._format_entry_probability(self._entry_probability_percent(case))}",
+            f"Token price at trade: {self._side_outcome_payload(case)['rawTokenPriceLabel']}",
+            f"Economic-side probability at trade: {self._side_outcome_payload(case)['economicSideProbabilityLabel']}",
             f"Trade state: {raw.get('trade_state', 'Unavailable')}",
             f"Capital at risk: {self._format_money_no_sign(float(raw.get('capital_at_risk_usdc', '0')))}",
             f"Uncertainty level: {raw.get('uncertainty_level', 'Unavailable')}",
@@ -1333,6 +1352,16 @@ class BrowserDesktopApp:
         if from_trade is not None:
             return from_trade
         return self._coerce_probability_percent(raw.get("price_implied_probability"))
+
+    def _side_outcome_payload(self, case: dict) -> dict[str, object]:
+        trade = case.get("trade", {})
+        raw = case.get("raw_metrics", {})
+        normalized = normalize_side_outcome(
+            trade.get("side") or raw.get("raw_order_side"),
+            trade.get("outcome") or raw.get("raw_token_outcome"),
+            trade.get("price") or raw.get("raw_token_price") or raw.get("price_implied_probability"),
+        )
+        return normalized.to_payload()
 
     def _format_entry_probability(self, value: float | None) -> str:
         if value is None:

@@ -1,0 +1,61 @@
+{
+  "blockedPaths": {
+    "backgroundWorker": true,
+    "clobAuthTrading": true,
+    "phase3Runtime": true,
+    "productionRuntimeIntegration": true,
+    "reportBrowserIntegration": true,
+    "savedReportMutation": true,
+    "scoringGateChanges": true,
+    "storageSchemaMigration": true,
+    "warehouseImplementation": true
+  },
+  "decision": {
+    "aggregateMaxRowsRetained": true,
+    "oldConfigsRemainValid": true,
+    "selectedPolicy": "per_target_public_trade_cap_with_aggregate_safety_guard",
+    "sidecarOnly": true,
+    "sqliteSchemaChange": false
+  },
+  "gateDecision": "per_target_collection_policy_selected_sidecar_only",
+  "generatedAt": "2026-05-27T12:24:43Z",
+  "reportType": "indexer_per_target_collection_policy",
+  "schemaVersion": "indexer_per_target_collection_policy_v1",
+  "strategies": [
+    {
+      "decision": "fallback_for_old_configs",
+      "name": "current_aggregate_cap",
+      "risk": "can_silently_starve_targets"
+    },
+    {
+      "decision": "selected",
+      "name": "per_target_cap",
+      "risk": "requires_separate_public_trade_calls_per_condition"
+    },
+    {
+      "decision": "metadata_only_for_now",
+      "name": "per_condition_cap",
+      "risk": "future_event_targets_need_more_policy"
+    },
+    {
+      "decision": "defer",
+      "name": "round_robin_page_collection",
+      "risk": "unneeded_complexity_before_per_target_proof"
+    },
+    {
+      "decision": "defer",
+      "name": "minimum_row_floor_then_remaining_budget",
+      "risk": "dynamic_budget_complexity"
+    },
+    {
+      "decision": "insufficient",
+      "name": "config_only_warning",
+      "risk": "does_not_solve_collection_blocker"
+    }
+  ],
+  "summary": {
+    "recommendedImplementation": "add_limits.maxPublicTradesPerTarget_and_use_single_condition_public_trade_calls_for_multi_target_runs",
+    "stopGateIfProviderFilterFails": "indexer_collection_hardening_blocked_by_provider_shape",
+    "warehouseImpact": "warehouse_rfc_can_be_rechecked_after_one_hardened_readiness_and_scoped_compare_run"
+  }
+}

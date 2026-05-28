@@ -1,0 +1,4 @@
+severity,case_type,suspicion_score,confidence_score,review_priority,visibility_tier,wallet,timestamp,market_title,side,outcome,raw_token_outcome,raw_order_side,raw_token_price,raw_token_price_label,economic_side,economic_side_probability,economic_side_probability_label,economic_direction_normalized,trade_state,trade_notional_usdc,capital_at_risk_usdc,price_implied_probability,verdict
+Worth a Look,,60,90,Medium,Visible,0xcsvflag01,2026-05-21T03:00:00+00:00,Synthetic flagged archive A,SELL,YES,YES,SELL,0.20,Raw token: Yes @ 20.0%,NO,0.80,Economic side: No @ 80.0%,long_no,increase,20,20,20.0%,Needs review
+Worth a Look,,58,90,Medium,Visible,0xcsvflag02,2026-05-21T03:05:00+00:00,Synthetic flagged archive B,SELL,NO,NO,SELL,0.20,Raw token: No @ 20.0%,YES,0.80,Economic side: Yes @ 80.0%,long_yes,increase,20,20,20.0%,Needs review
+Low Risk,,20,90,Low,Secondary review,0xcsvflag03,2026-05-21T03:10:00+00:00,Synthetic flagged archive C,SELL,YES,,,,,,,increase,20,20,,Needs review

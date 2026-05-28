@@ -1,0 +1,32 @@
+{
+  "base_params": {
+    "sizeThreshold": "0",
+    "user": "wallet-fixture"
+  },
+  "rows": [
+    {
+      "asset": "yes-a",
+      "conditionId": "cond-a",
+      "curPrice": 0.60,
+      "outcome": "Yes",
+      "proxyWallet": "wallet-fixture",
+      "size": 75
+    },
+    {
+      "asset": "yes-b",
+      "conditionId": "cond-b",
+      "curPrice": 0.25,
+      "outcome": "Yes",
+      "proxyWallet": "wallet-fixture",
+      "size": 10
+    },
+    {
+      "asset": "no-b",
+      "conditionId": "cond-b",
+      "curPrice": 0.65,
+      "outcome": "No",
+      "proxyWallet": "wallet-fixture",
+      "size": 5
+    }
+  ]
+}

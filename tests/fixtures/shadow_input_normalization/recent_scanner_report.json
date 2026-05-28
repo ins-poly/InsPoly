@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-05-21T08:15:09+03:00",
+  "cases": [
+    {
+      "severity": "Worth a Look",
+      "suspicion_score": 61,
+      "trade": {
+        "trade_id": "trade-1",
+        "condition_id": "cond-1",
+        "asset_id": "token-yes-1",
+        "wallet": "wallet-a",
+        "side": "BUY",
+        "outcome": "YES",
+        "price": "0.12",
+        "size": "1000",
+        "notional": "120"
+      },
+      "raw_metrics": {
+        "trade_notional_usdc": "120",
+        "favorable_move_1h": "0.03",
+        "liquidity_ratio": "3.2%"
+      }
+    }
+  ]
+}

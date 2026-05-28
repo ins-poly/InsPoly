@@ -1,0 +1,11 @@
+[
+  {
+    "token_id": "yes-artifact",
+    "condition_id": "cond-artifact",
+    "timestamp": "2026-05-21T10:00:00+00:00",
+    "spread_bps": "700",
+    "bid_depth": "75",
+    "ask_depth": "110",
+    "liquidity_imbalance": "-0.19"
+  }
+]

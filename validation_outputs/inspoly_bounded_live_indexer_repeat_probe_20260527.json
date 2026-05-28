@@ -1,0 +1,114 @@
+{
+  "authUsed": false,
+  "backgroundWorker": false,
+  "bounds": {
+    "maxMarkets": 1,
+    "maxPages": 2,
+    "maxRows": 500,
+    "maxTargets": 1,
+    "timeoutSeconds": 120
+  },
+  "collection": {
+    "cursorRows": 2,
+    "gammaMarketMetadata": true,
+    "localSidecarRows": 203,
+    "orderbookSnapshots": false,
+    "publicDataApiTrades": true
+  },
+  "compare": {
+    "comparisonMode": "fresh_live",
+    "cursorDriftCount": 0,
+    "gateDecision": "indexer_sidecar_compare_ready_for_repeat_run",
+    "marketIdentityDriftCount": 0,
+    "providerDriftCount": 0,
+    "rawHashDriftCount": 0,
+    "storageRiskCount": 0,
+    "tableCountDriftCount": 0,
+    "tradeIdentityDriftCount": 0
+  },
+  "externalWrites": false,
+  "finalGate": "indexer_repeat_probe_success_ready_for_small_multitarget_run",
+  "generatedAt": "2026-05-27T11:06:23+00:00",
+  "liveRunExecuted": true,
+  "marketEvidence": {
+    "active": true,
+    "closed": true,
+    "conditionId": "0xb8c1bd306a8a4cedfb280e114e655c5092b3f37edccae05cd877d7f21a5774ce",
+    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "question": "Russia x Ukraine ceasefire by January 31, 2026?",
+    "slug": "russia-x-ukraine-ceasefire-by-january-31-2026"
+  },
+  "networkUsed": true,
+  "output": {
+    "compareJson": "validation_outputs/inspoly_bounded_live_indexer_fresh_db_compare_20260527.json",
+    "dbCommitted": false,
+    "firstDbPath": ".inspoly_indexer/bounded_live_20260527/indexer.sqlite3",
+    "repeatDbAuditJson": "validation_outputs/inspoly_bounded_live_indexer_repeat_db_audit_20260527.json",
+    "repeatDbCreated": true,
+    "repeatDbPath": ".inspoly_indexer/bounded_live_repeat_20260527/indexer.sqlite3",
+    "repeatRawSummaryPath": ".inspoly_indexer/bounded_live_repeat_20260527/raw_run_summary.json",
+    "reportPath": "docs/inspoly_bounded_live_indexer_repeat_probe_20260527.md"
+  },
+  "productionIntegration": false,
+  "provider": {
+    "failures": [],
+    "warnings": [
+      "Orderbook snapshots were skipped: no approved public orderbook endpoint contract is wired into this manual runner."
+    ]
+  },
+  "readinessAudit": {
+    "cursorErrorCount": 0,
+    "duplicateIndicatorCount": 0,
+    "expectedTablesMissing": 0,
+    "expectedTablesPresent": 6,
+    "malformedRawJsonCount": 0,
+    "readinessGate": "indexer_sidecar_readiness_ready_no_runtime",
+    "schemaStatus": "complete",
+    "staleCursorCount": 0
+  },
+  "reportType": "bounded_live_indexer_repeat_probe",
+  "runner": {
+    "elapsedSeconds": 8.659,
+    "path": "tools/indexer_bounded_live_sidecar_run.py",
+    "requiresAllowLiveNetworkFlag": true,
+    "requiresConfigValidationBeforeFetch": true,
+    "requiresExactMarketOrEventSlug": true,
+    "sidecarOnly": true
+  },
+  "savedArtifactsMutated": false,
+  "schemaVersion": "bounded_live_indexer_repeat_probe_v1",
+  "sidecarDb": {
+    "distinctTokenIds": 2,
+    "distinctWallets": 156,
+    "tableCounts": {
+      "indexed_markets": 1,
+      "indexed_trades": 200,
+      "indexer_cursors": 2,
+      "orderbook_snapshots": 0,
+      "score_history": 0,
+      "wallet_index_snapshots": 0
+    },
+    "tradeTimestampRange": {
+      "max": "1769929968",
+      "min": "1769880358"
+    }
+  },
+  "target": {
+    "provided": true,
+    "slug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "type": "marketSlugs"
+  },
+  "tradingUsed": false,
+  "validation": {
+    "focusedTests": {
+      "command": "python3 -m unittest tests.test_indexer_bounded_live_sidecar_run tests.test_indexer_bounded_live_config_validator tests.test_indexer_sidecar_readiness_audit tests.test_indexer_sidecar_db_compare tests.test_indexer_adapters tests.test_indexer_storage tests.test_indexer_fixture_dry_run tests.test_alerts_sidecar tests.test_shadow_metrics_score_history_replay tests.test_microstructure_artifact_audit",
+      "result": "passed",
+      "testsRun": 77
+    },
+    "gitDiffCheck": "passed",
+    "jsonValidation": "passed",
+    "pyCompile": "passed",
+    "runtimeImportScan": "passed"
+  },
+  "warehouseRuntimeRemainBlocked": true
+}

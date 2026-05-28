@@ -1,0 +1,21 @@
+{
+  "c3StaticSemanticsImplemented": true,
+  "currentFundingAssumption": "polygon_usdc_v1_only",
+  "gateDecisions": [
+    "pusd_collateral_needs_verified_addresses",
+    "phase3_runtime_still_blocked",
+    "phase3_source_fields_needed"
+  ],
+  "knownUnknowns": [
+    "canonical_pusd_token_address",
+    "canonical_clob_collateral_address",
+    "exchange_or_onramp_addresses",
+    "wrapping_or_settlement_flow",
+    "collateral_or_max_loss_source_field"
+  ],
+  "phase3RuntimeImplemented": false,
+  "productionFundingIntegrationAllowed": false,
+  "reportType": "pusd_clob_collateral_semantics_gap_audit",
+  "schemaVersion": "pusd_clob_collateral_semantics_gap_audit_v1",
+  "usdcFundingOnlyCurrentRuntime": true
+}

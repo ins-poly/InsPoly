@@ -1,0 +1,9 @@
+id,artifactFamily,artifactEvidenceType,wallet,condition_id,side,outcome,price,size,usdcSize,trade_state,trade_notional_usdc,capital_at_risk_usdc,severity,hardEvidenceReviewTier
+phase3-csv-buy-yes,phase3_synthetic_csv,synthetic_fixture,0xcsvphase301,cond-csv-phase3-a,BUY,YES,0.20,100,,increase,20,20,Worth a Look,
+phase3-csv-buy-no,phase3_synthetic_csv,synthetic_fixture,0xcsvphase302,cond-csv-phase3-b,BUY,NO,0.20,100,,increase,20,20,Worth a Look,
+phase3-csv-sell-yes,phase3_synthetic_csv,synthetic_fixture,0xcsvphase303,cond-csv-phase3-c,SELL,YES,0.20,100,,increase,20,20,Strong Risk,
+phase3-csv-sell-no,phase3_synthetic_csv,synthetic_fixture,0xcsvphase304,cond-csv-phase3-d,SELL,NO,0.20,100,,increase,20,20,Worth a Look,Hard Evidence Review
+phase3-csv-sell-yes-near,phase3_synthetic_csv,synthetic_fixture,0xcsvphase305,cond-csv-phase3-e,SELL,YES,0.98,100,,increase,98,98,Low Risk,
+phase3-csv-percent-price,phase3_synthetic_csv,synthetic_fixture,0xcsvphase306,cond-csv-phase3-f,SELL,NO,20%,100,,increase,20,20,Worth a Look,
+phase3-csv-malformed-price,phase3_synthetic_csv,synthetic_fixture,0xcsvphase307,cond-csv-phase3-g,SELL,YES,bad,100,,increase,20,20,Worth a Look,
+phase3-csv-missing-size,phase3_synthetic_csv,synthetic_fixture,0xcsvphase308,cond-csv-phase3-h,SELL,YES,0.20,,,increase,20,20,Worth a Look,

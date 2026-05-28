@@ -1,0 +1,380 @@
+{
+  "baseline": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15353,
+    "candidateWalletCount": 3239,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_blocked_scope",
+    "liveResolvedMarketCount": 15,
+    "memoization": null,
+    "networkUsed": true,
+    "rawTradeRows": 31919,
+    "runtimeBoundViolations": [],
+    "selectedMarketCount": 6,
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_subset_measurement_20260525_181811",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 4.22,
+      "collect_event_trades_seconds": 14.74,
+      "collect_price_history_seconds": 0.48,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 236.57,
+      "prepare_candidate_context_seconds": 5.31,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.18,
+      "score_candidates_seconds": 388.2,
+      "total_seconds": 663.47,
+      "trade_collection_elapsed_seconds": 14.74
+    },
+    "totalSeconds": 663.47,
+    "truncatedMarketCount": 6
+  },
+  "behaviorEquivalence": {
+    "liveAddedCandidateCount": 34,
+    "liveCandidateCountDelta": 1,
+    "liveEquivalenceInterpretation": "live_data_drift_observed; use static equivalence and common-id drift counters as behavior guard",
+    "liveRemovedCandidateCount": 33,
+    "liveReviewBucketChangeCountOnCommonIds": 14,
+    "liveScoreChangeCountOnCommonIds": 269,
+    "liveStrictEquivalencePassed": false,
+    "liveWeakHistoryDemotionChangeCountOnCommonIds": 0,
+    "staticCandidateCount": 15353,
+    "staticEquivalenceGate": "static_equivalence_passed",
+    "staticEquivalencePassed": true
+  },
+  "comparison": {
+    "candidateRowsDelta": 1,
+    "candidateWalletCountDelta": 2,
+    "normalizedPrefetchImprovementPercent": -5.527,
+    "normalizedScoreImprovementPercent": 8.924,
+    "normalizedTotalImprovementPercent": 2.87,
+    "prefetchWalletContextImprovementPercent": -5.592,
+    "prefetchWalletContextSecondsDelta": 13.23,
+    "rawTradeRowsDelta": 10,
+    "scoreCandidatesImprovementPercent": 8.918,
+    "scoreCandidatesSecondsDelta": -34.62,
+    "totalSecondsDelta": -19.0,
+    "totalSecondsImprovementPercent": 2.864
+  },
+  "controlMeasurements": [
+    {
+      "baselineCandidateRows": 144,
+      "baselineTotalSeconds": 20.54,
+      "candidateRowsDelta": 0,
+      "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "gateDecision": "performance_measurement_complete",
+      "postPatchCandidateRows": 144,
+      "postPatchTotalSeconds": 17.22,
+      "totalSecondsImprovementPercent": 16.164
+    },
+    {
+      "baselineCandidateRows": 158,
+      "baselineTotalSeconds": 22.44,
+      "candidateRowsDelta": 0,
+      "eventSlug": "maduro-in-us-custody-by-january-31",
+      "gateDecision": "performance_measurement_complete",
+      "postPatchCandidateRows": 158,
+      "postPatchTotalSeconds": 16.37,
+      "totalSecondsImprovementPercent": 27.05
+    }
+  ],
+  "forbiddenScopePreserved": {
+    "directGateChanges": false,
+    "phase3Runtime": false,
+    "scoringWeightsChanged": false,
+    "storageSchemaChanged": false,
+    "thresholdsChanged": false,
+    "tradingOrPrivateKeyUsed": false,
+    "uiSortingChanged": false
+  },
+  "gateDecision": "patch_partial_needs_next_optimization",
+  "generatedAt": "2026-05-25T16:23:08.431232+00:00",
+  "memoization": {
+    "cacheHitsEstimate": 12113,
+    "cacheMissesEstimate": 3241,
+    "cacheScopes": [
+      "wallet_window_trades",
+      "market_notional_samples",
+      "domain_notional_samples",
+      "funding_resolver_health"
+    ],
+    "cacheableLookupCount": 15354,
+    "candidateRows": 15354,
+    "effectiveReuseRatio": 0.788915,
+    "enabled": true,
+    "repeatedWalletCandidateOpportunities": 12113,
+    "uniqueDomains": 1,
+    "uniqueMarkets": 6,
+    "uniqueWallets": 3241
+  },
+  "networkUsed": true,
+  "nextRecommendedCampaign": "deeper_scorer_context_profiling_plus_wallet_prefetch_rfc",
+  "normalizedBaseline": {
+    "candidatesPerWallet": 4.740043,
+    "prefetchSecondsPer1000Wallets": 73.037975,
+    "rawRowsPerCandidate": 2.079007,
+    "scoreSecondsPer1000Candidates": 25.284961,
+    "totalSecondsPer1000Candidates": 43.214356,
+    "totalSecondsPer1000RawRows": 20.786052
+  },
+  "normalizedPostPatch": {
+    "candidatesPerWallet": 4.737427,
+    "prefetchSecondsPer1000Wallets": 77.074977,
+    "rawRowsPerCandidate": 2.079523,
+    "scoreSecondsPer1000Candidates": 23.028527,
+    "totalSecondsPer1000Candidates": 41.974078,
+    "totalSecondsPer1000RawRows": 20.184472
+  },
+  "postPatch": {
+    "analysisMarketCount": 6,
+    "candidateRows": 15354,
+    "candidateWalletCount": 3241,
+    "dominantBottleneck": "score_candidates_seconds",
+    "eventSlug": "us-x-iran-permanent-peace-deal-by",
+    "gateDecision": "subset_measurement_complete",
+    "liveResolvedMarketCount": 15,
+    "memoization": {
+      "cacheScopes": [
+        "wallet_window_trades",
+        "market_notional_samples",
+        "domain_notional_samples",
+        "funding_resolver_health"
+      ],
+      "candidateAdmissionPreserved": true,
+      "candidateOrderPreserved": true,
+      "candidateRows": 15354,
+      "chunkMetadata": {
+        "chunkCount": 31,
+        "chunkSize": 500,
+        "chunks": [
+          {
+            "chunkIndex": 1,
+            "endIndexExclusive": 500,
+            "itemCount": 500,
+            "startIndexInclusive": 0
+          },
+          {
+            "chunkIndex": 2,
+            "endIndexExclusive": 1000,
+            "itemCount": 500,
+            "startIndexInclusive": 500
+          },
+          {
+            "chunkIndex": 3,
+            "endIndexExclusive": 1500,
+            "itemCount": 500,
+            "startIndexInclusive": 1000
+          },
+          {
+            "chunkIndex": 4,
+            "endIndexExclusive": 2000,
+            "itemCount": 500,
+            "startIndexInclusive": 1500
+          },
+          {
+            "chunkIndex": 5,
+            "endIndexExclusive": 2500,
+            "itemCount": 500,
+            "startIndexInclusive": 2000
+          },
+          {
+            "chunkIndex": 6,
+            "endIndexExclusive": 3000,
+            "itemCount": 500,
+            "startIndexInclusive": 2500
+          },
+          {
+            "chunkIndex": 7,
+            "endIndexExclusive": 3500,
+            "itemCount": 500,
+            "startIndexInclusive": 3000
+          },
+          {
+            "chunkIndex": 8,
+            "endIndexExclusive": 4000,
+            "itemCount": 500,
+            "startIndexInclusive": 3500
+          },
+          {
+            "chunkIndex": 9,
+            "endIndexExclusive": 4500,
+            "itemCount": 500,
+            "startIndexInclusive": 4000
+          },
+          {
+            "chunkIndex": 10,
+            "endIndexExclusive": 5000,
+            "itemCount": 500,
+            "startIndexInclusive": 4500
+          },
+          {
+            "chunkIndex": 11,
+            "endIndexExclusive": 5500,
+            "itemCount": 500,
+            "startIndexInclusive": 5000
+          },
+          {
+            "chunkIndex": 12,
+            "endIndexExclusive": 6000,
+            "itemCount": 500,
+            "startIndexInclusive": 5500
+          },
+          {
+            "chunkIndex": 13,
+            "endIndexExclusive": 6500,
+            "itemCount": 500,
+            "startIndexInclusive": 6000
+          },
+          {
+            "chunkIndex": 14,
+            "endIndexExclusive": 7000,
+            "itemCount": 500,
+            "startIndexInclusive": 6500
+          },
+          {
+            "chunkIndex": 15,
+            "endIndexExclusive": 7500,
+            "itemCount": 500,
+            "startIndexInclusive": 7000
+          },
+          {
+            "chunkIndex": 16,
+            "endIndexExclusive": 8000,
+            "itemCount": 500,
+            "startIndexInclusive": 7500
+          },
+          {
+            "chunkIndex": 17,
+            "endIndexExclusive": 8500,
+            "itemCount": 500,
+            "startIndexInclusive": 8000
+          },
+          {
+            "chunkIndex": 18,
+            "endIndexExclusive": 9000,
+            "itemCount": 500,
+            "startIndexInclusive": 8500
+          },
+          {
+            "chunkIndex": 19,
+            "endIndexExclusive": 9500,
+            "itemCount": 500,
+            "startIndexInclusive": 9000
+          },
+          {
+            "chunkIndex": 20,
+            "endIndexExclusive": 10000,
+            "itemCount": 500,
+            "startIndexInclusive": 9500
+          },
+          {
+            "chunkIndex": 21,
+            "endIndexExclusive": 10500,
+            "itemCount": 500,
+            "startIndexInclusive": 10000
+          },
+          {
+            "chunkIndex": 22,
+            "endIndexExclusive": 11000,
+            "itemCount": 500,
+            "startIndexInclusive": 10500
+          },
+          {
+            "chunkIndex": 23,
+            "endIndexExclusive": 11500,
+            "itemCount": 500,
+            "startIndexInclusive": 11000
+          },
+          {
+            "chunkIndex": 24,
+            "endIndexExclusive": 12000,
+            "itemCount": 500,
+            "startIndexInclusive": 11500
+          },
+          {
+            "chunkIndex": 25,
+            "endIndexExclusive": 12500,
+            "itemCount": 500,
+            "startIndexInclusive": 12000
+          },
+          {
+            "chunkIndex": 26,
+            "endIndexExclusive": 13000,
+            "itemCount": 500,
+            "startIndexInclusive": 12500
+          },
+          {
+            "chunkIndex": 27,
+            "endIndexExclusive": 13500,
+            "itemCount": 500,
+            "startIndexInclusive": 13000
+          },
+          {
+            "chunkIndex": 28,
+            "endIndexExclusive": 14000,
+            "itemCount": 500,
+            "startIndexInclusive": 13500
+          },
+          {
+            "chunkIndex": 29,
+            "endIndexExclusive": 14500,
+            "itemCount": 500,
+            "startIndexInclusive": 14000
+          },
+          {
+            "chunkIndex": 30,
+            "endIndexExclusive": 15000,
+            "itemCount": 500,
+            "startIndexInclusive": 14500
+          },
+          {
+            "chunkIndex": 31,
+            "endIndexExclusive": 15354,
+            "itemCount": 354,
+            "startIndexInclusive": 15000
+          }
+        ],
+        "coveredItemCount": 15354,
+        "rowsHidden": false,
+        "totalItems": 15354
+      },
+      "enabled": true,
+      "exportsPreserved": true,
+      "repeatedWalletCandidateOpportunities": 12113,
+      "reviewRoutingPreserved": true,
+      "scoreFormulaPreserved": true,
+      "uniqueDomains": 1,
+      "uniqueMarkets": 6,
+      "uniqueWallets": 3241
+    },
+    "networkUsed": true,
+    "rawTradeRows": 31929,
+    "runtimeBoundViolations": [],
+    "selectedMarketCount": 6,
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
+    "subsetOnly": true,
+    "timings": {
+      "assemble_report_rows_seconds": 3.77,
+      "collect_event_trades_seconds": 20.89,
+      "collect_price_history_seconds": 0.4,
+      "prefetch_funding_context_seconds": 0.0,
+      "prefetch_wallet_context_seconds": 249.8,
+      "prepare_candidate_context_seconds": 4.01,
+      "related_market_scan_seconds": 0.0,
+      "resolve_input_seconds": 0.19,
+      "score_candidates_seconds": 353.58,
+      "total_seconds": 644.47,
+      "trade_collection_elapsed_seconds": 20.89
+    },
+    "totalSeconds": 644.47,
+    "truncatedMarketCount": 6
+  },
+  "reportType": "event_forensic_performance_patch_post_measurement",
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_performance_patch_post_measurement_v1",
+  "sidecarOnly": true,
+  "storageMutated": false,
+  "wholeEventCompletenessClaim": false
+}

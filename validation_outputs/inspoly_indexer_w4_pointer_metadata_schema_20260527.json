@@ -1,0 +1,44 @@
+{
+  "forbiddenFields": [
+    "market_count",
+    "trade_count",
+    "cursor_count",
+    "target_rows",
+    "health_verdict_as_report_evidence",
+    "scoring_label",
+    "funding_conclusion",
+    "phase3_conclusion",
+    "row_level_sidecar_context",
+    "live_refresh_instruction"
+  ],
+  "implementationStatus": "implemented_absent_by_default_in_rc_v4",
+  "pointerObject": {
+    "additionalPropertiesPolicy": "future_implementation_should_reject_unknown_metric_like_fields",
+    "requiredFields": [
+      "pointerVersion",
+      "sidecarOnly",
+      "advisoryOnly",
+      "artifactType",
+      "artifactPath",
+      "artifactId",
+      "generatedAt",
+      "sourceReportId",
+      "metricsCopied",
+      "scoringEffect",
+      "routingEffect",
+      "uiRequired",
+      "liveRefresh",
+      "rawDbReadRequired",
+      "localOnlyWarning",
+      "staleDataWarning",
+      "analystConfusionNote"
+    ],
+    "schemaVersionValue": "indexer_warehouse_report_pointer_v1"
+  },
+  "reportType": "indexer_w4_pointer_metadata_schema",
+  "reportWriterWired": true,
+  "runtimeWired": false,
+  "schemaVersion": "indexer_w4_pointer_metadata_schema_v1",
+  "staticExamplePath": "tests/fixtures/indexer_w4_report_pointer_example.json",
+  "topLevelField": "indexerWarehousePointer"
+}

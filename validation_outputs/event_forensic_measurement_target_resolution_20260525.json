@@ -1,0 +1,591 @@
+{
+  "bounds": {
+    "maxCandidateTargetEventsToResolve": 8,
+    "maxCandidateWalletsPerMarket": 150,
+    "maxEvents": 1,
+    "maxMarkets": 8,
+    "maxResolutionMinutes": 15,
+    "maxTotalTradeRows": 50000,
+    "maxWallMinutes": 30,
+    "maxWallSeconds": 1800
+  },
+  "broadCrawlingUsed": false,
+  "clobAuthUsed": false,
+  "envStatus": {
+    "clobAuthConfiguredButUnused": false,
+    "configuredEnvKeys": {
+      "CLOB_API_KEY": false,
+      "CLOB_PASSPHRASE": false,
+      "CLOB_SECRET": false,
+      "INSPOLY_DISABLE_LIVE_FUNDING_TRACES": false,
+      "INSPOLY_FUNDING_TRACE_CACHE_ENABLED": true,
+      "INSPOLY_FUNDING_TRACE_CACHE_TTL_HOURS": true,
+      "INSPOLY_FUNDING_TRACE_FAILURE_TTL_MINUTES": true,
+      "INSPOLY_FUNDING_TRACE_MODE": true,
+      "INSPOLY_FUNDING_TRACE_NONE_TTL_HOURS": true,
+      "INSPOLY_POLYGON_AVERAGE_BLOCK_SECONDS": true,
+      "INSPOLY_POLYGON_RPC_429_COOLDOWN_SECONDS": true,
+      "INSPOLY_POLYGON_RPC_ERROR_COOLDOWN_SECONDS": true,
+      "INSPOLY_POLYGON_RPC_GETLOGS_BLOCK_CHUNK": true,
+      "INSPOLY_POLYGON_RPC_MAX_CONCURRENCY": true,
+      "INSPOLY_POLYGON_RPC_MAX_RETRIES": true,
+      "INSPOLY_POLYGON_RPC_MIN_INTERVAL_SECONDS": true,
+      "INSPOLY_POLYGON_RPC_REQUEST_TIMEOUT_SECONDS": true,
+      "INSPOLY_POLYGON_RPC_URL": false,
+      "INSPOLY_POLYGON_RPC_URLS": true,
+      "INSPOLY_VALIDATION_ABORT_ON_FUNDING_STALL_SECONDS": true,
+      "INSPOLY_VALIDATION_ALLOW_NETWORK_FUNDING": true,
+      "INSPOLY_VALIDATION_APPROXIMATE_BLOCK_LOOKUP": true,
+      "INSPOLY_VALIDATION_AUTO_CACHE_FALLBACK": true,
+      "INSPOLY_VALIDATION_BUNDLE_TIMEOUT_SECONDS": true,
+      "INSPOLY_VALIDATION_CACHE_FIRST": true,
+      "INSPOLY_VALIDATION_COOLDOWN_GETLOGS_NETWORK_ERRORS": true,
+      "INSPOLY_VALIDATION_FUNDING_TIMEOUT_SECONDS": true,
+      "INSPOLY_VALIDATION_MAX_CONSECUTIVE_RPC_FAILURES": true,
+      "INSPOLY_VALIDATION_MAX_FUNDING_TRACES_PER_BUNDLE": true,
+      "INSPOLY_VALIDATION_MAX_FUNDING_TRACE_FAILURES_PER_BUNDLE": true,
+      "INSPOLY_VALIDATION_MAX_LOG_CHUNKS_PER_TRACE": true,
+      "INSPOLY_VALIDATION_MAX_RPC_STALL_TARGETS": true,
+      "INSPOLY_VALIDATION_MODE": false,
+      "INSPOLY_VALIDATION_NETWORK_PROBE_TARGETS": true,
+      "INSPOLY_VALIDATION_STALL_HEARTBEAT_SECONDS": true,
+      "INSPOLY_VALIDATION_TARGET_TIMEOUT_SECONDS": true,
+      "OPENAI_API_KEY": false,
+      "POLYGON_RPC_URL": false,
+      "POLYGON_RPC_URLS": false,
+      "PRIVATE_KEY": false
+    },
+    "loadedRuntimeEnvKeys": [
+      "INSPOLY_FUNDING_TRACE_CACHE_ENABLED",
+      "INSPOLY_FUNDING_TRACE_CACHE_TTL_HOURS",
+      "INSPOLY_FUNDING_TRACE_FAILURE_TTL_MINUTES",
+      "INSPOLY_FUNDING_TRACE_MODE",
+      "INSPOLY_FUNDING_TRACE_NONE_TTL_HOURS",
+      "INSPOLY_POLYGON_AVERAGE_BLOCK_SECONDS",
+      "INSPOLY_POLYGON_RPC_429_COOLDOWN_SECONDS",
+      "INSPOLY_POLYGON_RPC_ERROR_COOLDOWN_SECONDS",
+      "INSPOLY_POLYGON_RPC_GETLOGS_BLOCK_CHUNK",
+      "INSPOLY_POLYGON_RPC_MAX_CONCURRENCY",
+      "INSPOLY_POLYGON_RPC_MAX_RETRIES",
+      "INSPOLY_POLYGON_RPC_MIN_INTERVAL_SECONDS",
+      "INSPOLY_POLYGON_RPC_REQUEST_TIMEOUT_SECONDS",
+      "INSPOLY_POLYGON_RPC_URLS",
+      "INSPOLY_VALIDATION_ABORT_ON_FUNDING_STALL_SECONDS",
+      "INSPOLY_VALIDATION_ALLOW_NETWORK_FUNDING",
+      "INSPOLY_VALIDATION_APPROXIMATE_BLOCK_LOOKUP",
+      "INSPOLY_VALIDATION_AUTO_CACHE_FALLBACK",
+      "INSPOLY_VALIDATION_BUNDLE_TIMEOUT_SECONDS",
+      "INSPOLY_VALIDATION_CACHE_FIRST",
+      "INSPOLY_VALIDATION_COOLDOWN_GETLOGS_NETWORK_ERRORS",
+      "INSPOLY_VALIDATION_FUNDING_TIMEOUT_SECONDS",
+      "INSPOLY_VALIDATION_MAX_CONSECUTIVE_RPC_FAILURES",
+      "INSPOLY_VALIDATION_MAX_FUNDING_TRACES_PER_BUNDLE",
+      "INSPOLY_VALIDATION_MAX_FUNDING_TRACE_FAILURES_PER_BUNDLE",
+      "INSPOLY_VALIDATION_MAX_LOG_CHUNKS_PER_TRACE",
+      "INSPOLY_VALIDATION_MAX_RPC_STALL_TARGETS",
+      "INSPOLY_VALIDATION_NETWORK_PROBE_TARGETS",
+      "INSPOLY_VALIDATION_STALL_HEARTBEAT_SECONDS",
+      "INSPOLY_VALIDATION_TARGET_TIMEOUT_SECONDS"
+    ],
+    "rpcConfigured": true,
+    "runtimeEnvFilePresent": true,
+    "secretValuesPrinted": false,
+    "secretsPrinted": false
+  },
+  "gateDecision": "safe_target_found",
+  "generatedAt": "2026-05-25T14:04:53.395797+00:00",
+  "networkUsed": true,
+  "ordersPlaced": false,
+  "privateKeyUsed": false,
+  "reportType": "event_forensic_measurement_target_resolution",
+  "resolvedCandidates": [
+    {
+      "blockReasons": [],
+      "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "index": 1,
+      "inputValue": "https://polymarket.com/event/russia-x-ukraine-ceasefire-by-january-31-2026",
+      "liveEventTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+      "liveMarketCount": 1,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.29,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+            "marketTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+            "winner": "No"
+          }
+        ],
+        "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+        "eventTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+        "marketCount": 1
+      },
+      "safeForFullMeasurement": true,
+      "savedAnalysisMarketCount": 1,
+      "savedCandidateTradeCount": 144,
+      "savedCandidateWalletCount": 83,
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 3208,
+      "savedTruncatedMarketCount": 1,
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082642/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [
+        "live_market_count_exceeds_bound"
+      ],
+      "eventSlug": "us-x-iran-permanent-peace-deal-by",
+      "index": 2,
+      "inputValue": "https://polymarket.com/event/us-x-iran-permanent-peace-deal-by",
+      "liveEventTitle": "US x Iran permanent peace deal by...?",
+      "liveMarketCount": 15,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.117,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-april-22-2026",
+            "marketTitle": "US x Iran permanent peace deal by April 22, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-april-30-2026-925",
+            "marketTitle": "US x Iran permanent peace deal by April 30, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": false,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-may-31-2026-333-871-241-192-799-449-125",
+            "marketTitle": "US x Iran permanent peace deal by May 31, 2026?",
+            "winner": null
+          },
+          {
+            "closed": false,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-june-30-2026-837-641-896-877-363-892-537",
+            "marketTitle": "US x Iran permanent peace deal by June 30, 2026?",
+            "winner": null
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-april-24-2026",
+            "marketTitle": "US x Iran permanent peace deal by April 24, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-may-15-2026-144-885-839",
+            "marketTitle": "US x Iran permanent peace deal by May 15, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": false,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-december-31-2026-961-587-341-574-555",
+            "marketTitle": "US x Iran permanent peace deal by December 31, 2026?",
+            "winner": null
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-may-8-2026",
+            "marketTitle": "US x Iran permanent peace deal by May 8, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-may-11-2026",
+            "marketTitle": "US x Iran permanent peace deal by May 11, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-may-13-2026",
+            "marketTitle": "US x Iran permanent peace deal by May 13, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": false,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-july-31-2026-831",
+            "marketTitle": "US x Iran permanent peace deal by July 31, 2026?",
+            "winner": null
+          },
+          {
+            "closed": false,
+            "marketSlug": "us-x-iran-permanent-peace-deal-by-june-15-2026-734-856",
+            "marketTitle": "US x Iran permanent peace deal by June 15, 2026?",
+            "winner": null
+          }
+        ],
+        "eventSlug": "us-x-iran-permanent-peace-deal-by",
+        "eventTitle": "US x Iran permanent peace deal by...?",
+        "marketCount": 15
+      },
+      "safeForFullMeasurement": false,
+      "savedAnalysisMarketCount": 6,
+      "savedCandidateTradeCount": 1552,
+      "savedCandidateWalletCount": 427,
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 13465,
+      "savedTruncatedMarketCount": 2,
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [],
+      "eventSlug": "maduro-in-us-custody-by-january-31",
+      "index": 3,
+      "inputValue": "https://polymarket.com/event/maduro-in-us-custody-by-january-31",
+      "liveEventTitle": "Maduro in U.S. custody by January 31?",
+      "liveMarketCount": 1,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.163,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "maduro-in-us-custody-by-january-31",
+            "marketTitle": "Maduro in U.S. custody by January 31?",
+            "winner": "Yes"
+          }
+        ],
+        "eventSlug": "maduro-in-us-custody-by-january-31",
+        "eventTitle": "Maduro in U.S. custody by January 31?",
+        "marketCount": 1
+      },
+      "safeForFullMeasurement": true,
+      "savedAnalysisMarketCount": 1,
+      "savedCandidateTradeCount": 158,
+      "savedCandidateWalletCount": 102,
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 2517,
+      "savedTruncatedMarketCount": 0,
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [],
+      "eventSlug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+      "index": 4,
+      "inputValue": "https://polymarket.com/event/nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+      "liveEventTitle": "NBA: Will the Mavericks beat the Grizzlies by more than 5.5 points in their December 4 matchup?",
+      "liveMarketCount": 1,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.153,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+            "marketTitle": "NBA: Will the Mavericks beat the Grizzlies by more than 5.5 points in their December 4 matchup?",
+            "winner": "No"
+          }
+        ],
+        "eventSlug": "nba-will-the-mavericks-beat-the-grizzlies-by-more-than-5pt5-points-in-their-december-4-matchup",
+        "eventTitle": "NBA: Will the Mavericks beat the Grizzlies by more than 5.5 points in their December 4 matchup?",
+        "marketCount": 1
+      },
+      "safeForFullMeasurement": true,
+      "savedAnalysisMarketCount": 1,
+      "savedCandidateTradeCount": 0,
+      "savedCandidateWalletCount": 0,
+      "savedLocalMeasurementSafe": true,
+      "savedRawTradeCount": 0,
+      "savedTruncatedMarketCount": 0,
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [
+        "saved_candidate_wallets_exceed_per_market_bound",
+        "saved_local_evidence_not_measurement_safe"
+      ],
+      "eventSlug": "maduro-out-in-2025",
+      "index": 5,
+      "inputValue": "https://polymarket.com/event/maduro-out-in-2025",
+      "liveEventTitle": "Maduro out by...?",
+      "liveMarketCount": 6,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.133,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-in-2025-411",
+            "marketTitle": "Maduro out in 2025?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-by-november-30-2025",
+            "marketTitle": "Maduro out by November 30, 2025?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-by-march-31-2026-187-483",
+            "marketTitle": "Maduro out by March 31, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-by-january-31-2026-318",
+            "marketTitle": "Maduro out by January 31, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-by-december-31-2026-334-766",
+            "marketTitle": "Maduro out by December 31, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "maduro-out-by-february-28-2026",
+            "marketTitle": "Maduro out by February 28, 2026?",
+            "winner": "Yes"
+          }
+        ],
+        "eventSlug": "maduro-out-in-2025",
+        "eventTitle": "Maduro out by...?",
+        "marketCount": 6
+      },
+      "safeForFullMeasurement": false,
+      "savedAnalysisMarketCount": 6,
+      "savedCandidateTradeCount": 3521,
+      "savedCandidateWalletCount": 1158,
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 19545,
+      "savedTruncatedMarketCount": 5,
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260424_160244/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [
+        "saved_candidate_wallets_exceed_per_market_bound",
+        "saved_local_evidence_not_measurement_safe"
+      ],
+      "eventSlug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+      "index": 6,
+      "inputValue": "https://polymarket.com/event/khamenei-out-as-supreme-leader-of-iran-by-february-28",
+      "liveEventTitle": "Khamenei out as Supreme Leader of Iran by February 28?",
+      "liveMarketCount": 1,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.102,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+            "marketTitle": "Khamenei out as Supreme Leader of Iran by February 28?",
+            "winner": "Yes"
+          }
+        ],
+        "eventSlug": "khamenei-out-as-supreme-leader-of-iran-by-february-28",
+        "eventTitle": "Khamenei out as Supreme Leader of Iran by February 28?",
+        "marketCount": 1
+      },
+      "safeForFullMeasurement": false,
+      "savedAnalysisMarketCount": 1,
+      "savedCandidateTradeCount": 578,
+      "savedCandidateWalletCount": 278,
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 3600,
+      "savedTruncatedMarketCount": 1,
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [
+        "live_market_count_exceeds_bound",
+        "saved_raw_rows_exceed_bound",
+        "saved_local_evidence_not_measurement_safe"
+      ],
+      "eventSlug": "us-strikes-iran-by",
+      "index": 7,
+      "inputValue": "https://polymarket.com/event/us-strikes-iran-by",
+      "liveEventTitle": "US strikes Iran by...?",
+      "liveMarketCount": 65,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.145,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-february-5-2026",
+            "marketTitle": "US strikes Iran by February 5, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-31-2026-165",
+            "marketTitle": "US strikes Iran by January 31, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-14-2026-913",
+            "marketTitle": "US strikes Iran by January 14, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-15-2026-652-612",
+            "marketTitle": "US strikes Iran by January 15, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-18-2026-991",
+            "marketTitle": "US strikes Iran by January 18, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-17-2026-625",
+            "marketTitle": "US strikes Iran by January 17, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-december-31-2025",
+            "marketTitle": "US strikes Iran by December 31, 2025?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-march-31-2026-393-881-954",
+            "marketTitle": "US strikes Iran by March 31, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-june-30-2026-699-664-723-485-753-218-567-164-387-443-377-384-159-973-494-631-694-956-361-443-224-518-537-678-486-386-275-153-976-862-149-897-221-522-378-575-993-365-444-965-488-963-698-313-696-829-887-721-211-322-726-411-231-474-417-867",
+            "marketTitle": "US strikes Iran by June 30, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-february-28-2026-227-967-547-688-589-491-592-418-452-924-384-915-464-672-196-157-993-596-269-535-381-391-471-256-988-997-296-225-762-973-292-827-345-182-558-215-794-879-189-761",
+            "marketTitle": "US strikes Iran by February 28, 2026?",
+            "winner": "Yes"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-11-2026-946",
+            "marketTitle": "US strikes Iran by January 11, 2026?",
+            "winner": "No"
+          },
+          {
+            "closed": true,
+            "marketSlug": "us-strikes-iran-by-january-23-2026-494-711-798-734-155",
+            "marketTitle": "US strikes Iran by January 23, 2026?",
+            "winner": "No"
+          }
+        ],
+        "eventSlug": "us-strikes-iran-by",
+        "eventTitle": "US strikes Iran by...?",
+        "marketCount": 65
+      },
+      "safeForFullMeasurement": false,
+      "savedAnalysisMarketCount": 65,
+      "savedCandidateTradeCount": 10706,
+      "savedCandidateWalletCount": 2726,
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 179486,
+      "savedTruncatedMarketCount": 0,
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260424_083714/event_analysis.json",
+      "status": "resolved"
+    },
+    {
+      "blockReasons": [
+        "saved_raw_rows_exceed_bound",
+        "saved_candidate_wallets_exceed_per_market_bound",
+        "saved_local_evidence_not_measurement_safe"
+      ],
+      "eventSlug": "strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "index": 8,
+      "inputValue": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+      "liveEventTitle": "Strait of Hormuz traffic returns to normal by end of April?",
+      "liveMarketCount": 1,
+      "liveSelectedMarketCount": 0,
+      "resolutionSeconds": 0.122,
+      "resolvedTarget": {
+        "analysisScope": "event",
+        "availableMarkets": [
+          {
+            "closed": true,
+            "marketSlug": "strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+            "marketTitle": "Strait of Hormuz traffic returns to normal by end of April?",
+            "winner": "No"
+          }
+        ],
+        "eventSlug": "strait-of-hormuz-traffic-returns-to-normal-by-april-30",
+        "eventTitle": "Strait of Hormuz traffic returns to normal by end of April?",
+        "marketCount": 1
+      },
+      "safeForFullMeasurement": false,
+      "savedAnalysisMarketCount": 97,
+      "savedCandidateTradeCount": 2193,
+      "savedCandidateWalletCount": 729,
+      "savedLocalMeasurementSafe": false,
+      "savedRawTradeCount": 80525,
+      "savedTruncatedMarketCount": 6,
+      "sourceReportPath": "event_forensic_outputs/event_forensic_20260427_145109/event_analysis.json",
+      "status": "resolved"
+    }
+  ],
+  "runtimeBehaviorChanged": false,
+  "savedArtifactsMutated": false,
+  "schemaVersion": "event_forensic_measurement_target_resolution_v1",
+  "selectedSafeTarget": {
+    "blockReasons": [],
+    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "index": 1,
+    "inputValue": "https://polymarket.com/event/russia-x-ukraine-ceasefire-by-january-31-2026",
+    "liveEventTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+    "liveMarketCount": 1,
+    "liveSelectedMarketCount": 0,
+    "resolutionSeconds": 0.29,
+    "resolvedTarget": {
+      "analysisScope": "event",
+      "availableMarkets": [
+        {
+          "closed": true,
+          "marketSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+          "marketTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+          "winner": "No"
+        }
+      ],
+      "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+      "eventTitle": "Russia x Ukraine ceasefire by January 31, 2026?",
+      "marketCount": 1
+    },
+    "safeForFullMeasurement": true,
+    "savedAnalysisMarketCount": 1,
+    "savedCandidateTradeCount": 144,
+    "savedCandidateWalletCount": 83,
+    "savedLocalMeasurementSafe": true,
+    "savedRawTradeCount": 3208,
+    "savedTruncatedMarketCount": 1,
+    "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082642/event_analysis.json",
+    "status": "resolved"
+  },
+  "sidecarOnly": true,
+  "storageMutated": false,
+  "subsetPolicyGate": "subset_policy_not_needed",
+  "summary": {
+    "candidateCount": 8,
+    "resolvedCount": 8,
+    "safeTargetCount": 3,
+    "selectedSafeTargetEventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "unsafeTargetCount": 5
+  }
+}

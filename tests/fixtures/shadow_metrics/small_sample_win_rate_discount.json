@@ -1,0 +1,19 @@
+{
+  "trades": [
+    {
+      "wallet": "wallet-small-sample",
+      "condition_id": "cond-sample",
+      "token_id": "yes-sample",
+      "outcome": "YES",
+      "side": "BUY",
+      "size": "100",
+      "price": "0.5",
+      "usdcSize": "50",
+      "timestamp": 1
+    }
+  ],
+  "wallet_stats": {
+    "resolved_trades": 3,
+    "winning_trades": 3
+  }
+}

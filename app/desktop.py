@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+# Legacy Tk UI status:
+# This module is retained as a historical/reference implementation only.
+# The supported `python3 -m app desktop` launch path is the local browser UI
+# in `app.browser_desktop`. Do not modernize, route users here, or delete this
+# file without a separate legacy-UI support/retirement decision.
+
 import json
 import queue
 import subprocess

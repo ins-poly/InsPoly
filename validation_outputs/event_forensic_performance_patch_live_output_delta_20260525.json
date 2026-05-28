@@ -1,0 +1,201 @@
+{
+  "addedCandidateCount": 34,
+  "addedCandidateIdsSample": [
+    "0x0426db57e5bc9c26b0c5908eb3819487cb109d78a504229f18ed4f492388fbfa",
+    "0x0cccf77921c525f8a1cc1348291c03bd0e6faf754fd1f01e837341163f7be9d6",
+    "0x11ccf65a78c50b58357754f1c0ce84c4f01500eceb36b722faadc4dd0ef344ee",
+    "0x13ab0d79835ecb38951f10e77824cb79681f89d4fe642ca391c0f66b198e0bd2",
+    "0x1b16b12c1f7b67bcad1309ab5a6b0ae276301ec0017d65ade573b7502e33c3a6",
+    "0x1f83e239a1b22c7f0e0af460a71c06c30074f8601a4edbce61169d0201b0887e",
+    "0x2ddcfd7d6dea7f471e6c49020c5b62bd6752d60f715bb2758f88f54119ea04ee",
+    "0x37a9e7abd9bf4eac5e217b218f74f0f4f8d6d34f7600e611f66d94a3290a9556",
+    "0x3ba3136347f037eb72b6f16201a428a984ab317bc7921dbd4a3bd217c4fdb4d5",
+    "0x3ead6e9d2b1cf79d8db156c9ccfdbd0218f1b54bb29014e8dff09ae8375c564e",
+    "0x3fb6f7de9de6eed312d6bf329d1b484fc50450d80a009ec60bd9c0d5723cc6b2",
+    "0x4b6a4e23fb71971b1e1b10ab3457d1b929ad645c226c18dc1f61437012ff7baf",
+    "0x51fb9ee65e39b75341118aa1896f88a556b0e6d3f330dc3862531ae6f6eb920a",
+    "0x570c651c28443ca69f1c18b4c81fcbb5affbff60672ccf1f36a06212ca813ab9",
+    "0x5ec37e3a714d1d9ab94cbf546cac250193d8c4a7fdc690682d22be7db1dd530c",
+    "0x666892d2afe6fb47e18ffc9148824972834eb703e29b8972598c4456b35d6d47",
+    "0x69ccbf4b06002e7f1b64ddc86f59a0ae19656a46c7d52a628ebfc9228b26a0e6",
+    "0x75abbcd5fd08ab78e625511ec3207d0c23c92c2e7ed16cffef2e28426eb0eca8",
+    "0x792cbadb5d3f4e70b836d35390505e53679c50999f521d1cc4c76576b7e3c117",
+    "0x7ebe299f1876b6bace3a11e49b102eb32e80a6218733660115928cd9f9363baa"
+  ],
+  "baselineCandidateCount": 15353,
+  "baselinePath": "validation_outputs/event_forensic_subset_measurement_20260525_181811/live_run/event_forensic_outputs/event_forensic_20260525_151815/candidate_trades.json",
+  "candidateCountDelta": 1,
+  "commonCandidateCount": 15320,
+  "interpretation": "strict before/after candidate list changed because live data drifted by one candidate; common candidate scores and review buckets are compared separately",
+  "networkUsed": false,
+  "postPatchCandidateCount": 15354,
+  "postPatchPath": "validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410/live_run/event_forensic_outputs/event_forensic_20260525_160410/candidate_trades.json",
+  "removedCandidateCount": 33,
+  "removedCandidateIdsSample": [
+    "0x0109e88ee3a3a4f99308e11e5ad6edef2ece40784bd5f0062bc49aea6207dcaf",
+    "0x01da3580a2599fb861688be1f00054e0fe31a0ffcd2e93a73f30251e57e918ef",
+    "0x0e90f118655e698c4b12d80d73af7b7b8c2c35b45672aad94241f8392ea94e30",
+    "0x102a4087e4f1e568502c0119034d74b1e322ce44523681e51529158464433c95",
+    "0x1740161aad5e32aa5863fa55a606f923456a29907827d0d16e9135b5fb59fe1b",
+    "0x256e339690fdab8bcb1fb2b0c1cedd713257d73bda235dccf8062de7ad2916d3",
+    "0x2f9f32143eaaf148585d621ee4f5fc58fd76a31ebb4e1ba9a40579b5a243be96",
+    "0x49d6ab5bca29af330124972a8771ea19457820af429c4d99554aa80af85184a4",
+    "0x5a0325fa65f49bd1588f76ae4be57b6dc950834cbc7a1e20a2c94fb57cf13a9c",
+    "0x5ae1edd028dbe4dcdddb90b26d1691efe0b72a0c960129995e31c54f0ead716f",
+    "0x6271dba127cc6ea4c264d6f9cb8b624ec46ef3ccb932eff40cf6fcfed5455e08",
+    "0x68d1eebfd9ac4ef292db52fdd11a3903a97cb219f4ef6b1597fb4382c7042216",
+    "0x8befcd87c00c6744cd7debf9514359b0d877391d2f11c3f06ba2a853c33e20ad",
+    "0x8c20841559c02c79d26f0eba05aef45e4d707e536432cad345dac52c8cd4b22e",
+    "0x961bc4932b69a0f1dfe1a07d5a9e607d348e056b085cbf4e4677be5efddf544d",
+    "0x9a47f2df8efeb540aab50a007f77206f824e11c3d24824ed188a3a88fbd7e2da",
+    "0x9d628158091a1558055abbfb35960543207608fb92b70d190732f4ef7f6fa01e",
+    "0xac8279368f9df9ed97352bd199d712d63af6bc53ada6d131cf04d0712eeac24b",
+    "0xad3f9d553a6195ed2148625474d3361e8df549df9c31d7cdb397c134ec77acd5",
+    "0xadb59fcb410cfc646c2e2bb6a95897d0dacd8aa543eb49373a6ef018151f1ef6"
+  ],
+  "reportType": "event_forensic_post_patch_live_output_delta",
+  "reviewBucketChangeCountOnCommonIds": 14,
+  "reviewBucketChangeSample": [
+    {
+      "after": "hard_evidence_review",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0x8654b0ddd568dd690bbe4f03d4f546f7279fa8b5b211b4817ddd5960adab1fdd"
+    },
+    {
+      "after": "secondary_context",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0xd93842ef7edae943e5c8c62fbf1a06a6212e4a2aff8ed1598f83be568164a02b"
+    },
+    {
+      "after": "hard_evidence_review",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0xb6eb6e17d9b775ee5106dc8f796e40f61c84f444e8b541dd4ac26ab747bd944d"
+    },
+    {
+      "after": "secondary_context",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0x507817373dfd821862809b64c2dbb972e2d022f190bc8670ae56a985921d6fc9"
+    },
+    {
+      "after": "secondary_context",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0x385ae44814748bf02997cf8f8f7ea2c5ab19e93a99fbce3d540303d2b0f6bc9f"
+    },
+    {
+      "after": "secondary_context",
+      "before": "current_or_retrospective_strong_risk",
+      "candidateId": "0x6ec5b42ba9adf5b0d897cb83af21e8f723b28dcdd8c8113b32d0fa6356e00432"
+    },
+    {
+      "after": "secondary_context",
+      "before": "hard_evidence_review",
+      "candidateId": "0x8403bf53ca8642370c1f72fe834ce1fe201f41cf401449cde5c8fafc7f762c0a"
+    },
+    {
+      "after": "secondary_context",
+      "before": "hard_evidence_review",
+      "candidateId": "0x8f1ac704ac0c9722d8e179aef5fcd6254f6e8da9bdbb565074625fe1ee52ffb1"
+    },
+    {
+      "after": "current_or_retrospective_strong_risk",
+      "before": "secondary_context",
+      "candidateId": "0xffd2c2a4f94be28745ed021bae917b95eb52a1141104486ea88a4d792775baf0"
+    },
+    {
+      "after": "current_or_retrospective_strong_risk",
+      "before": "secondary_context",
+      "candidateId": "0x4631b50720bbcc012c9e713148e03c25996babb7710040cb7228ed57d0132848"
+    }
+  ],
+  "schemaVersion": "event_forensic_post_patch_live_output_delta_v1",
+  "scoreChangeCountOnCommonIds": 269,
+  "scoreChangeSample": [
+    {
+      "after": 47,
+      "before": 50,
+      "candidateId": "0x65cdab5a5382c9201dddc54d5211063f98d56ac1340db90b0d4310a1522f7438"
+    },
+    {
+      "after": 44,
+      "before": 47,
+      "candidateId": "0x8654b0ddd568dd690bbe4f03d4f546f7279fa8b5b211b4817ddd5960adab1fdd"
+    },
+    {
+      "after": 43,
+      "before": 42,
+      "candidateId": "0x04c12f1faddb1de1e0f1436b6f1d0fe5b50756c3e40214b8046e7309e2a0b04e"
+    },
+    {
+      "after": 42,
+      "before": 40,
+      "candidateId": "0x63976ac8b50e5f1137bfb534ad9a68570a63f993bfb787472d88b0b2c6903c3e"
+    },
+    {
+      "after": 40,
+      "before": 38,
+      "candidateId": "0x4a9db3be6bda20673c3ad3bda088f79ebb81436b81e44c04a934651a865cd7b9"
+    },
+    {
+      "after": 39,
+      "before": 37,
+      "candidateId": "0x77e2c056ffe7897ea97cee25daa0f5550f01608976bcf5d42f88cc638d6ed5ef"
+    },
+    {
+      "after": 31,
+      "before": 35,
+      "candidateId": "0xd93842ef7edae943e5c8c62fbf1a06a6212e4a2aff8ed1598f83be568164a02b"
+    },
+    {
+      "after": 40,
+      "before": 35,
+      "candidateId": "0xb6eb6e17d9b775ee5106dc8f796e40f61c84f444e8b541dd4ac26ab747bd944d"
+    },
+    {
+      "after": 23,
+      "before": 31,
+      "candidateId": "0x507817373dfd821862809b64c2dbb972e2d022f190bc8670ae56a985921d6fc9"
+    },
+    {
+      "after": 9,
+      "before": 29,
+      "candidateId": "0xbeaecaf7cc5a6f33fe8311b630745112c4749b3fb9bfc41fa8f87fdbfbaf8589"
+    }
+  ],
+  "strictContractComparison": {
+    "candidateCountAfter": 15354,
+    "candidateCountBefore": 15353,
+    "passed": false,
+    "violationCounts": {
+      "candidate_count_changed": 1,
+      "candidate_ids_or_order_changed": 1,
+      "eventForensicScore_changed": 534,
+      "existingModelScore_changed": 5360,
+      "rank_order_changed": 1,
+      "reviewBucket_changed": 21
+    },
+    "violationSample": [
+      "candidate_ids_or_order_changed",
+      "candidate_count_changed",
+      "eventForensicScore_changed_at_50",
+      "existingModelScore_changed_at_50",
+      "existingModelScore_changed_at_51",
+      "existingModelScore_changed_at_52",
+      "eventForensicScore_changed_at_53",
+      "existingModelScore_changed_at_53",
+      "existingModelScore_changed_at_54",
+      "existingModelScore_changed_at_55",
+      "existingModelScore_changed_at_56",
+      "eventForensicScore_changed_at_59",
+      "existingModelScore_changed_at_59",
+      "existingModelScore_changed_at_60",
+      "existingModelScore_changed_at_61",
+      "existingModelScore_changed_at_62",
+      "existingModelScore_changed_at_63",
+      "eventForensicScore_changed_at_64",
+      "existingModelScore_changed_at_64",
+      "existingModelScore_changed_at_65"
+    ]
+  },
+  "weakHistoryDemotionChangeCountOnCommonIds": 0,
+  "weakHistoryDemotionChangeSample": []
+}

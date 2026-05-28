@@ -86,12 +86,22 @@ def build_audit(input_paths: Sequence[Path] = DEFAULT_INPUTS) -> dict[str, Any]:
             "gatesChanged": False,
         },
         "dependencyRows": rows,
-        "recommendedActions": [
+        "recommendedActions": _recommended_actions(runtime_required),
+    }
+
+
+def _recommended_actions(runtime_required: Sequence[Mapping[str, Any]]) -> list[str]:
+    if runtime_required:
+        return [
             "Document runtime CDN dependency clearly for offline/restricted-network operators.",
             "If offline UI is required, create a separate approved vendoring task; do not change app behavior from this audit.",
             "Keep analyst external links separate from UI boot dependencies.",
-        ],
-    }
+        ]
+    return [
+        "Keep local browser boot assets pinned with provenance.",
+        "Keep analyst external links separate from UI boot dependencies.",
+        "Do not add new hard remote boot dependencies without updating strict-offline readiness tests.",
+    ]
 
 
 def render_markdown(payload: Mapping[str, Any]) -> str:

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "batch_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "labels": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_for_benchmark": {
+            "type": "boolean"
+          },
+          "benchmark_case_id": {
+            "type": "string"
+          },
+          "condition_id": {
+            "type": "string"
+          },
+          "confidence": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "fixture_grade"
+            ],
+            "type": "string"
+          },
+          "curator": {
+            "type": "string"
+          },
+          "evidence_quote_short": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "evidence_summary": {
+            "type": "string"
+          },
+          "evidence_timestamp": {
+            "type": "string"
+          },
+          "forbidden_interpretation": {
+            "type": "string"
+          },
+          "label_id": {
+            "type": "string"
+          },
+          "limitations": {
+            "type": "string"
+          },
+          "local_artifact_refs": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "match": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "proves_wallet_identity": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "path",
+                "match",
+                "proves_wallet_identity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "market_slug": {
+            "type": "string"
+          },
+          "polymarket_username": {
+            "type": "string"
+          },
+          "proposed_assertion_level": {
+            "enum": [
+              "exact_wallet_supported",
+              "named_user_local_wallet_candidate",
+              "named_user_only",
+              "pattern_level_only",
+              "market_level_only",
+              "insufficient_source_evidence",
+              "defer_needs_human_label"
+            ],
+            "type": "string"
+          },
+          "review_status": {
+            "enum": [
+              "draft",
+              "pending_review",
+              "accepted",
+              "rejected",
+              "deferred"
+            ],
+            "type": "string"
+          },
+          "source_titles": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "source_urls": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "wallet_address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label_id",
+          "benchmark_case_id",
+          "proposed_assertion_level",
+          "source_urls",
+          "source_titles",
+          "evidence_summary",
+          "evidence_timestamp",
+          "curator",
+          "confidence",
+          "limitations",
+          "forbidden_interpretation",
+          "review_status",
+          "accepted_for_benchmark"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "public_case_label_intake_v1",
+      "type": "string"
+    },
+    "sidecar_only": {
+      "const": true,
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "sidecar_only",
+    "labels"
+  ],
+  "title": "InsPoly Public Case Label Intake",
+  "type": "object"
+}

@@ -1,0 +1,12 @@
+{
+  "analysis_scope": "market",
+  "selected_condition_id": "cond-selected",
+  "selected_market_slug": "selected-market",
+  "scope_note": "Selected market primary scoring; sibling markets are context only.",
+  "related_markets": [{"condition_id": "cond-sibling", "slug": "sibling-market"}],
+  "markets": [{"condition_id": "cond-selected"}, {"condition_id": "cond-sibling"}],
+  "suspicious_trades": [
+    {"id": "selected-row", "conditionId": "cond-selected", "wallet": "0x1"},
+    {"id": "sibling-context-row", "conditionId": "cond-sibling", "wallet": "0x2"}
+  ]
+}

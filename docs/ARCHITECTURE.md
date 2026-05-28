@@ -100,7 +100,8 @@ Runtime external services:
 
 Frontend runtime assets:
 
-- React/Babel and fonts are loaded from public CDNs by the local browser UIs.
+- React, ReactDOM, and Babel boot assets are vendored under `app/vendor/browser/` and served by the local browser servers.
+- Browser fonts use local system stacks; Google Fonts are not required for boot.
 
 ## Compatibility Principles
 
@@ -113,4 +114,3 @@ Important examples:
 - Event/market slug resolution may need public-page `__NEXT_DATA__` fallback.
 - Browser report loaders normalize legacy saved report shapes.
 - Funding evidence must distinguish `unknown` from `none`.
-

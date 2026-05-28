@@ -1,0 +1,5 @@
+sequence,timestamp_utc,timestamp_unix,side,outcome,market_title,slug,eventSlug,conditionId,asset,shares,price,api_usdc_size,recomputed_size_x_price,api_minus_recomputed
+1,2026-05-01T00:00:00+00:00,1,BUY,Yes,Fixture Market A,fixture-market-a,fixture-event-a,cond-a,yes-a,100,0.40,41,40,1
+2,2026-05-01T00:05:00+00:00,2,SELL,Yes,Fixture Market A,fixture-market-a,fixture-event-a,cond-a,yes-a,25,0.55,13.75,13.75,0
+3,2026-05-01T00:10:00+00:00,3,BUY,Yes,Fixture Market B,fixture-market-b,fixture-event-b,cond-b,yes-b,10,0.20,2,2,0
+4,2026-05-01T00:11:00+00:00,4,BUY,No,Fixture Market B,fixture-market-b,fixture-event-b,cond-b,no-b,5,0.70,3.50,3.50,0

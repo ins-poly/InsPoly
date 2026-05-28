@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-05-21T00:00:00Z",
+  "cases": [
+    {
+      "trade": {
+        "wallet": "0xarchive",
+        "condition_id": "condition-archive",
+        "asset_id": "asset-archive-yes",
+        "outcome": "YES",
+        "side": "BUY",
+        "price": 0.12,
+        "size": 500,
+        "notional": 60
+      },
+      "raw_metrics": {
+        "wallet_closed_positions": 40,
+        "wallet_closed_wins": 26,
+        "liquidity_shock_signal": true
+      }
+    }
+  ]
+}

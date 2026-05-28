@@ -1,0 +1,21 @@
+{
+  "case_id": "known-low-odds-shadow-001",
+  "title": "Low-odds large entry benchmark fixture",
+  "source": "local-fixture",
+  "tags": ["shadow-metric", "low-odds", "no-production-action"],
+  "artifact_refs": [
+    {
+      "kind": "shadow_fixture",
+      "path": "tests/fixtures/shadow_metrics/low_probability_large_buy.json",
+      "mutable": false
+    }
+  ],
+  "expected": {
+    "shadow_metric": "shadow_low_odds_position_size",
+    "advisory_level": "notable"
+  },
+  "observed": {
+    "status": "not_run"
+  },
+  "notes": "Evaluation data only; does not authorize scorer or label changes."
+}

@@ -1,0 +1,25 @@
+{
+  "flagged_cases": [
+    {
+      "id": "visible-complete",
+      "visibility_tier": "Visible",
+      "raw_order_side": "BUY",
+      "raw_token_outcome": "YES",
+      "raw_token_price": "0.24"
+    },
+    {
+      "id": "secondary-lossy",
+      "visibility_tier": "Secondary review",
+      "raw_order_side": "SELL",
+      "raw_token_outcome": "YES",
+      "lossy_row": true
+    }
+  ],
+  "excluded_cases": [
+    {
+      "id": "legacy-excluded",
+      "visibility_tier": "Excluded",
+      "old_report_row": true
+    }
+  ]
+}

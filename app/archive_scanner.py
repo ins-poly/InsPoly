@@ -17,8 +17,10 @@ from app.config import (
 )
 from app.event_context import EventContextResolver
 from app.funding_context import FundingContext, FundingResolver, unknown_funding_context
+from app.report_pointer import attach_indexer_warehouse_pointer
 from app.models import FlaggedCase, Market, Trade
 from app.polymarket import PolymarketClient
+from app.side_outcome import normalize_cluster_direction, normalize_side_outcome
 from app.scanner import (
     ProgressEvent,
     HARD_EVIDENCE_REVIEW_TIER,
@@ -90,6 +92,7 @@ class ArchiveResearchScanner:
         include_blockchain: bool = True,
         funding_trace_mode: str | None = None,
         include_related_markets: bool = True,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
         progress_callback: callable | None = None,
         stop_event: object | None = None,
     ) -> dict[str, object]:
@@ -546,6 +549,7 @@ class ArchiveResearchScanner:
                 candidate_cases,
                 near_miss_records=_candidate_admission_near_miss_records(candidate_admission_funnel),
             ),
+            indexer_warehouse_pointer=indexer_warehouse_pointer,
         )
         report["export_files"] = export_files
         report["report_json_path"] = export_files["report_json_path"]
@@ -588,6 +592,7 @@ class ArchiveResearchScanner:
         market_rollups: list[dict[str, object]],
         candidate_admission_funnel: dict[str, object] | None = None,
         candidate_admission_records: list[dict[str, object]] | None = None,
+        indexer_warehouse_pointer: dict[str, object] | None = None,
     ) -> dict[str, str]:
         suffix = "_stopped" if report.get("status") == "stopped" else ""
         base_name = started_at.strftime("archive_research_%Y%m%d_%H%M%S") + suffix
@@ -641,6 +646,15 @@ class ArchiveResearchScanner:
             "candidate_admission_records_json_path": str(admission_records_json_path),
         }
         report["export_files"] = export_files
+        if indexer_warehouse_pointer is not None:
+            report_with_pointer = attach_indexer_warehouse_pointer(
+                report,
+                indexer_warehouse_pointer,
+                source_report_id=str(json_path),
+                generated_at=started_at,
+            )
+            report.clear()
+            report.update(report_with_pointer)
 
         json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         md_path.write_text(_to_markdown(report), encoding="utf-8")
@@ -863,6 +877,8 @@ def _archive_case_sort_key(case: FlaggedCase) -> tuple[int, int, int]:
 
 
 def _trade_row(trade: Trade) -> dict[str, object]:
+    normalized = normalize_side_outcome(trade.side, trade.outcome, trade.price).to_raw_metrics()
+    cluster = normalize_cluster_direction(trade.side, trade.outcome, trade.price).to_raw_metrics()
     return {
         "trade_id": trade.trade_id,
         "timestamp": trade.timestamp.isoformat(),
@@ -872,6 +888,22 @@ def _trade_row(trade: Trade) -> dict[str, object]:
         "side": trade.side,
         "outcome": trade.outcome,
         "price": str(trade.price),
+        "raw_token_outcome": normalized["raw_token_outcome"],
+        "raw_order_side": normalized["raw_order_side"],
+        "raw_token_price": normalized["raw_token_price"],
+        "raw_token_price_label": normalized["raw_token_price_label"],
+        "economic_side": normalized["economic_side"],
+        "economic_side_probability": normalized["economic_side_probability"],
+        "economic_side_probability_label": normalized["economic_side_probability_label"],
+        "economic_direction_normalized": normalized["economic_direction_normalized"],
+        "model_probability_basis": normalized["model_probability_basis"],
+        "model_economic_direction": normalized["model_economic_direction"],
+        "side_outcome_normalization_status": normalized["side_outcome_normalization_status"],
+        "side_outcome_fallback_reason": normalized["side_outcome_fallback_reason"],
+        "cluster_direction": cluster["cluster_direction"],
+        "cluster_direction_basis": cluster["cluster_direction_basis"],
+        "cluster_normalization_status": cluster["cluster_normalization_status"],
+        "cluster_direction_fallback_reason": cluster["cluster_direction_fallback_reason"],
         "size": str(trade.size),
         "notional": str(trade.notional),
         "title": trade.title,
@@ -892,6 +924,22 @@ def _write_trades_csv(path: Path, trades: list[Trade]) -> None:
         "side",
         "outcome",
         "price",
+        "raw_token_outcome",
+        "raw_order_side",
+        "raw_token_price",
+        "raw_token_price_label",
+        "economic_side",
+        "economic_side_probability",
+        "economic_side_probability_label",
+        "economic_direction_normalized",
+        "model_probability_basis",
+        "model_economic_direction",
+        "side_outcome_normalization_status",
+        "side_outcome_fallback_reason",
+        "cluster_direction",
+        "cluster_direction_basis",
+        "cluster_normalization_status",
+        "cluster_direction_fallback_reason",
         "size",
         "notional",
         "title",
@@ -982,6 +1030,23 @@ def _write_flagged_csv(path: Path, cases: list[FlaggedCase]) -> None:
         "market_title",
         "side",
         "outcome",
+        "raw_token_outcome",
+        "raw_order_side",
+        "raw_token_price",
+        "raw_token_price_label",
+        "economic_side",
+        "economic_side_probability",
+        "economic_side_probability_label",
+        "economic_direction_normalized",
+        "model_probability",
+        "model_probability_basis",
+        "model_economic_direction",
+        "side_outcome_normalization_status",
+        "side_outcome_fallback_reason",
+        "cluster_direction",
+        "cluster_direction_basis",
+        "cluster_normalization_status",
+        "cluster_direction_fallback_reason",
         "trade_state",
         "trade_notional_usdc",
         "capital_at_risk_usdc",
@@ -1193,6 +1258,23 @@ def _write_flagged_csv(path: Path, cases: list[FlaggedCase]) -> None:
                     "market_title": case.trade.title,
                     "side": case.trade.side,
                     "outcome": case.trade.outcome,
+                    "raw_token_outcome": case.raw_metrics.get("raw_token_outcome", ""),
+                    "raw_order_side": case.raw_metrics.get("raw_order_side", ""),
+                    "raw_token_price": case.raw_metrics.get("raw_token_price", ""),
+                    "raw_token_price_label": case.raw_metrics.get("raw_token_price_label", ""),
+                    "economic_side": case.raw_metrics.get("economic_side", ""),
+                    "economic_side_probability": case.raw_metrics.get("economic_side_probability", ""),
+                    "economic_side_probability_label": case.raw_metrics.get("economic_side_probability_label", ""),
+                    "economic_direction_normalized": case.raw_metrics.get("economic_direction_normalized", ""),
+                    "model_probability": case.raw_metrics.get("model_probability", ""),
+                    "model_probability_basis": case.raw_metrics.get("model_probability_basis", ""),
+                    "model_economic_direction": case.raw_metrics.get("model_economic_direction", ""),
+                    "side_outcome_normalization_status": case.raw_metrics.get("side_outcome_normalization_status", ""),
+                    "side_outcome_fallback_reason": case.raw_metrics.get("side_outcome_fallback_reason", ""),
+                    "cluster_direction": case.raw_metrics.get("cluster_direction", ""),
+                    "cluster_direction_basis": case.raw_metrics.get("cluster_direction_basis", ""),
+                    "cluster_normalization_status": case.raw_metrics.get("cluster_normalization_status", ""),
+                    "cluster_direction_fallback_reason": case.raw_metrics.get("cluster_direction_fallback_reason", ""),
                     "trade_state": case.raw_metrics.get("trade_state", ""),
                     "trade_notional_usdc": case.raw_metrics.get("trade_notional_usdc", ""),
                     "capital_at_risk_usdc": case.raw_metrics.get("capital_at_risk_usdc", ""),

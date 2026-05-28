@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-25T14:08:36.856556+00:00",
+  "measurement": {
+    "candidateRows": 144,
+    "candidateWalletCount": 83,
+    "dominantBottleneck": "collect_event_trades_seconds",
+    "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
+    "gateDecision": "performance_measurement_complete",
+    "marketCount": 1,
+    "outputDir": "<repo>/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
+    "rawTradeRows": 3208,
+    "totalEventMarketCount": 1,
+    "totalSeconds": 20.54,
+    "truncatedMarketCount": 1
+  },
+  "measurementGate": "performance_measurement_complete",
+  "networkUsed": true,
+  "paginationGate": "pagination_needs_operator_plan",
+  "performancePatchGate": "needs_more_measurement",
+  "replayScheduleGate": "replay_schedule_updated_with_timing_budget",
+  "reportType": "event_forensic_safe_target_performance_measurement",
+  "runtimeBehaviorChanged": false,
+  "schemaVersion": "event_forensic_safe_target_performance_measurement_v1",
+  "sidecarOnly": true,
+  "sourceSummaryPath": "validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511/summary.json"
+}

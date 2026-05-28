@@ -1,0 +1,46 @@
+{
+  "analysis_scope": "event",
+  "selected_market_slug": "synthetic-selected-market",
+  "related_markets": [],
+  "suspicious_trades": [
+    {
+      "id": "synthetic-buy-yes-weak-near",
+      "analysisScope": "event",
+      "wallet": "0xweak1",
+      "market": "Synthetic near-certain YES market",
+      "parentEventSlug": "synthetic-event",
+      "side": "YES",
+      "orderSide": "BUY",
+      "price": "0.96",
+      "laterWon": true,
+      "winnerRank": 1,
+      "eventForensicFlags": ["opening_exposure", "later_correct", "weak_wallet_track_record"],
+      "summary": "The wallet's weak economic history keeps this case review-only."
+    },
+    {
+      "id": "synthetic-sell-yes-phase2-near",
+      "analysisScope": "event",
+      "wallet": "0xweak2",
+      "market": "Synthetic SELL YES inversion market",
+      "parentEventSlug": "synthetic-event",
+      "side": "YES",
+      "orderSide": "SELL",
+      "price": "0.04",
+      "laterWon": true,
+      "winnerRank": 2,
+      "eventForensicReducers": ["The wallet's weak economic history tempers this case despite independent evidence."]
+    },
+    {
+      "id": "synthetic-missing-price",
+      "analysisScope": "event",
+      "wallet": "0xunknown",
+      "market": "Synthetic malformed row",
+      "parentEventSlug": "synthetic-event",
+      "side": "YES",
+      "orderSide": "SELL",
+      "laterWon": true,
+      "winnerRank": 3,
+      "eventForensicFlags": ["weak_wallet_track_record"]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "candidateOptions": [
+    {
+      "decision": "current_runtime_fallback",
+      "option": "keep_w3_sidecar_only"
+    },
+    {
+      "decision": "rfc_ready",
+      "option": "top_level_report_pointer_metadata_only"
+    },
+    {
+      "decision": "blocked_requires_separate_ui_product_approval",
+      "option": "browser_visible_pointer"
+    },
+    {
+      "decision": "rejected",
+      "option": "copied_warehouse_metrics"
+    },
+    {
+      "decision": "rejected",
+      "option": "row_level_sidecar_context"
+    }
+  ],
+  "finalGate": "indexer_w4_pointer_metadata_rfc_ready",
+  "implementationApproved": false,
+  "implementationStatus": "not_implemented",
+  "productApprovalRequiredBeforeImplementation": true,
+  "productionRuntimeChanged": false,
+  "reportBrowserChanged": false,
+  "reportType": "indexer_w4_report_pointer_product_decision",
+  "schemaVersion": "indexer_w4_report_pointer_product_decision_v1",
+  "scoringGateFundingPhase3Changed": false,
+  "whyRfcReady": [
+    "current_loaders_are_absent_safe_for_missing_future_fields",
+    "top_level_metadata_can_be_additive",
+    "w3_artifacts_are_compact_advisory_sidecar_outputs",
+    "pointer_does_not_need_copied_metrics_or_raw_db_reads"
+  ],
+  "whyImplementationStillBlocked": [
+    "report_schema_boundary_requires_separate_approval",
+    "old_report_tests_not_yet_added_for_pointer",
+    "report_writer_tests_not_yet_added_for_pointer",
+    "browser_loader_no_effect_tests_not_yet_added_for_pointer"
+  ]
+}

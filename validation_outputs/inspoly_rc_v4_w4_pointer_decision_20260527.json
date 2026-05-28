@@ -1,0 +1,18 @@
+{
+  "blockedScopes": [
+    "browser_ui_panel",
+    "copied_warehouse_metrics",
+    "row_level_sidecar_context",
+    "report_sorting_filtering_changes",
+    "scoring_gate_label_her_funding_candidate_phase3_changes",
+    "live_refresh",
+    "raw_db_reads_from_report_runtime",
+    "warehouse_scheduler_background_mode",
+    "push_pr"
+  ],
+  "decisionDate": "2026-05-27",
+  "finalGate": "indexer_w4_pointer_metadata_implemented_no_ui_no_metrics",
+  "implementationStatus": "implemented_pointer_only_absent_by_default",
+  "reportType": "rc_v4_w4_pointer_decision",
+  "schemaVersion": "rc_v4_w4_pointer_decision_v1"
+}

@@ -1,0 +1,1 @@
+{"cases": [{"trade": {"wallet": "wallet-a", "condition_id": "cond-1", "asset_id": "token-yes", "outcome": "YES", "side": "BUY", "price": 0.1, "size": 1200, "notional": "120", "timestamp": "2026-01-01T00:00:00Z"}, "raw_metrics": {"wallet_closed_positions": 40, "wallet_closed_wins": 26}}]}
