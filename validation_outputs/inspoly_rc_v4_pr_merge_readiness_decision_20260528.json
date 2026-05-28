@@ -1,0 +1,27 @@
+{
+  "decisionDate": "2026-05-28",
+  "finalGate": "rc_v4_pr_stay_draft_needs_ci_or_review",
+  "mergeApproved": false,
+  "mergeReady": false,
+  "prDraft": true,
+  "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "readyForReviewApproved": false,
+  "readyForReviewRecommendedWithoutOwnerAction": false,
+  "reasons": [
+    "no_github_status_checks_or_workflow_runs_reported",
+    "no_reviews_or_comments_yet",
+    "pr_description_update_blocked_by_github_integration_permission",
+    "release_manifests_present_in_historical_pr_diff",
+    "merge_not_authorized"
+  ],
+  "reportType": "rc_v4_pr_merge_readiness_decision",
+  "schemaVersion": "rc_v4_pr_merge_readiness_decision_v1",
+  "supportingEvidence": {
+    "changedJsonValidation": "201 changed JSON files parsed",
+    "compileall": "passed",
+    "focusedReleaseSuites": "391 tests passed",
+    "fullUnittestDiscovery": "1240 tests passed",
+    "mergeable": true,
+    "runtimeImportScan": "passed"
+  }
+}

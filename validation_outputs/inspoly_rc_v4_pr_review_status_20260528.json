@@ -1,0 +1,32 @@
+{
+  "baseBranch": "main",
+  "baseSha": "865b85822d36ee782e5aee00426429a19ab19c38",
+  "changedFiles": 647,
+  "ciStatus": "unavailable_not_configured",
+  "comments": 0,
+  "commits": 69,
+  "draft": true,
+  "generatedAt": "2026-05-28T12:00:00+03:00",
+  "headBranch": "codex/inspoly-local-release-candidate-v4",
+  "headSha": "4cd7db9f8ebd49b5e7f5decf246637c5f7902ed2",
+  "localOnlyArtifactScan": {
+    "projectMemoryInPrDiff": false,
+    "rawIndexerDbInPrDiff": false,
+    "releaseManifestFilesInPrDiff": 10,
+    "shadowReviewPacketsInPrDiff": false,
+    "sideOutcomeReviewPacketsInPrDiff": false
+  },
+  "mergeable": true,
+  "prNumber": 1,
+  "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "reportType": "rc_v4_pr_review_status",
+  "reviewThreads": 0,
+  "reviews": 0,
+  "schemaVersion": "rc_v4_pr_review_status_v1",
+  "state": "open",
+  "statusChecks": {
+    "commitStatuses": [],
+    "workflowRuns": []
+  },
+  "title": "InsPoly local release candidate V4"
+}

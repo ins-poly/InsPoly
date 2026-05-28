@@ -1,0 +1,22 @@
+{
+  "branch": "codex/inspoly-local-release-candidate-v4",
+  "changedFiles": 647,
+  "checks": {
+    "changedJsonValidation": "201 changed JSON files parsed",
+    "compileall": "passed app tools tests",
+    "diffCachedCheck": "passed",
+    "diffCheck": "passed",
+    "focusedReleaseSuites": "391 tests passed",
+    "forbiddenLocalOnlyArtifactScan": "passed",
+    "fullUnittestDiscovery": "1240 tests passed",
+    "pointerCopiedMetricScan": "passed",
+    "runtimeImportScan": "passed",
+    "stagedFileScan": "passed"
+  },
+  "commit": "4cd7db9f8ebd49b5e7f5decf246637c5f7902ed2",
+  "generatedAt": "2026-05-28T12:00:00+03:00",
+  "githubChecks": "none_reported",
+  "reportType": "rc_v4_pr_local_verification",
+  "schemaVersion": "rc_v4_pr_local_verification_v1",
+  "verificationStatus": "passed"
+}

@@ -3,6 +3,11 @@
 Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
+- Decision: Keep RC V4 PR #1 as Draft after merge-readiness audit; do not mark ready or merge yet.
+  - Why: Local PR-readiness verification passed on the PR branch, but GitHub reports no commit statuses or Actions workflow runs, no reviews/comments exist yet, and the large PR still needs owner/reviewer acceptance of packaging scope including historical `release_manifests/` files.
+  - Consequence: Current PR-review gate is `rc_v4_pr_stay_draft_needs_ci_or_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; merge is not approved; ready-for-review transition is not approved. The next step is owner/reviewer decision on CI expectations, PR body/docs links, and packaging artifacts.
+  - Reversal / revisit condition: If the owner accepts absent GitHub CI, accepts packaging artifacts or requests a cleanup commit, and explicitly approves marking ready, run a narrow ready-for-review checkpoint. Merge remains a separate explicit approval step.
+
 - Decision: Publish RC V4 as a draft PR for review; keep merge owner-gated.
   - Why: RC V4 was locally complete and validated, and the owner manually created the draft pull request after the GitHub connector could not create it due integration permissions.
   - Consequence: Current publication gate is `local_release_candidate_v4_draft_pr_open`. Draft PR `#1` is https://github.com/ins-poly/InsPoly/pull/1 from branch `codex/inspoly-local-release-candidate-v4` into `main`. The publication branch was pushed, but `origin/main` was not pushed directly. Next work should be review/CI feedback or explicit merge preparation, not another local feature campaign.

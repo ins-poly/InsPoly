@@ -3,10 +3,14 @@
 Last updated: 2026-05-28 EEST.
 
 ## Repository State
-- Branch inspected: `main`.
+- Branch inspected: `codex/inspoly-local-release-candidate-v4`.
 - Draft PR inspected: https://github.com/ins-poly/InsPoly/pull/1.
 - Active publication branch: `codex/inspoly-local-release-candidate-v4`.
-- Latest pushed publication commit before this checkpoint: `7ac4dc6 Add RC V4 GitHub publication documentation`.
+- Latest pushed publication checkpoint before PR-readiness audit: `4cd7db9 Record RC V4 draft PR checkpoint`.
+- Current PR-review gate: `rc_v4_pr_stay_draft_needs_ci_or_review`.
+- PR #1 remains Draft / not ready. It is mergeable, but GitHub reports no commit statuses or Actions workflow runs, and there are no comments, reviews, or review threads.
+- Local PR-readiness refresh passed on `4cd7db9`: 201 changed JSON files parsed, compileall passed, 391 focused release tests passed, 1240 full unittest discovery tests passed, runtime import scan passed, pointer copied-metric scan passed, and diff checks passed.
+- Reviewer packaging note: 10 historical `release_manifests/` files are present in the PR diff and should be accepted or cleaned up before the PR leaves Draft.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
 - Latest Release Candidate V3 head verified: `2dd851f Freeze legacy Tk UI as reference-only`.
 - Latest future push/PR packaging dry-run base inspected: `fd12c0b Add release candidate V3 strategic state`.
