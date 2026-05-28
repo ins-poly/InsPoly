@@ -16,6 +16,9 @@ archive_outputs/
 event_forensic_outputs/
 *_outputs/
 review_packets/
+release_manifests/
+shadow_review_packets/
+side_outcome_review_packets/
 known_case_benchmarks/
 strategic_backlog/
 rfcs/

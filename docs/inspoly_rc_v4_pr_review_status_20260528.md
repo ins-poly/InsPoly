@@ -66,7 +66,7 @@ No changed files in the PR diff were found under:
 - `side_outcome_review_packets/`
 - `PROJECT_MEMORY.md`
 
-Important review note: `release_manifests/` files are present in the historical PR diff. They were not staged by this campaign, but reviewers should decide whether they are acceptable packaging artifacts before the PR leaves Draft.
+Finalization update: tracked `release_manifests/` files were removed from the PR branch in the final reviewer-readiness pass. Local manifest files remain on disk as ignored local-only artifacts.
 
 ## Privacy And Secret Hygiene
 
@@ -76,4 +76,4 @@ The scan did identify committed local machine path strings using `<local-user-ho
 
 ## Status Decision
 
-The PR is locally validated, mergeable, and now has the local-path hygiene patch applied, but it should remain Draft until GitHub review/CI expectations are explicit and the owner decides whether the historical `release_manifests/` files are acceptable in this large PR.
+The PR is locally validated, mergeable, has the local-path hygiene patch applied, and has historical tracked `release_manifests/` cleaned from the PR branch. It should remain Draft until the owner accepts the no-CI policy, optionally updates the PR body manually from the replacement text, and explicitly marks it ready for review.

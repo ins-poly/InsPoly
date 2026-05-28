@@ -1,6 +1,6 @@
 {
   "decisionDate": "2026-05-28",
-  "finalGate": "rc_v4_pr_stay_draft_needs_ci_or_review",
+  "finalGate": "rc_v4_ready_for_owner_mark_ready_review",
   "mergeApproved": false,
   "mergeReady": false,
   "prDraft": true,
@@ -16,20 +16,25 @@
     "no_github_status_checks_or_workflow_runs_reported",
     "no_reviews_or_comments_yet",
     "pr_description_update_blocked_by_github_integration_permission",
-    "release_manifests_present_in_historical_pr_diff",
     "merge_not_authorized",
-    "privacy_path_hygiene_patch_applied"
+    "privacy_path_hygiene_patch_applied",
+    "release_manifests_cleaned_from_pr_branch",
+    "pr_body_manual_update_still_needed",
+    "github_ci_not_added_owner_decision_required"
   ],
   "reportType": "rc_v4_pr_merge_readiness_decision",
   "schemaVersion": "rc_v4_pr_merge_readiness_decision_v1",
   "supportingEvidence": {
     "changedJsonValidation": "205 changed JSON files parsed after local-path redaction",
+    "ciPolicy": "GitHub CI not added; no-CI policy documented",
     "compileall": "passed after local-path redaction patch",
     "focusedReleaseSuites": "391 tests passed",
     "fullUnittestDiscovery": "1240 tests passed after local-path redaction patch",
     "mergeable": true,
     "pointerCopiedMetricScan": "passed after local-path redaction patch",
+    "prBodyUpdate": "automatic update blocked; replacement body committed for manual owner update",
     "privacySecretScan": "passed after committed local path redaction; 0 blocking findings",
+    "releaseManifests": "tracked historical release manifests removed from PR branch; local files ignored",
     "runtimeImportScan": "passed after local-path redaction patch"
   }
 }

@@ -10,7 +10,9 @@
     "forbiddenLocalOnlyArtifactScan": "passed",
     "fullUnittestDiscovery": "1240 tests passed after local-path redaction patch",
     "pointerCopiedMetricScan": "passed after local-path redaction patch",
+    "prBodyUpdate": "automatic update blocked; replacement body committed for manual owner update",
     "privacySecretScan": "passed after committed local path redaction; 0 blocking findings",
+    "releaseManifestCleanup": "tracked historical release manifests removed from PR branch; local files ignored",
     "runtimeImportScan": "passed after local-path redaction patch",
     "stagedFileScan": "passed"
   },

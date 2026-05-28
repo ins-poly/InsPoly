@@ -3,6 +3,11 @@
 Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
+- Decision: RC V4 PR #1 is ready for the owner to mark ready for review manually; merge remains blocked.
+  - Why: The finalization pass cleaned tracked historical `release_manifests/` from the PR branch, documented no-CI handling, added final reviewer/merge/smoke/not-included docs, and preserved a clean privacy/secret posture. Automated PR body update is blocked because the local GitHub CLI is unavailable and the GitHub integration returns `403`, so the replacement PR body is committed for manual owner use.
+  - Consequence: Current PR-review gate is `rc_v4_ready_for_owner_mark_ready_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; no merge, no ready-for-review transition, and no push to `origin/main` occurred. GitHub CI was not added; accepting local validation/no-CI remains an owner decision.
+  - Reversal / revisit condition: If the owner wants GitHub CI before review, run a separate CI campaign. If the owner wants more packaging cleanup or PR-body automation, do that before marking ready. Merge remains a separate explicit approval step after review.
+
 - Decision: Keep RC V4 PR #1 as Draft after merge-readiness audit; do not mark ready or merge yet.
   - Why: Local PR-readiness verification passed on the PR branch, and a follow-up privacy/secret hygiene scan found no private-key blocks or common hosted-service tokens after committed local machine path strings were redacted. GitHub still reports no commit statuses or Actions workflow runs, no reviews/comments exist yet, and the large PR still needs owner/reviewer acceptance of packaging scope including historical `release_manifests/` files.
   - Consequence: Current PR-review gate is `rc_v4_pr_stay_draft_needs_ci_or_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; merge is not approved; ready-for-review transition is not approved. The next step is owner/reviewer decision on CI expectations, PR body/docs links, packaging artifacts, and whether the local-path redaction patch is sufficient for publication hygiene.

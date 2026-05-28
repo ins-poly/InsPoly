@@ -6,6 +6,13 @@
   "comments": 0,
   "commits": 70,
   "draft": true,
+  "finalizationUpdate": {
+    "finalGate": "rc_v4_ready_for_owner_mark_ready_review",
+    "localReleaseManifestsIgnored": true,
+    "prBodyUpdateBlockedReason": "local_gh_cli_unavailable_and_github_integration_403_resource_not_accessible",
+    "prBodyUpdated": false,
+    "releaseManifestsCleanedFromPrBranch": true
+  },
   "generatedAt": "2026-05-28T12:00:00+03:00",
   "headBranch": "codex/inspoly-local-release-candidate-v4",
   "headSha": "40ebba2e61bbc83b0b15f8fc0fc0830a39df39b0",
@@ -13,7 +20,7 @@
   "localOnlyArtifactScan": {
     "projectMemoryInPrDiff": false,
     "rawIndexerDbInPrDiff": false,
-    "releaseManifestFilesInPrDiff": 10,
+    "releaseManifestFilesInPrDiff": 0,
     "shadowReviewPacketsInPrDiff": false,
     "sideOutcomeReviewPacketsInPrDiff": false
   },
