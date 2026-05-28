@@ -34,7 +34,8 @@ RELEASE_DIR="$ROOT_DIR/dist/release"
 DMG_PATH="$RELEASE_DIR/InsPoly.dmg"
 ENTITLEMENTS="$ROOT_DIR/packaging/entitlements.plist"
 STAGING_ROOT="${INSPOLY_RELEASE_STAGING_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/inspoly_release.XXXXXX")}"
-STAGED_APP="$STAGING_ROOT/InsPoly.app"
+DMG_ROOT="$STAGING_ROOT/dmg_root"
+STAGED_APP="$DMG_ROOT/InsPoly.app"
 
 cleanup() {
   if [[ "${INSPOLY_KEEP_RELEASE_STAGING:-0}" != "1" && -d "$STAGING_ROOT" ]]; then
@@ -53,8 +54,8 @@ if [[ ! -d "$APP_PATH" ]]; then
   exit 2
 fi
 
-rm -rf "$STAGED_APP"
-mkdir -p "$STAGING_ROOT" "$RELEASE_DIR"
+rm -rf "$DMG_ROOT"
+mkdir -p "$DMG_ROOT" "$RELEASE_DIR"
 /usr/bin/ditto --norsrc --noextattr "$APP_PATH" "$STAGED_APP"
 
 if [[ -x "/usr/bin/xattr" ]]; then
@@ -91,7 +92,7 @@ fi
 rm -f "$DMG_PATH" "$DMG_PATH.sha256"
 /usr/bin/hdiutil create \
   -volname "InsPoly" \
-  -srcfolder "$STAGED_APP" \
+  -srcfolder "$DMG_ROOT" \
   -ov \
   -format UDZO \
   "$DMG_PATH"

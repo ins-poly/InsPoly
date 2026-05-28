@@ -92,7 +92,7 @@ if [[ -f "$DMG_PATH" ]]; then
     /usr/bin/shasum -a 256 "$DMG_PATH" > "$DMG_PATH.sha256"
   fi
 else
-  echo "Notarized DMG not found at $DMG_PATH; skipping release artifact checks."
+  echo "DMG not found at $DMG_PATH; skipping release artifact checks."
 fi
 
 cat <<'CHECKLIST'

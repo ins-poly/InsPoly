@@ -62,6 +62,7 @@ venv/
 # Local agent/operator memory that may contain private workflow notes.
 AGENTS.md
 PROJECT_MEMORY.md
+AI_CONTROL/
 CODEX_SETUP.md
 AI_DESIGN_SCROLL_HANDOFF.md
 SELF_IMPROVEMENT_WORKFLOW.md

@@ -106,6 +106,8 @@ class AppWorkflowContractTests(unittest.TestCase):
         release_build = Path("tools/build_macos_release.sh").read_text(encoding="utf-8")
         validation = Path("tools/validate_macos_release.sh").read_text(encoding="utf-8")
         performance_probe = Path("tools/run_event_forensic_performance_probe.sh").read_text(encoding="utf-8")
+        public_repo_checks = Path("tools/public_repo_checks.py").read_text(encoding="utf-8")
+        gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
         self.assertIn("InsPoly.icns", spec)
         self.assertIn("tools/create_macos_icon.sh", local_build)
@@ -114,6 +116,8 @@ class AppWorkflowContractTests(unittest.TestCase):
         self.assertIn("no Apple login or password", release_build)
         self.assertNotIn("INSPOLY_NOTARYTOOL_PASSWORD", release_build)
         self.assertNotIn("INSPOLY_NOTARYTOOL_APPLE_ID", release_build)
+        self.assertIn('DMG_ROOT="$STAGING_ROOT/dmg_root"', release_build)
+        self.assertIn('-srcfolder "$DMG_ROOT"', release_build)
         self.assertIn("--norsrc --noextattr", release_build)
         self.assertIn("--options runtime", release_build)
         self.assertIn("notarytool submit", release_build)
@@ -123,10 +127,13 @@ class AppWorkflowContractTests(unittest.TestCase):
         self.assertIn("python3 -m unittest discover", validation)
         self.assertIn("tools/public_repo_checks.py --all", validation)
         self.assertIn("hdiutil imageinfo", validation)
-        self.assertIn("screen-off long run", validation)
         self.assertIn("acceptable for local builds", validation)
+        self.assertIn("DMG not found", validation)
+        self.assertIn("screen-off long run", validation)
         self.assertIn("event_forensic_performance_inventory.py", performance_probe)
         self.assertIn("does not change scoring", performance_probe)
+        self.assertIn("AI_CONTROL/", gitignore)
+        self.assertIn('"AI_CONTROL",', public_repo_checks)
 
     def test_case_reviewer_runtime_import_is_packaged(self) -> None:
         source = Path("app/event_forensic_desktop.py").read_text(encoding="utf-8")

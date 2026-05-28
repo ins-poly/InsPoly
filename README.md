@@ -137,15 +137,23 @@ To build the local fallback bundle at `dist/InsPoly.app`:
 tools/build_macos_app.sh
 ```
 
-To build a release DMG, supply Developer ID signing and notarization credentials outside the repo:
+To build a local release DMG and checksum without Apple login/password setup:
+
+```bash
+tools/build_macos_release.sh
+```
+
+The default release script builds `dist/release/InsPoly.dmg` and `dist/release/InsPoly.dmg.sha256` from a clean staging path with local ad-hoc signing. Gatekeeper may warn on another Mac because this default artifact is not notarized.
+
+Optional notarization can be run later only if a Developer ID signing identity and an existing `notarytool` keychain profile already exist:
 
 ```bash
 export INSPOLY_MACOS_SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
 export INSPOLY_NOTARYTOOL_PROFILE="inspoly-notary-profile"
-tools/build_macos_release.sh
+tools/build_macos_release.sh --notarize
 ```
 
-The release script signs with hardened runtime, submits notarization, staples the DMG, and writes `dist/release/InsPoly.dmg.sha256`. Without credentials, use `tools/build_macos_release.sh --dry-run` to verify the clean staging path.
+The release script does not accept Apple ID or password environment variables. Use `tools/build_macos_release.sh --dry-run` to verify the clean staging path without producing a DMG.
 
 ## Optional Runtime Configuration
 

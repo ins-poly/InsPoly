@@ -72,15 +72,23 @@ Local fallback bundle:
 tools/build_macos_app.sh
 ```
 
-Release DMG build:
+Local DMG build:
+
+```bash
+tools/build_macos_release.sh
+```
+
+This writes `dist/release/InsPoly.dmg` and `dist/release/InsPoly.dmg.sha256` without Apple login/password setup. The default artifact is local/ad-hoc signed and may show Gatekeeper warnings on another Mac.
+
+Optional notarization is separate and uses only an existing `notarytool` keychain profile:
 
 ```bash
 export INSPOLY_MACOS_SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
 export INSPOLY_NOTARYTOOL_PROFILE="inspoly-notary-profile"
-tools/build_macos_release.sh
+tools/build_macos_release.sh --notarize
 ```
 
-`INSPOLY_NOTARYTOOL_PROFILE` can be replaced with `INSPOLY_NOTARYTOOL_APPLE_ID`, `INSPOLY_NOTARYTOOL_TEAM_ID`, and `INSPOLY_NOTARYTOOL_PASSWORD`. Do not commit signing credentials or generated release artifacts.
+The release script does not accept Apple ID/password environment variables. Do not commit signing identities, keychain profile setup notes, or generated release artifacts.
 
 `InsPoly.app` includes a keep-awake toggle for active analysis. It prevents idle system sleep while a scan/export/analysis is running. It does not override explicit Sleep, lid close, low battery, shutdown, or other macOS power decisions.
 
