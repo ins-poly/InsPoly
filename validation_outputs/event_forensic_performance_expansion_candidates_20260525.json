@@ -34,7 +34,7 @@
       "savedWalletContextCount": 427,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
       "whySelectedForExpansion": "6 saved analysis market(s); 13,465 saved raw rows; 1,552 saved candidate rows; 2 saved truncation marker(s)"
     },
     {
@@ -63,7 +63,7 @@
       "savedWalletContextCount": 102,
       "selectedMarketSlug": "",
       "selectionSource": "previous_target_resolution",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
       "whySelectedForExpansion": "1 saved analysis market(s); 2,517 saved raw rows; 158 saved candidate rows"
     },
     {
@@ -92,7 +92,7 @@
       "savedWalletContextCount": 0,
       "selectedMarketSlug": "",
       "selectionSource": "previous_target_resolution",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
       "whySelectedForExpansion": "1 saved analysis market(s)"
     },
     {
@@ -152,7 +152,7 @@
       "savedWalletContextCount": 278,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
       "whySelectedForExpansion": "1 saved analysis market(s); 3,600 saved raw rows; 578 saved candidate rows; 1 saved truncation marker(s)"
     },
     {
@@ -272,7 +272,7 @@
       "savedWalletContextCount": 21,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260503_183442/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260503_183442/event_analysis.json",
       "whySelectedForExpansion": "11 saved analysis market(s); 9,239 saved raw rows"
     }
   ],

@@ -9,7 +9,7 @@ This report combines the bounded live measurement/precheck output with the exist
 ## Measurement Input
 
 - Measurement gate: `performance_measurement_complete`
-- Output directory: `/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511`
+- Output directory: `<repo>/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511`
 - Event slug: `russia-x-ukraine-ceasefire-by-january-31-2026`
 - Live status: `completed`
 - Live error: ``

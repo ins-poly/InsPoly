@@ -4,8 +4,8 @@ Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
 - Decision: Keep RC V4 PR #1 as Draft after merge-readiness audit; do not mark ready or merge yet.
-  - Why: Local PR-readiness verification passed on the PR branch, but GitHub reports no commit statuses or Actions workflow runs, no reviews/comments exist yet, and the large PR still needs owner/reviewer acceptance of packaging scope including historical `release_manifests/` files.
-  - Consequence: Current PR-review gate is `rc_v4_pr_stay_draft_needs_ci_or_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; merge is not approved; ready-for-review transition is not approved. The next step is owner/reviewer decision on CI expectations, PR body/docs links, and packaging artifacts.
+  - Why: Local PR-readiness verification passed on the PR branch, and a follow-up privacy/secret hygiene scan found no private-key blocks or common hosted-service tokens after committed local machine path strings were redacted. GitHub still reports no commit statuses or Actions workflow runs, no reviews/comments exist yet, and the large PR still needs owner/reviewer acceptance of packaging scope including historical `release_manifests/` files.
+  - Consequence: Current PR-review gate is `rc_v4_pr_stay_draft_needs_ci_or_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; merge is not approved; ready-for-review transition is not approved. The next step is owner/reviewer decision on CI expectations, PR body/docs links, packaging artifacts, and whether the local-path redaction patch is sufficient for publication hygiene.
   - Reversal / revisit condition: If the owner accepts absent GitHub CI, accepts packaging artifacts or requests a cleanup commit, and explicitly approves marking ready, run a narrow ready-for-review checkpoint. Merge remains a separate explicit approval step.
 
 - Decision: Publish RC V4 as a draft PR for review; keep merge owner-gated.

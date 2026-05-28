@@ -432,7 +432,7 @@
   "sourceReport": {
     "analysisVersion": "v1",
     "generatedAt": "2026-05-25T14:05:13.250812+00:00",
-    "reportJsonPath": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511/live_run/reports/event_forensic_20260525_140513.json",
+    "reportJsonPath": "<repo>/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511/live_run/reports/event_forensic_20260525_140513.json",
     "status": "completed"
   },
   "timing": {

@@ -10,12 +10,12 @@
 | Draft | yes |
 | Base branch | `main` |
 | Head branch | `codex/inspoly-local-release-candidate-v4` |
-| Head commit | `4cd7db9f8ebd49b5e7f5decf246637c5f7902ed2` |
+| Head commit inspected | `40ebba2e61bbc83b0b15f8fc0fc0830a39df39b0` |
 | Base commit | `865b85822d36ee782e5aee00426429a19ab19c38` |
 | Mergeable | yes |
-| Commits | 69 |
-| Changed files | 647 |
-| Additions / deletions | 162,489 / 310 |
+| Commits | 70 |
+| Changed files | 655 |
+| Additions / deletions | 162,807 / 310 |
 
 ## GitHub Review And Checks
 
@@ -68,6 +68,12 @@ No changed files in the PR diff were found under:
 
 Important review note: `release_manifests/` files are present in the historical PR diff. They were not staged by this campaign, but reviewers should decide whether they are acceptable packaging artifacts before the PR leaves Draft.
 
+## Privacy And Secret Hygiene
+
+The PR diff was scanned for private-key blocks, common hosted-service token patterns, direct local user paths, and obvious personal-data markers. No private-key blocks or GitHub/OpenAI/AWS/Slack-style tokens were found.
+
+The scan did identify committed local machine path strings using `<local-user-home>` in older docs and compact validation outputs. This review pass redacted those committed path strings to neutral placeholders such as `<repo>` and `<local-user-home>`. A follow-up scan reported 0 blocking findings across the 655 changed files.
+
 ## Status Decision
 
-The PR is locally validated and mergeable, but it should remain Draft until GitHub review/CI expectations are explicit and the owner decides whether the historical `release_manifests/` files are acceptable in this large PR.
+The PR is locally validated, mergeable, and now has the local-path hygiene patch applied, but it should remain Draft until GitHub review/CI expectations are explicit and the owner decides whether the historical `release_manifests/` files are acceptable in this large PR.

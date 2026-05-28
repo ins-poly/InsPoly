@@ -7,7 +7,7 @@
     "eventSlug": "russia-x-ukraine-ceasefire-by-january-31-2026",
     "gateDecision": "performance_measurement_complete",
     "marketCount": 1,
-    "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
+    "outputDir": "<repo>/validation_outputs/event_forensic_performance_measurement_SAFE_TARGET_20260525_170511",
     "rawTradeRows": 3208,
     "totalEventMarketCount": 1,
     "totalSeconds": 20.54,

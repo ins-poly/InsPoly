@@ -1207,7 +1207,7 @@
   ],
   "networkUsed": true,
   "ordersPlaced": false,
-  "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_granular_pagination_probe_20260526_131742",
+  "outputDir": "<repo>/validation_outputs/event_forensic_granular_pagination_probe_20260526_131742",
   "privateKeyUsed": false,
   "productionPaginationChanged": false,
   "rankClaimsSupported": false,

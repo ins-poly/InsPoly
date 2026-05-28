@@ -65,4 +65,4 @@ This is the compact strategic memory for external review loops. The full operati
 - Pre-existing process-control files were consolidated for repo review: `AI_CONTROL/*.md`, `.gitignore` visibility rules, and `skills/strategic-autonomy-review/SKILL.md`.
 - Root `AGENTS.md` remains ignored/local-only pending a separate user decision; the committed `AI_CONTROL/` layer and repo-local skill are the reviewable strategic-control package.
 - This AI_CONTROL package gives Codex and external GPT a compact strategic review loop.
-- The strategic control pack from `/Users/Root1/Downloads/codex_strategic_control_pack` was implemented by adding `STRATEGIC_OPERATING_SYSTEM.md`, strategic state/review templates, repo/global append rules, and a `strategic-autonomy-review` skill in both repo and user skill locations.
+- The strategic control pack from `<local-user-home>/Downloads/codex_strategic_control_pack` was implemented by adding `STRATEGIC_OPERATING_SYSTEM.md`, strategic state/review templates, repo/global append rules, and a `strategic-autonomy-review` skill in both repo and user skill locations.

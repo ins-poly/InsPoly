@@ -193,7 +193,7 @@ Read these files first:
 
 Inspect current git state:
 
-    cd /Users/Root1/Documents/InsPoly
+    cd <repo>
     git status --short
     git rev-parse --abbrev-ref HEAD
     git rev-list --count origin/main..HEAD
@@ -470,7 +470,7 @@ Possible final combined gates:
 
 ## Concrete Steps
 
-Run commands from `/Users/Root1/Documents/InsPoly`.
+Run commands from `<repo>`.
 
 Initial status:
 

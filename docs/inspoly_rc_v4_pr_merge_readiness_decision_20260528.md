@@ -19,6 +19,7 @@ Final gate: `rc_v4_pr_stay_draft_needs_ci_or_review`.
 - There are no PR comments, reviews, or review threads.
 - The PR description would benefit from direct links to the 2026-05-28 reviewer docs, but the GitHub integration could not update the body due permission error.
 - Historical `release_manifests/` files are present in the PR diff and should be accepted or cleaned up before the PR leaves Draft.
+- Privacy/secret scan found no private-key blocks or common hosted-service tokens. Committed local machine path strings were redacted to neutral placeholders, and the follow-up scan reported 0 blocking findings.
 
 ## Why Not Ready-For-Review Yet
 

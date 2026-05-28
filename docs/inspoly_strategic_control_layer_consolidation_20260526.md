@@ -104,7 +104,7 @@ First produce a Strategic Campaign Brief before editing.
 Campaign: InsPoly Known-Case Benchmark Expansion And False-Positive Controls
 
 Repository:
- /Users/Root1/Documents/InsPoly
+ <repo>
 
 Context:
 - Latest strategic control commit should include AI_CONTROL and the local strategic-autonomy-review skill.

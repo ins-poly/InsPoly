@@ -13,8 +13,15 @@
   "packagingRisks": [
     "release_manifests_present_in_historical_pr_diff",
     "phase3_capital_review_packets_present_in_pr_diff",
-    "very_large_docs_validation_surface"
+    "very_large_docs_validation_surface",
+    "committed_local_paths_redacted_in_pr_review_patch"
   ],
+  "privacyAndSecretHygiene": {
+    "commonSecretTokenBlockingFindings": 0,
+    "localUserPathBlockingFindingsAfterRedaction": 0,
+    "localUserPathsRedacted": true,
+    "remainingRisk": "reviewers_should_still_decide_release_manifests_and_phase3_review_packet_packaging_scope"
+  },
   "recommendedReviewerOrder": [
     "release_overview",
     "reviewer_guide",

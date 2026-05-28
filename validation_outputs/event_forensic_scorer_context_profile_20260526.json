@@ -382,7 +382,7 @@
         "walletFetchBoundaryPreserved": true
       }
     },
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_scorer_context_profile_live_20260526_112806",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_scorer_context_profile_live_20260526_112806",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.11,
@@ -671,7 +671,7 @@
       "uniqueWallets": 3241
     },
     "scorerContextProfile": null,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 3.77,
@@ -924,7 +924,7 @@
       "uniqueWallets": 3242
     },
     "scorerContextProfile": null,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_wallet_prefetch_optimization_live_20260525_195106",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_wallet_prefetch_optimization_live_20260525_195106",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.1,
@@ -1000,7 +1000,7 @@
     "runtimeBoundViolations": [],
     "scoreInputMemoization": null,
     "scorerContextProfile": null,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_subset_measurement_20260525_181811",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_subset_measurement_20260525_181811",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.22,

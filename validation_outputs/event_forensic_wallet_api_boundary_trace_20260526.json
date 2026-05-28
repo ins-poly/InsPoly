@@ -90,7 +90,7 @@
     "liveResolvedMarketCount": 15,
     "networkUsed": true,
     "rawTradeRows": 31985,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_wallet_api_boundary_trace_live_20260526_122643",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_wallet_api_boundary_trace_live_20260526_122643",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.78,
@@ -214,7 +214,7 @@
     "liveResolvedMarketCount": 15,
     "networkUsed": true,
     "rawTradeRows": 31980,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_scorer_context_optimization_live_20260526_115811",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_scorer_context_optimization_live_20260526_115811",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 3.93,
@@ -243,7 +243,7 @@
     "liveResolvedMarketCount": 15,
     "networkUsed": true,
     "rawTradeRows": 31992,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_scorer_context_profile_live_20260526_112806",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_scorer_context_profile_live_20260526_112806",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.11,

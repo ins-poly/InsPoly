@@ -1,14 +1,15 @@
 {
   "baseBranch": "main",
   "baseSha": "865b85822d36ee782e5aee00426429a19ab19c38",
-  "changedFiles": 647,
+  "changedFiles": 655,
   "ciStatus": "unavailable_not_configured",
   "comments": 0,
-  "commits": 69,
+  "commits": 70,
   "draft": true,
   "generatedAt": "2026-05-28T12:00:00+03:00",
   "headBranch": "codex/inspoly-local-release-candidate-v4",
-  "headSha": "4cd7db9f8ebd49b5e7f5decf246637c5f7902ed2",
+  "headSha": "40ebba2e61bbc83b0b15f8fc0fc0830a39df39b0",
+  "headShaInspected": "40ebba2e61bbc83b0b15f8fc0fc0830a39df39b0",
   "localOnlyArtifactScan": {
     "projectMemoryInPrDiff": false,
     "rawIndexerDbInPrDiff": false,
@@ -19,6 +20,18 @@
   "mergeable": true,
   "prNumber": 1,
   "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "privacyAndSecretHygiene": {
+    "changedFilesScanned": 655,
+    "commonSecretTokenBlockingFindings": 0,
+    "localUserPathBlockingFindingsAfterRedaction": 0,
+    "localUserPathsRedacted": true,
+    "redactionPlaceholders": [
+      "<repo>",
+      "<local-user-home>"
+    ],
+    "runtimeChanged": false,
+    "scanScope": "git_diff_origin_main_to_pr_head"
+  },
   "reportType": "rc_v4_pr_review_status",
   "reviewThreads": 0,
   "reviews": 0,

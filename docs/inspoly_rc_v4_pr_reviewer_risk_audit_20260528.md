@@ -26,6 +26,8 @@ Current campaign did not stage local-only artifacts. However, the PR history inc
 
 Reviewer action: decide whether those historical packaging/review artifacts are acceptable in the PR before marking it ready. If not, request a separate packaging cleanup commit rather than mixing deletion into this review packet.
 
+Privacy hygiene update: this review pass scanned the PR diff for direct local user paths and common secret/token patterns. No private-key blocks or common hosted-service tokens were found. Committed `<local-user-home>` path strings in docs/compact outputs were redacted to neutral placeholders before this review packet was pushed.
+
 ## What Reviewers Should Inspect First
 
 1. `docs/inspoly_rc_v4_github_release_overview_20260528.md`

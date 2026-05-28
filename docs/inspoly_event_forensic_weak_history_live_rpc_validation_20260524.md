@@ -5,7 +5,7 @@ This is a bounded measurement-only validation. It does not approve scorer tuning
 ## Gate Decision
 
 - Gate: `weak_history_live_validation_needs_model_rfc`
-- Output directory: `/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_weak_history_live_rpc_20260524_112348`
+- Output directory: `<repo>/validation_outputs/event_forensic_weak_history_live_rpc_20260524_112348`
 - Network used: True
 - Runtime behavior changed: False
 - Saved artifacts mutated: False
@@ -65,7 +65,7 @@ This is a bounded measurement-only validation. It does not approve scorer tuning
     "analysisNotes": [],
     "candidateTradeCount": 144,
     "displayTradeCount": 19,
-    "eventAnalysisJsonPath": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_weak_history_live_rpc_20260524_112348/live_runs/target_01/event_forensic_outputs/event_forensic_20260524_082352/event_analysis.json",
+    "eventAnalysisJsonPath": "<repo>/validation_outputs/event_forensic_weak_history_live_rpc_20260524_112348/live_runs/target_01/event_forensic_outputs/event_forensic_20260524_082352/event_analysis.json",
     "nearCertainEconomicRows": 14,
     "phase2EconomicProbabilityMismatches": 0,
     "phase4ClusterDirectionMismatches": 0,

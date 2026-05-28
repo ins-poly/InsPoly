@@ -12,7 +12,7 @@ Use this exact prompt in the next Codex thread:
 
 ```text
 Read and execute this file fully:
-/Users/Root1/Documents/InsPoly/docs/inspoly_codex_commit_packaging_campaign_instruction_20260525.md
+<repo>/docs/inspoly_codex_commit_packaging_campaign_instruction_20260525.md
 
 Work autonomously through the full packaging campaign. Do not stage, commit, push, delete, or revert anything. Produce exact split-commit manifests and a final packaging recommendation.
 ```
@@ -72,8 +72,8 @@ These blockers must not be unblocked by a packaging task.
 
 The next Codex must obey all repository instructions in:
 
-- `/Users/Root1/Documents/InsPoly/AGENTS.md`
-- `/Users/Root1/Documents/InsPoly/PROJECT_MEMORY.md`
+- `<repo>/AGENTS.md`
+- `<repo>/PROJECT_MEMORY.md`
 
 Hard prohibitions:
 
@@ -109,16 +109,16 @@ Allowed:
 
 Before producing any manifest, read:
 
-1. `/Users/Root1/Documents/InsPoly/AGENTS.md`
-2. `/Users/Root1/Documents/InsPoly/PROJECT_MEMORY.md`
-3. `/Users/Root1/Documents/InsPoly/docs/inspoly_side_outcome_reform_staging_manifest_20260522.md`
-4. `/Users/Root1/Documents/InsPoly/docs/inspoly_side_outcome_reform_release_readiness_20260522.md`
-5. `/Users/Root1/Documents/InsPoly/docs/inspoly_event_forensic_weak_history_review_demotion_release_readiness_20260524.md`
-6. `/Users/Root1/Documents/InsPoly/docs/inspoly_event_forensic_weak_history_review_bucket_demotion_implementation_20260524.md`
-7. `/Users/Root1/Documents/InsPoly/docs/inspoly_strategic_long_run_campaign_summary_20260522.md`
-8. `/Users/Root1/Documents/InsPoly/docs/inspoly_known_case_benchmark_corpus_20260522.md`
-9. `/Users/Root1/Documents/InsPoly/docs/inspoly_benchmark_suite_v2_productization_20260522.md`
-10. Existing release manifest files under `/Users/Root1/Documents/InsPoly/release_manifests/`
+1. `<repo>/AGENTS.md`
+2. `<repo>/PROJECT_MEMORY.md`
+3. `<repo>/docs/inspoly_side_outcome_reform_staging_manifest_20260522.md`
+4. `<repo>/docs/inspoly_side_outcome_reform_release_readiness_20260522.md`
+5. `<repo>/docs/inspoly_event_forensic_weak_history_review_demotion_release_readiness_20260524.md`
+6. `<repo>/docs/inspoly_event_forensic_weak_history_review_bucket_demotion_implementation_20260524.md`
+7. `<repo>/docs/inspoly_strategic_long_run_campaign_summary_20260522.md`
+8. `<repo>/docs/inspoly_known_case_benchmark_corpus_20260522.md`
+9. `<repo>/docs/inspoly_benchmark_suite_v2_productization_20260522.md`
+10. Existing release manifest files under `<repo>/release_manifests/`
 
 Then inspect fresh local state:
 

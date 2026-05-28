@@ -49,8 +49,8 @@ InsPoly is a local-first investigation toolkit for suspicious Polymarket trading
   - `LAST_STRATEGIC_REVIEW.md`
   - `STRATEGIC_REVIEW_PACKET.md`
 - Kept root `AGENTS.md` local-only for now; its current local copy requires future substantial strategic work to read the AI_CONTROL layer.
-- Appended a Strategic Addendum to `/Users/Root1/.codex/AGENTS.md`.
-- Added `skills/strategic-autonomy-review/SKILL.md` and installed the same skill under `/Users/Root1/.codex/skills/strategic-autonomy-review/SKILL.md`.
+- Appended a Strategic Addendum to `<local-user-home>/.codex/AGENTS.md`.
+- Added `skills/strategic-autonomy-review/SKILL.md` and installed the same skill under `<local-user-home>/.codex/skills/strategic-autonomy-review/SKILL.md`.
 - Updated `.gitignore` so `AI_CONTROL/*.md` and `skills/strategic-autonomy-review/SKILL.md` are visible for explicit staging even though root `PROJECT_MEMORY.md` and root `AGENTS.md` remain local-only.
 - Updated root `PROJECT_MEMORY.md` with this process-only change.
 - No runtime code, scoring, browser behavior, storage, report schema, saved outputs, pushes, or PRs were changed.
@@ -74,10 +74,10 @@ The user observed that Codex can overfocus on small technical loops and asked fo
   - `AI_CONTROL/STRATEGIC_REVIEW_PACKET.md`
 - Strategic skill:
   - `skills/strategic-autonomy-review/SKILL.md`
-  - `/Users/Root1/.codex/skills/strategic-autonomy-review/SKILL.md`
+  - `<local-user-home>/.codex/skills/strategic-autonomy-review/SKILL.md`
 - Agent instructions:
   - `AGENTS.md`
-  - `/Users/Root1/.codex/AGENTS.md`
+  - `<local-user-home>/.codex/AGENTS.md`
 - Git visibility:
   - `.gitignore`
 - Persistent local memory:

@@ -5,6 +5,11 @@
   "mergeReady": false,
   "prDraft": true,
   "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "privacyAndSecretHygiene": {
+    "commonSecretTokenBlockingFindings": 0,
+    "localUserPathBlockingFindingsAfterRedaction": 0,
+    "localUserPathsRedacted": true
+  },
   "readyForReviewApproved": false,
   "readyForReviewRecommendedWithoutOwnerAction": false,
   "reasons": [
@@ -12,16 +17,19 @@
     "no_reviews_or_comments_yet",
     "pr_description_update_blocked_by_github_integration_permission",
     "release_manifests_present_in_historical_pr_diff",
-    "merge_not_authorized"
+    "merge_not_authorized",
+    "privacy_path_hygiene_patch_applied"
   ],
   "reportType": "rc_v4_pr_merge_readiness_decision",
   "schemaVersion": "rc_v4_pr_merge_readiness_decision_v1",
   "supportingEvidence": {
-    "changedJsonValidation": "201 changed JSON files parsed",
-    "compileall": "passed",
+    "changedJsonValidation": "205 changed JSON files parsed after local-path redaction",
+    "compileall": "passed after local-path redaction patch",
     "focusedReleaseSuites": "391 tests passed",
-    "fullUnittestDiscovery": "1240 tests passed",
+    "fullUnittestDiscovery": "1240 tests passed after local-path redaction patch",
     "mergeable": true,
-    "runtimeImportScan": "passed"
+    "pointerCopiedMetricScan": "passed after local-path redaction patch",
+    "privacySecretScan": "passed after committed local path redaction; 0 blocking findings",
+    "runtimeImportScan": "passed after local-path redaction patch"
   }
 }

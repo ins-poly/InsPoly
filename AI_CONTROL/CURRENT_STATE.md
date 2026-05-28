@@ -7,9 +7,11 @@ Last updated: 2026-05-28 EEST.
 - Draft PR inspected: https://github.com/ins-poly/InsPoly/pull/1.
 - Active publication branch: `codex/inspoly-local-release-candidate-v4`.
 - Latest pushed publication checkpoint before PR-readiness audit: `4cd7db9 Record RC V4 draft PR checkpoint`.
+- Latest pushed PR-readiness checkpoint before the local-path hygiene patch: `40ebba2 Record RC V4 PR review readiness`.
 - Current PR-review gate: `rc_v4_pr_stay_draft_needs_ci_or_review`.
 - PR #1 remains Draft / not ready. It is mergeable, but GitHub reports no commit statuses or Actions workflow runs, and there are no comments, reviews, or review threads.
 - Local PR-readiness refresh passed on `4cd7db9`: 201 changed JSON files parsed, compileall passed, 391 focused release tests passed, 1240 full unittest discovery tests passed, runtime import scan passed, pointer copied-metric scan passed, and diff checks passed.
+- PR publication hygiene refresh found no private-key blocks or common hosted-service tokens. It did find committed `<local-user-home>` local path strings in docs/compact outputs; those were redacted to `<repo>` / `<local-user-home>` placeholders, with a follow-up scan reporting 0 blocking findings.
 - Reviewer packaging note: 10 historical `release_manifests/` files are present in the PR diff and should be accepted or cleaned up before the PR leaves Draft.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
 - Latest Release Candidate V3 head verified: `2dd851f Freeze legacy Tk UI as reference-only`.
@@ -39,7 +41,7 @@ Last updated: 2026-05-28 EEST.
 - Browser UIs now boot from vendored local React/ReactDOM/Babel assets through narrow static serving.
 - The active release launch path is browser-backed. The legacy Tk module `app/desktop.py` is frozen as historical/reference-only and is not used by `python3 -m app desktop`.
 - Strategic Operating System files are present and wired into repo/global agent guidance for non-trivial work.
-- The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `/Users/Root1/.codex/skills/strategic-autonomy-review/`.
+- The `strategic-autonomy-review` skill exists in `skills/strategic-autonomy-review/` and `<local-user-home>/.codex/skills/strategic-autonomy-review/`.
 - The test suite has broad local regression coverage compared with early project state; Release Candidate V3 full unittest discovery passed 1122 tests at `2dd851f`.
 - The known-case benchmark has been expanded to `known_case_benchmark_v3` with 30 compact cases, including false-positive, sidecar-context, and public-source metadata controls.
 - Public-case evidence bridge tooling now enforces exact-wallet source discipline: 6 public controls remain non-exact, with 0 exact-wallet-supported public cases, 0 named-user local wallet candidates, 2 named-user-only, 2 pattern-level-only, and 2 market-level-only cases.

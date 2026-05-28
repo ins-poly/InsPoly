@@ -197,7 +197,7 @@
       "savedLocalMeasurementSafe": true,
       "savedRawTradeCount": 13465,
       "savedTruncatedMarketCount": 2,
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
       "status": "resolved"
     },
     {
@@ -230,7 +230,7 @@
       "savedLocalMeasurementSafe": true,
       "savedRawTradeCount": 2517,
       "savedTruncatedMarketCount": 0,
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
       "status": "resolved"
     },
     {
@@ -263,7 +263,7 @@
       "savedLocalMeasurementSafe": true,
       "savedRawTradeCount": 0,
       "savedTruncatedMarketCount": 0,
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
       "status": "resolved"
     },
     {
@@ -365,7 +365,7 @@
       "savedLocalMeasurementSafe": false,
       "savedRawTradeCount": 3600,
       "savedTruncatedMarketCount": 1,
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
       "status": "resolved"
     },
     {
@@ -703,7 +703,7 @@
       "savedLocalMeasurementSafe": false,
       "savedRawTradeCount": 9239,
       "savedTruncatedMarketCount": 0,
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260503_183442/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260503_183442/event_analysis.json",
       "status": "resolved"
     }
   ],
@@ -740,7 +740,7 @@
     "savedLocalMeasurementSafe": true,
     "savedRawTradeCount": 2517,
     "savedTruncatedMarketCount": 0,
-    "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+    "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
     "status": "resolved"
   },
   "sidecarOnly": true,

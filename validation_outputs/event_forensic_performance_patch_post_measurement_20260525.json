@@ -12,7 +12,7 @@
     "rawTradeRows": 31919,
     "runtimeBoundViolations": [],
     "selectedMarketCount": 6,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_subset_measurement_20260525_181811",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_subset_measurement_20260525_181811",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 4.22,
@@ -352,7 +352,7 @@
     "rawTradeRows": 31929,
     "runtimeBoundViolations": [],
     "selectedMarketCount": 6,
-    "sourceOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
+    "sourceOutputDir": "<repo>/validation_outputs/event_forensic_performance_patch_post_measurement_20260525_190410",
     "subsetOnly": true,
     "timings": {
       "assemble_report_rows_seconds": 3.77,

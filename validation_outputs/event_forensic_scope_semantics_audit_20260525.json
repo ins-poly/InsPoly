@@ -5594,7 +5594,7 @@
     "siblingMarketsPrimaryScored",
     "scopeExplanation"
   ],
-  "root": "/Users/Root1/Documents/InsPoly",
+  "root": "<repo>",
   "runtimeBehaviorChanged": false,
   "savedArtifactsMutated": false,
   "schemaVersion": "event_forensic_scope_semantics_audit_v1",

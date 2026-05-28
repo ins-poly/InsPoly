@@ -27,7 +27,7 @@
       "savedWalletContextCount": 83,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_082642/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082642/event_analysis.json",
       "whyUseful": "single-market whole-event scope; 3,208 saved raw rows; 144 saved candidate rows; 1 saved truncated markets; 41.64s saved runtime"
     },
     {
@@ -49,7 +49,7 @@
       "savedWalletContextCount": 427,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260430_170713/event_analysis.json",
       "whyUseful": "6 saved whole-event markets; 13,465 saved raw rows; 1,552 saved candidate rows; 2 saved truncated markets; 34.06s saved runtime"
     },
     {
@@ -71,7 +71,7 @@
       "savedWalletContextCount": 102,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260424_155452/event_analysis.json",
       "whyUseful": "single-market whole-event scope; 2,517 saved raw rows; 158 saved candidate rows; 14.12s saved runtime"
     },
     {
@@ -93,7 +93,7 @@
       "savedWalletContextCount": 0,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_124701/event_analysis.json",
       "whyUseful": "single-market whole-event scope; 0.46s saved runtime"
     },
     {
@@ -141,7 +141,7 @@
       "savedWalletContextCount": 278,
       "selectedMarketSlug": "",
       "selectionSource": "local_performance_inventory",
-      "sourceReportPath": "/Users/Root1/Documents/InsPoly/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
+      "sourceReportPath": "<repo>/event_forensic_outputs/event_forensic_20260504_082550/event_analysis.json",
       "whyUseful": "single-market whole-event scope; 3,600 saved raw rows; 578 saved candidate rows; 1 saved truncated markets; 48.04s saved runtime"
     },
     {

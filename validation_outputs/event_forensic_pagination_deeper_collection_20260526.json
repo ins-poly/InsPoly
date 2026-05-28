@@ -340,7 +340,7 @@
   ],
   "networkUsed": true,
   "ordersPlaced": false,
-  "outputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_pagination_deeper_collection_20260526_20260526_125842",
+  "outputDir": "<repo>/validation_outputs/event_forensic_pagination_deeper_collection_20260526_20260526_125842",
   "privateKeyUsed": false,
   "productionPaginationChanged": false,
   "rankClaimsSupported": false,

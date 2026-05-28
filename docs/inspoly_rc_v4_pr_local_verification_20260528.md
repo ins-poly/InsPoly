@@ -2,7 +2,7 @@
 
 ## Scope
 
-This refresh validates PR #1 from local branch `codex/inspoly-local-release-candidate-v4` at commit `4cd7db9f8ebd49b5e7f5decf246637c5f7902ed2`.
+This refresh validates PR #1 from local branch `codex/inspoly-local-release-candidate-v4`. The original full-suite PR-readiness checkpoint was `40ebba2e61bbc83b0b15f8fc0fc0830a39df39b0`; this follow-up pass adds a docs/compact-output privacy hygiene patch only.
 
 Full unittest discovery was run because the PR differs from `origin/main` in runtime files.
 
@@ -11,13 +11,14 @@ Full unittest discovery was run because the PR differs from `origin/main` in run
 | Check | Result |
 | --- | --- |
 | Branch/tracking | `codex/inspoly-local-release-candidate-v4` tracking `origin/codex/inspoly-local-release-candidate-v4` |
-| Diff summary | 647 files, 162,489 insertions, 310 deletions |
-| Changed JSON validation | 201 changed JSON files parsed |
+| Diff summary | 655 files, 162,807 insertions, 310 deletions at inspected PR head |
+| Changed JSON validation | 205 changed JSON files parsed after local-path redaction |
 | Compile check | `python3 -m compileall -q app tools tests` passed |
 | Focused release suites | 391 tests passed |
 | Full unittest discovery | 1240 tests passed |
 | Runtime import scan | passed |
 | Pointer copied-metric scan | passed |
+| Privacy/secret scan | passed after redacting committed `<local-user-home>` path strings; 0 blocking findings |
 | Forbidden local-only artifact scan | passed for `PROJECT_MEMORY.md`, `.inspoly_indexer/`, `shadow_review_packets/`, `side_outcome_review_packets/` |
 | Staged-file scan | passed |
 | `git diff --check` | passed |
@@ -28,6 +29,7 @@ Full unittest discovery was run because the PR differs from `origin/main` in run
 - GitHub reports no commit statuses and no Actions workflow runs for the head commit.
 - Tests emitted existing sqlite `ResourceWarning` noise and the known validation-corpus terminal failure artifact message, but unittest discovery completed successfully with `OK`.
 - `release_manifests/` appears in the PR diff from historical commits and should be reviewed as a packaging decision.
+- The privacy/secret scan found no private-key blocks or common hosted-service tokens. It did find local machine path strings in committed docs/JSON artifacts; this patch redacts those strings to `<repo>` / `<local-user-home>` placeholders.
 
 ## Local Verification Decision
 

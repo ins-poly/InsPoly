@@ -13,7 +13,7 @@
     "scorer_or_gate_tuning_decisions"
   ],
   "generatedAt": "2026-05-25T15:30:25.867254+00:00",
-  "liveResultOutputDir": "/Users/Root1/Documents/InsPoly/validation_outputs/event_forensic_subset_measurement_20260525_181811",
+  "liveResultOutputDir": "<repo>/validation_outputs/event_forensic_subset_measurement_20260525_181811",
   "networkUsed": true,
   "paginationAssessment": {
     "paginationGate": "pagination_issue_observed",
