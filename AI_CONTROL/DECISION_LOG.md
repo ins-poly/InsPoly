@@ -1,8 +1,13 @@
 # Decision Log
 
-Last updated: 2026-05-27 EEST.
+Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
+- Decision: Publish RC V4 as a draft PR for review; keep merge owner-gated.
+  - Why: RC V4 was locally complete and validated, and the owner manually created the draft pull request after the GitHub connector could not create it due integration permissions.
+  - Consequence: Current publication gate is `local_release_candidate_v4_draft_pr_open`. Draft PR `#1` is https://github.com/ins-poly/InsPoly/pull/1 from branch `codex/inspoly-local-release-candidate-v4` into `main`. The publication branch was pushed, but `origin/main` was not pushed directly. Next work should be review/CI feedback or explicit merge preparation, not another local feature campaign.
+  - Reversal / revisit condition: If the PR is closed or replaced, update AI_CONTROL with the replacement branch/PR URL before further publication work. If review/CI requires fixes, keep them scoped to the PR branch and preserve local-only artifact exclusions.
+
 - Decision: Treat Release Candidate V4 as locally complete after W4 pointer-only metadata and validation; push/PR remains owner-gated.
   - Why: W4 was the only currently RFC-ready safe feature in the local warehouse chain. RC V4 implements one optional top-level `indexerWarehousePointer` object for newly generated scanner/archive/Event Forensic reports only when an explicit pointer payload is supplied. The helper rejects copied metrics, row-level sidecar context, scoring/gate effects, UI requirements, live refresh, raw DB requirements, and unknown pointer fields.
   - Consequence: Current W4 gate is `indexer_w4_pointer_metadata_implemented_no_ui_no_metrics`; current RC gate is `local_release_candidate_v4_complete_no_push_pr` after validation/commit. Browser UI panels, copied warehouse metrics, row-level context, report sorting/filtering changes, scoring/gate/funding/Phase 3 changes, warehouse scheduler/background mode, storage migration, saved-report mutation, live/network behavior, CLOB auth/trading, push, and PR remain blocked.

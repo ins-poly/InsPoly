@@ -1,16 +1,19 @@
 # Current State
 
-Last updated: 2026-05-27 EEST.
+Last updated: 2026-05-28 EEST.
 
 ## Repository State
 - Branch inspected: `main`.
+- Draft PR inspected: https://github.com/ins-poly/InsPoly/pull/1.
+- Active publication branch: `codex/inspoly-local-release-candidate-v4`.
+- Latest pushed publication commit before this checkpoint: `7ac4dc6 Add RC V4 GitHub publication documentation`.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
 - Latest Release Candidate V3 head verified: `2dd851f Freeze legacy Tk UI as reference-only`.
 - Latest future push/PR packaging dry-run base inspected: `fd12c0b Add release candidate V3 strategic state`.
 - Latest known-case maintenance base commit inspected: `90e2434 Add public-case human labeling packet`.
 - Latest pre-push dry-run commit inspected: `05d688d Add final pre-push packaging dry run`.
 - Latest runtime-affecting commit inspected: `0ce05da Add local browser offline runtime assets`.
-- Current release-candidate gate: `local_release_candidate_v4_complete_no_push_pr` after the RC V4 completion commit and validation.
+- Current release-candidate publication gate: `local_release_candidate_v4_draft_pr_open`.
 - Current Release Candidate V3 gate: `release_candidate_v3_state_ready`.
 - Current future push/PR dry-run gate: `push_pr_dry_run_ready`.
 - Full verification matrix at `ad27400`: focused matrix 660 tests OK, full unittest discovery 1105 tests OK.
@@ -38,8 +41,8 @@ Last updated: 2026-05-27 EEST.
 - Public-case evidence bridge tooling now enforces exact-wallet source discipline: 6 public controls remain non-exact, with 0 exact-wallet-supported public cases, 0 named-user local wallet candidates, 2 named-user-only, 2 pattern-level-only, and 2 market-level-only cases.
 - Public-case human labeling packet and intake schema now define the only safe path for future exact-wallet public benchmark upgrades. No labels are accepted yet.
 - Known-case benchmark maintenance is documented by `docs/inspoly_known_case_benchmark_maintenance_checklist_20260527.md`; future fixture changes should follow that checklist and remain validation-only unless a separate approved runtime/model campaign exists.
-- Release Candidate V4 is documented by `docs/inspoly_release_candidate_v4_state_20260527.md` and future push preparation by `docs/inspoly_future_push_pr_checklist_v4_20260527.md`.
-- Future push/PR packaging has a V4 dry-run kit: `docs/inspoly_future_pr_draft_v4_20260527.md`, `docs/inspoly_reviewer_risk_map_v4_20260527.md`, `docs/inspoly_future_push_pr_checklist_v4_20260527.md`, and `validation_outputs/inspoly_future_push_pr_packaging_dry_run_v4_20260527.json`.
+- Release Candidate V4 is documented by `docs/inspoly_release_candidate_v4_state_20260527.md` and published for review as draft PR `#1`: https://github.com/ins-poly/InsPoly/pull/1.
+- Future push/PR packaging was executed for RC V4 through branch `codex/inspoly-local-release-candidate-v4`; the PR remains draft/not-ready pending review and owner merge approval.
 - Remaining donor-derived integration branches have been assessed as sidecar/RFC-only in `docs/inspoly_donor_remaining_three_branch_decision_20260527.md`. Final combined gate: `three_branch_execplan_no_safe_runtime_changes`.
 - Indexer/warehouse branch: read-only DB readiness audit tool exists, but live indexing remains `indexer_live_blocked_needs_operator_approval`.
 - Sidecar context report/UI branch: current final path remains sidecar-only; pointer-only report metadata is RFC-ready but not approved.
@@ -74,9 +77,9 @@ Last updated: 2026-05-27 EEST.
 - The new indexer readiness audit and collateral semantics helper are sidecar/static support only and are not production runtime integrations.
 
 ## What Is Open
-- Push/PR/release grouping requires explicit operator decision.
-- Current branch is locally complete for RC V4 after validation, but still push/PR user-gated.
-- Recommended future publication path is an owner-approved draft PR branch `codex/inspoly-local-release-candidate-v4` from current local `main`; no branch or push has been created.
+- Push/PR publication has happened as draft PR `#1`; merge remains explicit owner-gated.
+- Current branch is published as `codex/inspoly-local-release-candidate-v4`; do not push directly to `origin/main`.
+- Recommended next path is PR review / CI follow-up, not additional local feature work.
 - Whether to include root `AGENTS.md` in a future public repo package remains an explicit user decision; for now it remains local-only.
 - Future strategic cycles must use ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD and score candidate campaigns before implementation.
 - Known-case benchmark coverage now includes local false-positive controls and six public-source metadata controls. Exact-wallet public-case labels remain at `0`; the 2026-05-27 evidence bridge records compact local refs where available, but none prove wallet identity. Future upgrades require an accepted `public_case_label_intake_v1` label.

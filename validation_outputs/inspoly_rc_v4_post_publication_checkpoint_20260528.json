@@ -1,0 +1,23 @@
+{
+  "baseBranch": "main",
+  "branchName": "codex/inspoly-local-release-candidate-v4",
+  "checkpointDate": "2026-05-28",
+  "draft": true,
+  "gate": "local_release_candidate_v4_draft_pr_open",
+  "latestPublishedCommitBeforeCheckpoint": "7ac4dc6d0e3263e4a96c6872b6f454f32c295511",
+  "localOnlyArtifactsPreserved": [
+    "PROJECT_MEMORY.md",
+    ".inspoly_indexer/",
+    "release_manifests/",
+    "shadow_review_packets/",
+    "side_outcome_review_packets/",
+    "raw_or_bulky_validation_outputs"
+  ],
+  "originMainPushed": false,
+  "prNumber": 1,
+  "prUrl": "https://github.com/ins-poly/InsPoly/pull/1",
+  "publicationStatus": "draft_pr_open",
+  "reportType": "rc_v4_post_publication_checkpoint",
+  "schemaVersion": "rc_v4_post_publication_checkpoint_v1",
+  "stopConditionCleared": "manual_pr_creation_completed"
+}
