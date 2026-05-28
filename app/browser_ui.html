@@ -525,7 +525,7 @@
                 <label className="toggle">
                   <span>
                     <div style={{fontWeight: 600}}>Include blockchain linkage</div>
-                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields when available; mode below controls live tracing.</div>
+                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields only when explicitly enabled.</div>
                   </span>
                   <input
                     type="checkbox"
@@ -543,7 +543,7 @@
                     onChange={event => setFilters(current => ({
                       ...current,
                       fundingTraceMode: event.target.value,
-                      includeBlockchain: event.target.value === "disabled" ? true : current.includeBlockchain,
+                      includeBlockchain: event.target.value !== "disabled",
                     }))}
                     className="btn"
                     style={{minWidth: 150}}
@@ -1011,8 +1011,8 @@
         maxSize: "",
         maxEntryProbability: "",
         includeRelatedMarkets: true,
-        includeBlockchain: true,
-        fundingTraceMode: "",
+        includeBlockchain: false,
+        fundingTraceMode: "disabled",
         risk: "All risks",
         topics: [],
         resolutionGapOnly: false,

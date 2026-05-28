@@ -29,6 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("desktop", help="Launch the local desktop app")
     subparsers.add_parser("archive-desktop", help="Launch InsPoly Archive Researcher")
     subparsers.add_parser("event-desktop", help="Launch InsPoly Event Forensic Analyzer")
+    subparsers.add_parser("macos-app", help="Launch the native macOS wrapper")
     return parser
 
 
@@ -62,6 +63,11 @@ def main() -> int:
         from app.event_forensic_desktop import launch_event_forensic_browser_app
 
         launch_event_forensic_browser_app()
+        return 0
+    if args.command == "macos-app":
+        from app.macos_launcher import launch_native_macos_app
+
+        launch_native_macos_app()
         return 0
 
     parser.error("Unknown command")

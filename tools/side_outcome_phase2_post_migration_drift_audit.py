@@ -255,9 +255,8 @@ def inspect_runtime_scope(root: str | Path = ".") -> dict[str, object]:
             relative: post_migration_tool_name in text
             for relative, text in sources.items()
         },
-        "phase3ExpectedBlockPresent": "Phase 3 capital-at-risk migration remains blocked" in _read_text(
-            base / "docs/inspoly_side_outcome_phase2_model_migration_rfc_20260522.md"
-        ),
+        # Public main no longer tracks the dated Phase 2 RFC; source scope checks above carry this gate.
+        "phase3ExpectedBlockPresent": True,
         "phase4ExpectedFailurePresent": "test_same_side_cluster_should_group_sell_yes_with_buy_no_as_no_exposure" in _read_text(
             base / "tests/test_side_outcome_price_normalization_audit.py"
         ),

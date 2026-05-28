@@ -3,19 +3,28 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 import json
+import os
 import sqlite3
 from pathlib import Path
 import tempfile
+import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from urllib.parse import urlparse
+import http.client
 
 import app.__main__ as app_main
+import app.case_reviewer as case_reviewer
 import app.cli as app_cli
 import app.browser_desktop as browser_desktop
 import app.desktop as desktop
+import app.macos_launcher as macos_launcher
 from app.archive_scanner import ArchiveResearchScanner
 from app.config import AppConfig
+from app.config import FUNDING_TRACE_MODE_DISABLED, FUNDING_TRACE_MODE_LIVE_RPC, funding_trace_mode
 from app.cli import build_parser
+from app.local_server import MAX_JSON_BODY_BYTES, open_local_path, safe_child_path
+from app.macos_power import MacSleepAssertion
 from app.report_pointer import POINTER_FIELD
 from app.models import Market
 from app.scanner import Scanner
@@ -76,9 +85,61 @@ class AppWorkflowContractTests(unittest.TestCase):
         self.assertEqual(parser.parse_args(["desktop"]).command, "desktop")
         self.assertEqual(parser.parse_args(["archive-desktop"]).command, "archive-desktop")
         self.assertEqual(parser.parse_args(["event-desktop"]).command, "event-desktop")
+        self.assertEqual(parser.parse_args(["macos-app"]).command, "macos-app")
 
     def test_module_entrypoint_reuses_cli_main_without_launching(self) -> None:
         self.assertIs(app_main.main, app_cli.main)
+
+    def test_pyproject_exposes_inspoly_console_script(self) -> None:
+        pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+
+        self.assertIn("[project.scripts]", pyproject)
+        self.assertIn('inspoly = "app.cli:main"', pyproject)
+        self.assertIn("[tool.setuptools.package-data]", pyproject)
+        self.assertIn('"*.html"', pyproject)
+        self.assertIn('"vendor/browser/**/*"', pyproject)
+
+    def test_macos_packaging_scripts_cover_local_dmg_and_optional_notarization(self) -> None:
+        spec = Path("packaging/InsPoly.spec").read_text(encoding="utf-8")
+        entitlements = Path("packaging/entitlements.plist").read_text(encoding="utf-8")
+        local_build = Path("tools/build_macos_app.sh").read_text(encoding="utf-8")
+        release_build = Path("tools/build_macos_release.sh").read_text(encoding="utf-8")
+        validation = Path("tools/validate_macos_release.sh").read_text(encoding="utf-8")
+        performance_probe = Path("tools/run_event_forensic_performance_probe.sh").read_text(encoding="utf-8")
+
+        self.assertIn("InsPoly.icns", spec)
+        self.assertIn("tools/create_macos_icon.sh", local_build)
+        self.assertIn("INSPOLY_MACOS_SIGN_IDENTITY", release_build)
+        self.assertIn("--notarize", release_build)
+        self.assertIn("no Apple login or password", release_build)
+        self.assertNotIn("INSPOLY_NOTARYTOOL_PASSWORD", release_build)
+        self.assertNotIn("INSPOLY_NOTARYTOOL_APPLE_ID", release_build)
+        self.assertIn("--norsrc --noextattr", release_build)
+        self.assertIn("--options runtime", release_build)
+        self.assertIn("notarytool submit", release_build)
+        self.assertIn("stapler staple", release_build)
+        self.assertIn("shasum -a 256", release_build)
+        self.assertIn("com.apple.security.cs.disable-library-validation", entitlements)
+        self.assertIn("python3 -m unittest discover", validation)
+        self.assertIn("tools/public_repo_checks.py --all", validation)
+        self.assertIn("hdiutil imageinfo", validation)
+        self.assertIn("screen-off long run", validation)
+        self.assertIn("acceptable for local builds", validation)
+        self.assertIn("event_forensic_performance_inventory.py", performance_probe)
+        self.assertIn("does not change scoring", performance_probe)
+
+    def test_case_reviewer_runtime_import_is_packaged(self) -> None:
+        source = Path("app/event_forensic_desktop.py").read_text(encoding="utf-8")
+
+        self.assertIsNotNone(case_reviewer.review_event_outputs)
+        self.assertIn("from app.case_reviewer import", source)
+        self.assertNotIn("from tools.ai_case_reviewer import", source)
+
+    def test_funding_trace_defaults_disabled_until_explicit_opt_in(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(funding_trace_mode(), FUNDING_TRACE_MODE_DISABLED)
+        with patch.dict(os.environ, {"INSPOLY_FUNDING_TRACE_MODE": "live_rpc"}, clear=True):
+            self.assertEqual(funding_trace_mode(), FUNDING_TRACE_MODE_LIVE_RPC)
 
     def test_browser_launch_functions_delegate_without_opening_browser(self) -> None:
         with patch.object(browser_desktop, "BrowserDesktopApp") as browser_cls:
@@ -90,6 +151,374 @@ class AppWorkflowContractTests(unittest.TestCase):
             browser_desktop.launch_archive_research_browser_app()
         archive_cls.assert_called_once_with()
         archive_cls.return_value.launch.assert_called_once_with()
+
+    def test_browser_launch_uses_reusable_server_handle(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        handle = Mock()
+        handle.url = "http://127.0.0.1:1234"
+        handle.label = "InsPoly test UI"
+
+        with (
+            patch.object(app, "create_server", return_value=handle),
+            patch("app.browser_desktop.webbrowser.open") as open_mock,
+            patch("builtins.print"),
+        ):
+            app.launch()
+
+        open_mock.assert_called_once_with("http://127.0.0.1:1234")
+        handle.serve_forever.assert_called_once_with()
+        handle.close.assert_called_once_with()
+
+    def test_browser_server_uses_tokenized_url(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.asset_name = "browser_ui.html"
+        app.app_meta = {"launchLabel": "InsPoly test UI"}
+        app.session_token = "old-token"
+
+        handle = app.create_server()
+        try:
+            parsed = urlparse(handle.url)
+            self.assertEqual(parsed.hostname, "127.0.0.1")
+            self.assertIn("token=", parsed.query)
+            self.assertNotEqual(app.session_token, "old-token")
+        finally:
+            handle.close()
+
+    def test_browser_api_rejects_missing_token(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.asset_name = "browser_ui.html"
+        app.app_meta = {"launchLabel": "InsPoly test UI"}
+        app.session_token = "test-token"
+        app.load_run = lambda _name: {"ok": True}  # type: ignore[method-assign]
+        handle = app.create_server()
+        handle.start_background(thread_name="test browser server")
+        try:
+            parsed = urlparse(handle.url)
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request("GET", "/api/run?name=example.json")
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 403)
+        finally:
+            handle.close()
+
+    def test_browser_api_accepts_session_cookie_and_checks_json_content_type(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.asset_name = "browser_ui.html"
+        app.app_meta = {"launchLabel": "InsPoly test UI"}
+        app.session_token = "test-token"
+        app.open_exports_dir = lambda: {"ok": True}  # type: ignore[method-assign]
+        handle = app.create_server()
+        handle.start_background(thread_name="test browser server")
+        try:
+            parsed = urlparse(handle.url)
+            headers = {"Cookie": f"inspoly_session={app.session_token}", "Content-Type": "text/plain"}
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request("POST", "/api/open-exports-dir", body="{}", headers=headers)
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 415)
+
+            headers["Content-Type"] = "application/json"
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request("POST", "/api/open-exports-dir", body="{}", headers=headers)
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 200)
+        finally:
+            handle.close()
+
+    def test_browser_api_rejects_forbidden_host_and_origin(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.asset_name = "browser_ui.html"
+        app.app_meta = {"launchLabel": "InsPoly test UI"}
+        handle = app.create_server()
+        handle.start_background(thread_name="test browser server")
+        try:
+            parsed = urlparse(handle.url)
+            cookie = f"inspoly_session={app.session_token}"
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request("GET", "/api/bootstrap", headers={"Cookie": cookie, "Host": "evil.example"})
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 403)
+
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request(
+                "GET",
+                "/api/bootstrap",
+                headers={"Cookie": cookie, "Origin": "https://evil.example"},
+            )
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 403)
+        finally:
+            handle.close()
+
+    def test_browser_api_rejects_oversized_json_body(self) -> None:
+        app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
+        app.asset_name = "browser_ui.html"
+        app.app_meta = {"launchLabel": "InsPoly test UI"}
+        app.open_exports_dir = lambda: {"ok": True}  # type: ignore[method-assign]
+        handle = app.create_server()
+        handle.start_background(thread_name="test browser server")
+        try:
+            parsed = urlparse(handle.url)
+            body = json.dumps({"payload": "x" * MAX_JSON_BODY_BYTES})
+            conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=5)
+            conn.request(
+                "POST",
+                "/api/open-exports-dir",
+                body=body,
+                headers={
+                    "Cookie": f"inspoly_session={app.session_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            response = conn.getresponse()
+            response.read()
+            self.assertEqual(response.status, 413)
+        finally:
+            handle.close()
+
+    def test_safe_child_path_rejects_report_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "reports"
+            root.mkdir()
+
+            with self.assertRaises(ValueError):
+                safe_child_path(root, "../outside.json", suffix=".json")
+
+    def test_open_local_path_uses_platform_specific_opener(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "report.txt"
+            path.write_text("ok", encoding="utf-8")
+
+            with patch("app.local_server.subprocess.run") as run_mock:
+                open_local_path(path, platform_name="darwin")
+            self.assertEqual(run_mock.call_args.args[0][0], "open")
+
+            with patch("app.local_server.subprocess.run") as run_mock:
+                open_local_path(path, platform_name="linux")
+            self.assertEqual(run_mock.call_args.args[0][0], "xdg-open")
+
+            with patch("app.local_server.os.startfile", create=True) as startfile_mock:
+                open_local_path(path, platform_name="win32")
+            startfile_mock.assert_called_once_with(str(path.resolve()))
+
+    def test_native_launcher_loads_existing_mode_server_url_inside_shell(self) -> None:
+        class FakeApp:
+            scan_status = {"running": False}
+
+            def __init__(self, handle: Mock) -> None:
+                self._handle = handle
+
+            def create_server(self) -> Mock:
+                return self._handle
+
+        handle = Mock()
+        handle.url = "http://127.0.0.1:4567"
+        factory = Mock(return_value=FakeApp(handle))
+        api = macos_launcher.NativeLauncherApi(
+            sleep_assertion=MacSleepAssertion(enabled=False),
+            poll_interval=0.01,
+        )
+        api.window = Mock()
+        try:
+            with patch.dict(macos_launcher.MODE_FACTORIES, {"recent": factory}):
+                result = api.launch_mode("recent", keep_awake=True)
+        finally:
+            api.shutdown()
+
+        self.assertTrue(result["ok"])
+        factory.assert_called_once_with()
+        handle.start_background.assert_called_once_with(thread_name="InsPoly recent server")
+        api.window.evaluate_js.assert_called_once()
+        self.assertIn("window.loadWorkspace", api.window.evaluate_js.call_args.args[0])
+        self.assertIn("http://127.0.0.1:4567", api.window.evaluate_js.call_args.args[0])
+        api.window.load_url.assert_not_called()
+        handle.close.assert_called_once_with()
+
+    def test_native_launcher_switch_mode_stops_and_closes_previous_server(self) -> None:
+        class FakeApp:
+            scan_status = {"running": True}
+
+            def __init__(self, handle: Mock) -> None:
+                self._handle = handle
+                self.stop_scan = Mock(return_value={"ok": True})
+
+            def create_server(self) -> Mock:
+                return self._handle
+
+        first_handle = Mock()
+        first_handle.url = "http://127.0.0.1:1111"
+        second_handle = Mock()
+        second_handle.url = "http://127.0.0.1:2222"
+        first_app = FakeApp(first_handle)
+        second_app = FakeApp(second_handle)
+        api = macos_launcher.NativeLauncherApi(
+            sleep_assertion=MacSleepAssertion(enabled=False),
+            poll_interval=0.01,
+        )
+        api.window = Mock()
+        try:
+            with patch.dict(
+                macos_launcher.MODE_FACTORIES,
+                {
+                    "recent": Mock(return_value=first_app),
+                    "archive": Mock(return_value=second_app),
+                },
+            ):
+                self.assertTrue(api.launch_mode("recent", keep_awake=True)["ok"])
+                self.assertTrue(api.launch_mode("archive", keep_awake=False)["ok"])
+        finally:
+            api.shutdown()
+
+        first_app.stop_scan.assert_called_once_with()
+        first_handle.close.assert_called_once_with()
+        second_handle.close.assert_called_once_with()
+        self.assertFalse(api.keep_awake)
+
+    def test_native_launcher_closes_new_server_when_window_load_fails(self) -> None:
+        class FakeApp:
+            scan_status = {"running": False}
+
+            def __init__(self, handle: Mock) -> None:
+                self._handle = handle
+
+            def create_server(self) -> Mock:
+                return self._handle
+
+        handle = Mock()
+        handle.url = "http://127.0.0.1:4567"
+        api = macos_launcher.NativeLauncherApi(sleep_assertion=MacSleepAssertion(enabled=False))
+        api.window = Mock()
+        api.window.evaluate_js.side_effect = RuntimeError("webview unavailable")
+        try:
+            with patch.dict(macos_launcher.MODE_FACTORIES, {"recent": Mock(return_value=FakeApp(handle))}):
+                result = api.launch_mode("recent", keep_awake=True)
+        finally:
+            api.shutdown()
+
+        self.assertFalse(result["ok"])
+        self.assertIn("native window", str(result["error"]))
+        handle.close.assert_called_once_with()
+
+    def test_native_launcher_returns_startup_error_when_server_cannot_start(self) -> None:
+        class FakeApp:
+            def create_server(self) -> Mock:
+                raise OSError("address already in use")
+
+        api = macos_launcher.NativeLauncherApi(sleep_assertion=MacSleepAssertion(enabled=False))
+        try:
+            with patch.dict(macos_launcher.MODE_FACTORIES, {"recent": Mock(return_value=FakeApp())}):
+                result = api.launch_mode("recent", keep_awake=True)
+        finally:
+            api.shutdown()
+
+        self.assertFalse(result["ok"])
+        self.assertIn("could not start", str(result["error"]))
+        self.assertIn("OSError", str(result["detail"]))
+
+    def test_native_launcher_controls_stop_outputs_log_and_funding_mode(self) -> None:
+        class FakeApp:
+            scan_status = {"running": True}
+
+            def __init__(self) -> None:
+                self.stop_analysis = Mock(return_value={"ok": True})
+                self.open_exports_dir = Mock(return_value={"ok": True})
+                self.performance_log_path = Path("event_forensic_outputs") / "performance.log"
+
+        api = macos_launcher.NativeLauncherApi(
+            runtime_root=Path.cwd(),
+            sleep_assertion=MacSleepAssertion(enabled=False),
+        )
+        fake_app = FakeApp()
+        with api._lock:
+            api.current_app = fake_app
+            api.current_mode = "event"
+
+        with patch.dict(os.environ, {}, clear=False), patch("app.macos_launcher.open_local_path") as open_mock:
+            funding_status = api.set_funding_trace_mode("cache-only")
+            stop_result = api.stop_current_analysis()
+            outputs_result = api.open_current_outputs()
+            log_result = api.open_current_log()
+
+        self.assertEqual(funding_status["fundingTraceMode"], "cache_only")
+        self.assertTrue(stop_result["ok"])
+        fake_app.stop_analysis.assert_called_once_with()
+        self.assertTrue(outputs_result["ok"])
+        fake_app.open_exports_dir.assert_called_once_with()
+        self.assertTrue(log_result["ok"])
+        open_mock.assert_called_once_with(Path.cwd())
+        api.shutdown()
+
+    def test_native_launcher_sleep_assertion_tracks_running_status(self) -> None:
+        class FakeSleepAssertion:
+            def __init__(self) -> None:
+                self.active = False
+                self.acquire_count = 0
+                self.release_count = 0
+
+            def acquire(self) -> bool:
+                self.active = True
+                self.acquire_count += 1
+                return True
+
+            def release(self) -> None:
+                self.active = False
+                self.release_count += 1
+
+            def status(self) -> dict[str, object]:
+                return {"supported": True, "active": self.active, "lastError": None}
+
+        class FakeApp:
+            scan_status = {"running": True}
+
+            def __init__(self, handle: Mock) -> None:
+                self._handle = handle
+                self.stop_scan = Mock(return_value={"ok": True})
+
+            def create_server(self) -> Mock:
+                return self._handle
+
+        handle = Mock()
+        handle.url = "http://127.0.0.1:4567"
+        sleep = FakeSleepAssertion()
+        app = FakeApp(handle)
+        api = macos_launcher.NativeLauncherApi(sleep_assertion=sleep, poll_interval=0.01)
+        try:
+            with patch.dict(macos_launcher.MODE_FACTORIES, {"recent": Mock(return_value=app)}):
+                self.assertTrue(api.launch_mode("recent", keep_awake=True)["ok"])
+                time.sleep(0.04)
+                self.assertGreaterEqual(sleep.acquire_count, 1)
+                app.scan_status = {"running": False}
+                time.sleep(0.04)
+                self.assertFalse(sleep.active)
+        finally:
+            api.shutdown()
+
+    def test_native_launcher_rejects_unknown_mode(self) -> None:
+        api = macos_launcher.NativeLauncherApi(sleep_assertion=MacSleepAssertion(enabled=False))
+
+        result = api.launch_mode("missing")
+        api.shutdown()
+
+        self.assertFalse(result["ok"])
+        self.assertIn("not available", str(result["error"]))
+
+    def test_native_runtime_root_can_be_prepared_explicitly(self) -> None:
+        previous_cwd = Path.cwd()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                runtime_root = Path(tmp) / "InsPolyRuntime"
+                prepared = macos_launcher.prepare_native_runtime_root(runtime_root)
+
+                self.assertEqual(prepared, runtime_root.resolve())
+                self.assertEqual(Path.cwd(), runtime_root.resolve())
+                self.assertTrue(runtime_root.is_dir())
+        finally:
+            os.chdir(previous_cwd)
 
     def test_cli_desktop_command_stays_on_browser_launch_path(self) -> None:
         source = Path(app_cli.__file__).read_text(encoding="utf-8")
@@ -435,8 +864,8 @@ class AppWorkflowContractTests(unittest.TestCase):
         filters = app._default_case_filters()
 
         self.assertTrue(filters["includeRelatedMarkets"])
-        self.assertTrue(filters["includeBlockchain"])
-        self.assertIn(filters["fundingTraceMode"], {"live_rpc", "cache_only", "disabled"})
+        self.assertFalse(filters["includeBlockchain"])
+        self.assertEqual(filters["fundingTraceMode"], FUNDING_TRACE_MODE_DISABLED)
 
     def test_browser_report_payload_distinguishes_saved_and_visible_cases(self) -> None:
         app = browser_desktop.BrowserDesktopApp.__new__(browser_desktop.BrowserDesktopApp)
@@ -490,6 +919,8 @@ class AppWorkflowContractTests(unittest.TestCase):
         self.assertIn("Include blockchain linkage", html)
         self.assertIn("fundingTraceMode", html)
         self.assertIn("Funding trace mode", html)
+        self.assertIn('includeBlockchain: false', html)
+        self.assertIn('fundingTraceMode: "disabled"', html)
         self.assertIn('value="live_rpc"', html)
         self.assertIn('value="cache_only"', html)
         self.assertIn('value="disabled"', html)

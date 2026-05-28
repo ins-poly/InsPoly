@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import queue
-import subprocess
 import threading
 import tkinter as tk
 from collections import defaultdict
@@ -19,6 +18,7 @@ from statistics import median
 from tkinter import messagebox, ttk
 
 from app.config import AppConfig
+from app.local_server import open_local_path
 from app.polymarket import MarketStatus, PolymarketClient, WalletPosition
 from app.scanner import ProgressEvent, Scanner
 from app.site_categories import SiteCategory
@@ -2208,7 +2208,7 @@ class DesktopApp:
     def _open_latest_output(self) -> None:
         path = self.output_path_var.get()
         if path and path != "No output loaded":
-            subprocess.run(["open", path], check=False)
+            open_local_path(Path(path))
 
     def _toggle_case_flag(self, case: dict, field: str) -> None:
         state = self._case_state(case)

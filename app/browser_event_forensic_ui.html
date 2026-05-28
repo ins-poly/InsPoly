@@ -1907,7 +1907,7 @@
                 <label className="toggle">
                   <span>
                     <div style={{fontWeight: 600}}>Include blockchain linkage</div>
-                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields when available; mode below controls live tracing.</div>
+                    <div className="muted" style={{fontSize: 12}}>Attach funding-link fields only when explicitly enabled.</div>
                   </span>
                   <input type="checkbox" checked={!!filters.includeBlockchain} onChange={event => setFilters(current => ({ ...current, includeBlockchain: event.target.checked }))} />
                 </label>
@@ -1921,7 +1921,7 @@
                     onChange={event => setFilters(current => ({
                       ...current,
                       fundingTraceMode: event.target.value,
-                      includeBlockchain: event.target.value === "disabled" ? true : current.includeBlockchain,
+                      includeBlockchain: event.target.value !== "disabled",
                     }))}
                     className="btn"
                     style={{minWidth: 150}}
@@ -2085,7 +2085,7 @@
                 </div>
               </div>
               <div className="secondary selectable" style={{lineHeight: 1.65, marginBottom: 10}}>
-                LLM review is advisory. It does not modify scoring rules.
+                LLM review is advisory. It does not modify scoring rules; when enabled, selected case-packet context is sent to the configured external provider.
               </div>
               <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
                 {reviewOutputs.review_report_md_path ? <button className="btn secondary" onClick={() => onOpenOutput("review_report_md_path")}>Open Review Report</button> : null}
@@ -2541,8 +2541,8 @@
         startDateTime: "",
         endDateTime: "",
         includeRelatedMarkets: true,
-        includeBlockchain: true,
-        fundingTraceMode: "",
+        includeBlockchain: false,
+        fundingTraceMode: "disabled",
         analysisScope: "event",
         selectedConditionId: "",
         selectedMarketSlug: "",

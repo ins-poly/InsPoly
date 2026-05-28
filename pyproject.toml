@@ -6,8 +6,23 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 
+[project.scripts]
+inspoly = "app.cli:main"
+
+[project.optional-dependencies]
+macos-app = [
+    "pyinstaller>=6.0",
+    "pywebview>=5.0",
+]
+
 [tool.setuptools.packages.find]
 include = ["app*"]
+
+[tool.setuptools.package-data]
+app = [
+    "*.html",
+    "vendor/browser/**/*",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
