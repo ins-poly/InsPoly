@@ -44,7 +44,7 @@ This is the compact strategic memory for external review loops. The full operati
 - Browser strict offline: implementation committed; both browser UIs boot from vendored React/ReactDOM/Babel assets.
 - Known-case benchmark: expanded to `known_case_benchmark_v3` with 30 compact offline cases, including false-positive, sidecar-context, and public-source metadata controls. Public cases remain named-user, market-level, or pattern-level only; exact-wallet public cases are still blocked until source/local-artifact proof exists.
 - Strategic Operating System: implemented as the required ORIENT -> SELECT -> PLAN -> EXECUTE -> VALIDATE -> RECORD loop for non-trivial work.
-- Push/PR/release: user-gated.
+- Push/PR/release: RC V4 has been merged into `main`; post-merge verification gate is `rc_v4_merged_post_merge_verified`. Future push/PR work should be for new branches or fix-forward changes, not the completed RC V4 publication branch.
 
 ## Fragile Areas
 - `app/scanner.py` scoring weights, thresholds, severity gates, suppressors, and raw metrics.
@@ -56,11 +56,12 @@ This is the compact strategic memory for external review loops. The full operati
 - Sidecar helpers that may look useful but must not be imported into production runtime paths without an approval gate.
 
 ## Latest Strategic Snapshot
-- Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
+- Latest merged release commit verified: `ac1b29b Merge InsPoly local release candidate V4`.
+- Latest release-candidate branch head before merge: `7b220a5 Record RC V4 final pre-merge checkpoint`.
 - Latest pre-push dry-run commit inspected: `05d688d Add final pre-push packaging dry run`.
 - Latest runtime-affecting commit inspected: `0ce05da Add local browser offline runtime assets`.
 - Root `PROJECT_MEMORY.md` is intentionally ignored/local-only and should not be staged by default.
-- Current local release-candidate gate: `local_release_candidate_verified`.
+- Current release gate: `rc_v4_merged_post_merge_verified`.
 - Current untracked local artifacts include release manifests and review packets under `release_manifests/`, `shadow_review_packets/`, and `side_outcome_review_packets/`.
 - Pre-existing process-control files were consolidated for repo review: `AI_CONTROL/*.md`, `.gitignore` visibility rules, and `skills/strategic-autonomy-review/SKILL.md`.
 - Root `AGENTS.md` remains ignored/local-only pending a separate user decision; the committed `AI_CONTROL/` layer and repo-local skill are the reviewable strategic-control package.

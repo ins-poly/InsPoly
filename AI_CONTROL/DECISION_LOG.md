@@ -3,9 +3,14 @@
 Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
+- Decision: RC V4 PR #1 was merged and post-merge verified on `main`.
+  - Why: The owner explicitly merged PR #1 after the final pre-merge checkpoint. GitHub reports PR #1 closed and merged, and `origin/main` now points at merge commit `ac1b29bd1b342e38f43323d3b5a61517bdd93ed0`. Local `main` was fast-forwarded to the same commit. Post-merge validation passed 208 tracked JSON parses, compileall for `app`/`tools`/`tests`, full unittest discovery with 1240 tests, runtime import/coupling scan, copied warehouse metrics scan, refined privacy/secret scan across 779 tracked text files, local-only tracking scan, and tracked `release_manifests/` count 0.
+  - Consequence: Current gate is `rc_v4_merged_post_merge_verified`. RC V4 is now the repository `main` state. No runtime behavior, scoring, gates, storage schema, report/browser behavior, live indexer behavior, CLOB auth/trading, saved reports, or local-only artifacts changed in the post-merge verification pass.
+  - Reversal / revisit condition: If a post-merge regression is found, investigate from `main` and use a normal fix-forward branch/PR or an explicit rollback decision. Do not continue feature work on the old publication branch.
+
 - Decision: RC V4 PR #1 is ready to merge only after explicit owner approval.
   - Why: The final pre-merge checkpoint found PR #1 open, not Draft, mergeable, and publication-ready. Local validation on `097b38ed2f5ec56c560ef153af4a5ef9bac9fc39` passed changed JSON validation, compileall, full unittest discovery with 1240 tests, runtime import scan, copied warehouse metrics scan, privacy/secret scan, local-only artifact scan, and diff checks. GitHub has no configured statuses or Actions workflow runs, and no reviews/comments exist; this is documented as a no-CI/no-review owner decision rather than an unresolved technical failure.
-  - Consequence: Current PR gate is `rc_v4_ready_to_merge_owner_approval_required`. PR #1 remains unmerged; no push to `origin/main` occurred; no runtime behavior changed. The owner may merge PR #1 if they accept the no-CI/no-review GitHub posture and the local validation evidence.
+  - Consequence: Superseded by the merge decision above. This was the correct pre-merge gate before owner approval.
   - Reversal / revisit condition: If the owner requires GitHub CI or human review before merge, keep the PR open and run that as a separate CI/review campaign before merging.
 
 - Decision: RC V4 PR #1 is ready for the owner to mark ready for review manually; merge remains blocked.
