@@ -11,13 +11,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -e .
 cp .inspoly_runtime.env.example .inspoly_runtime.env
-python3 -m app desktop
+inspoly desktop
 ```
 
 Expected behavior:
 
 - a local Python process starts;
-- the app opens or serves a browser UI on your machine;
+- the app opens or serves a browser UI on your machine at a tokenized `127.0.0.1` URL;
 - runtime state and reports are written only to local ignored directories;
 - no hosted backend is required from this repository.
 
@@ -35,36 +35,73 @@ For first-time local runs, start with:
 INSPOLY_FUNDING_TRACE_MODE=disabled
 ```
 
+This is also the default when no runtime env file is present. Use `live_rpc` only as an explicit opt-in.
+
+Optional LLM review is controlled by `INSPOLY_LLM_PROVIDER`, `INSPOLY_LLM_MODEL`, and `OPENAI_API_KEY`. It is advisory only. When enabled, selected case-packet context is sent from the local machine to the configured external provider.
+
 ## Running The Programs
 
 Recent scanner:
 
 ```bash
-python3 -m app desktop
+inspoly desktop
 ```
 
 Archive researcher:
 
 ```bash
-python3 -m app archive-desktop
+inspoly archive-desktop
 ```
 
 Event forensic analyzer:
 
 ```bash
-python3 -m app event-desktop
+inspoly event-desktop
 ```
+
+Native macOS app:
+
+```bash
+python3 -m pip install -e ".[macos-app]"
+python3 -m app macos-app
+```
+
+Local fallback bundle:
+
+```bash
+tools/build_macos_app.sh
+```
+
+Local DMG build:
+
+```bash
+tools/build_macos_release.sh
+```
+
+This writes `dist/release/InsPoly.dmg` and `dist/release/InsPoly.dmg.sha256` without Apple login/password setup. The default artifact is local/ad-hoc signed and may show Gatekeeper warnings on another Mac.
+
+Optional notarization is separate and uses only an existing `notarytool` keychain profile:
+
+```bash
+export INSPOLY_MACOS_SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+export INSPOLY_NOTARYTOOL_PROFILE="inspoly-notary-profile"
+tools/build_macos_release.sh --notarize
+```
+
+The release script does not accept Apple ID/password environment variables. Do not commit signing identities, keychain profile setup notes, or generated release artifacts.
+
+`InsPoly.app` includes a keep-awake toggle for active analysis. It prevents idle system sleep while a scan/export/analysis is running. It does not override explicit Sleep, lid close, low battery, shutdown, or other macOS power decisions.
 
 CLI recent scan:
 
 ```bash
-python3 -m app scan --lookback 4h --categories "Politics,World,Ukraine,Middle East"
+inspoly scan --lookback 4h --categories "Politics,World,Ukraine,Middle East"
 ```
 
 Wallet inspection:
 
 ```bash
-python3 -m app inspect-wallet --address 0x0000000000000000000000000000000000000000
+inspoly inspect-wallet --address 0x0000000000000000000000000000000000000000
 ```
 
 ## Outputs To Expect
@@ -87,7 +124,9 @@ These are ignored by git.
 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py'
-python3 -m py_compile app/*.py tools/*.py tests/*.py
+python3 -m compileall app tools tests
+python3 tools/public_repo_checks.py --all
+tools/validate_macos_release.sh
 ```
 
 ## Clean Clone Verification
@@ -99,10 +138,18 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -e .
 python3 -m app --help
+inspoly --help
 python3 -m app scan --help
 python3 -m app inspect-wallet --help
-python3 -m py_compile app/*.py tools/*.py tests/*.py
+python3 -m compileall app tools tests
 python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tools/public_repo_checks.py --all
+```
+
+For Event Forensic performance work after packaging, start with read-only measurement:
+
+```bash
+tools/run_event_forensic_performance_probe.sh
 ```
 
 Current expected result:
@@ -110,9 +157,9 @@ Current expected result:
 - install succeeds without private local files;
 - help commands print usage text;
 - compile succeeds;
-- the test suite passes, with the repository's expected-failure tests still reported as expected failures.
+- the test suite and repository hygiene checks pass.
 
-The CLI entry path is `python3 -m app ...`. The project metadata name is `inspoly`, but there is no separate `inspoly` shell command.
+The public CLI entry path is `inspoly ...`. `python3 -m app ...` remains supported for repository-local use.
 
 ## Common Failure Modes
 

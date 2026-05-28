@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
 import threading
 import traceback
 import webbrowser
@@ -15,12 +14,25 @@ from time import perf_counter
 from urllib.parse import parse_qs, urlparse
 
 from app.browser_static_assets import is_browser_vendor_asset_path, load_browser_vendor_asset
-from app.config import FUNDING_TRACE_MODE_LIVE_RPC, AppConfig, funding_trace_mode, normalize_funding_trace_mode
+from app.config import AppConfig, funding_trace_mode, normalize_funding_trace_mode
 from app.event_forensic import EventForensicAnalyzer
+from app.local_server import (
+    LocalRequestError,
+    LocalServerHandle,
+    new_session_token,
+    open_local_path,
+    read_json_body,
+    request_has_valid_session,
+    require_allowed_path,
+    require_local_request,
+    safe_child_path,
+    session_cookie_header,
+    tokenized_local_url,
+)
 from app.polymarket import PolymarketClient
 from app.scanner import ProgressEvent
 from app.storage import Storage
-from tools.ai_case_reviewer import ReviewInputError, review_event_outputs, review_latest_outputs
+from app.case_reviewer import ReviewInputError, review_event_outputs, review_latest_outputs
 
 
 REVIEW_ARTIFACT_PATTERNS = {
@@ -57,6 +69,7 @@ class EventForensicBrowserApp:
         self.resolved_target: dict[str, object] | None = None
         self.performance_log_path: Path | None = None
         self.performance_log_started_at: float | None = None
+        self.session_token = new_session_token()
         self.scan_status = {
             "running": False,
             "stage": "Ready",
@@ -84,7 +97,7 @@ class EventForensicBrowserApp:
             "startDateTime": "",
             "endDateTime": "",
             "includeRelatedMarkets": True,
-            "includeBlockchain": True,
+            "includeBlockchain": False,
             "fundingTraceMode": funding_trace_mode(),
             "analysisScope": "event",
             "selectedConditionId": "",
@@ -102,18 +115,27 @@ class EventForensicBrowserApp:
         self._load_latest_report()
 
     def launch(self) -> None:
-        asset_path = Path(__file__).with_name(self.asset_name)
-        handler = self._make_handler(asset_path)
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-        url = f"http://127.0.0.1:{server.server_port}"
-        print(f"{self.app_meta['launchLabel']}: {url}")
-        webbrowser.open(url)
+        handle = self.create_server()
+        print(f"{handle.label}: {handle.url}")
+        webbrowser.open(handle.url)
         try:
-            server.serve_forever()
+            handle.serve_forever()
         except KeyboardInterrupt:
             pass
         finally:
-            server.server_close()
+            handle.close()
+
+    def create_server(self) -> LocalServerHandle:
+        asset_path = Path(__file__).with_name(self.asset_name)
+        handler = self._make_handler(asset_path)
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        self.session_token = new_session_token()
+        url = tokenized_local_url(server.server_port, self.session_token)
+        return LocalServerHandle(
+            server=server,
+            url=url,
+            label=self.app_meta["launchLabel"],
+        )
 
     def _make_handler(self, asset_path: Path):
         app = self
@@ -122,8 +144,18 @@ class EventForensicBrowserApp:
             def do_GET(self) -> None:
                 try:
                     parsed = urlparse(self.path)
+                    if not require_local_request(
+                        self,
+                        parsed,
+                        app.session_token,
+                        require_token=parsed.path.startswith("/api/"),
+                    ):
+                        return
                     if parsed.path == "/":
-                        self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8")
+                        headers = {}
+                        if request_has_valid_session(self, parsed, app.session_token):
+                            headers["Set-Cookie"] = session_cookie_header(app.session_token)
+                        self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8", headers=headers)
                         return
                     vendor_asset = load_browser_vendor_asset(parsed.path)
                     if vendor_asset:
@@ -148,9 +180,9 @@ class EventForensicBrowserApp:
             def do_POST(self) -> None:
                 try:
                     parsed = urlparse(self.path)
-                    length = int(self.headers.get("Content-Length", "0") or 0)
-                    body = self.rfile.read(length) if length else b"{}"
-                    payload = json.loads(body.decode("utf-8") or "{}")
+                    if not require_local_request(self, parsed, app.session_token, require_token=True):
+                        return
+                    payload = read_json_body(self)
                     if parsed.path == "/api/analyze":
                         self._send_json(app.start_analysis(payload))
                         return
@@ -170,6 +202,8 @@ class EventForensicBrowserApp:
                         self._send_json(app.run_case_reviewer(payload))
                         return
                     self.send_error(HTTPStatus.NOT_FOUND, "Not found")
+                except LocalRequestError as exc:
+                    self._send_json({"ok": False, "error": exc.message}, status=int(exc.status))
                 except Exception as exc:
                     app._log_error(f"POST {self.path} failed", exc)
                     self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
@@ -185,10 +219,18 @@ class EventForensicBrowserApp:
                 self.end_headers()
                 self.wfile.write(data)
 
-            def _send_bytes(self, data: bytes, content_type: str, status: int = 200) -> None:
+            def _send_bytes(
+                self,
+                data: bytes,
+                content_type: str,
+                status: int = 200,
+                headers: dict[str, str] | None = None,
+            ) -> None:
                 self.send_response(status)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Content-Length", str(len(data)))
+                for key, value in (headers or {}).items():
+                    self.send_header(key, value)
                 self.end_headers()
                 self.wfile.write(data)
 
@@ -217,7 +259,10 @@ class EventForensicBrowserApp:
     def load_run(self, name: str) -> dict[str, object]:
         if not name:
             return {"ok": False, "error": "Missing run name."}
-        json_path = self.config.reports_dir / name
+        try:
+            json_path = safe_child_path(self.config.reports_dir, name, suffix=".json")
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
         if not json_path.exists():
             return {"ok": False, "error": f"Run not found: {name}"}
         try:
@@ -356,22 +401,33 @@ class EventForensicBrowserApp:
 
     def open_output(self, payload: dict[str, object]) -> dict[str, object]:
         key = str(payload.get("key") or "")
+        allowed_roots = self._allowed_open_roots()
         review_artifacts = self._review_artifact_index_payload().get("outputs") or {}
         if key and key in review_artifacts:
             value = review_artifacts.get(key)
             path = Path(str(value)) if value else None
+            try:
+                if path is not None:
+                    path = require_allowed_path(path, allowed_roots)
+            except ValueError as exc:
+                return {"ok": False, "error": str(exc)}
             if path is None or not path.exists():
                 return {"ok": False, "error": "Review artifact not found."}
-            subprocess.run(["open", str(path)], check=False)
+            open_local_path(path)
             return {"ok": True}
 
         review_outputs = self.case_review_status.get("outputs") or {}
         if key and key in review_outputs:
             value = review_outputs.get(key)
             path = Path(str(value)) if value else None
+            try:
+                if path is not None:
+                    path = require_allowed_path(path, allowed_roots)
+            except ValueError as exc:
+                return {"ok": False, "error": str(exc)}
             if path is None or not path.exists():
                 return {"ok": False, "error": "Output file not found."}
-            subprocess.run(["open", str(path)], check=False)
+            open_local_path(path)
             return {"ok": True}
 
         report = self.current_report
@@ -383,10 +439,21 @@ class EventForensicBrowserApp:
             path = Path(str(value)) if value else None
         else:
             path = self._primary_output_path(report)
+        try:
+            if path is not None:
+                path = require_allowed_path(path, allowed_roots)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
         if path is None or not path.exists():
             return {"ok": False, "error": "Output file not found."}
-        subprocess.run(["open", str(path)], check=False)
+        open_local_path(path)
         return {"ok": True}
+
+    def _allowed_open_roots(self) -> list[Path]:
+        root = self.config.outputs_dir.parent
+        roots = [self.config.outputs_dir, self.config.reports_dir, root / "ai_review_outputs"]
+        roots.extend(root / directory for directory, _pattern in REVIEW_ARTIFACT_PATTERNS.values())
+        return roots
 
     def _review_artifact_index_payload(self) -> dict[str, object]:
         outputs: dict[str, str] = {}
@@ -424,7 +491,7 @@ class EventForensicBrowserApp:
     def open_exports_dir(self) -> dict[str, object]:
         if not self.config.outputs_dir.exists():
             return {"ok": False, "error": "Exports directory not found."}
-        subprocess.run(["open", str(self.config.outputs_dir)], check=False)
+        open_local_path(self.config.outputs_dir)
         return {"ok": True}
 
     def _run_case_reviewer_for_loaded_report(
@@ -723,7 +790,7 @@ class EventForensicBrowserApp:
         filters["includeBlockchain"] = bool(settings.get("include_blockchain", filters["includeBlockchain"]))
         filters["fundingTraceMode"] = normalize_funding_trace_mode(
             str(settings.get("funding_trace_mode") or filters["fundingTraceMode"]),
-            default=FUNDING_TRACE_MODE_LIVE_RPC,
+            default=funding_trace_mode(),
         )
         filters["analysisScope"] = str(
             report.get("analysis_scope")

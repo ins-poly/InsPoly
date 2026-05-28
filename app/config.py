@@ -76,27 +76,27 @@ def validation_cache_only_mode() -> bool:
     )
 
 
-def normalize_funding_trace_mode(value: str | None, *, default: str = FUNDING_TRACE_MODE_LIVE_RPC) -> str:
+def normalize_funding_trace_mode(value: str | None, *, default: str = FUNDING_TRACE_MODE_DISABLED) -> str:
     normalized = str(value or "").strip().lower().replace("-", "_")
     if normalized in {"", "default"}:
         normalized = default
-    if normalized in {"live", "rpc", "network", "network_funding"}:
+    if normalized in {"live", "live_rpc", "rpc", "network", "network_funding"}:
         return FUNDING_TRACE_MODE_LIVE_RPC
     if normalized in {"cache", "cached", "cache_only", "cacheonly"}:
         return FUNDING_TRACE_MODE_CACHE_ONLY
     if normalized in {"disabled", "disable", "off", "none", "no_rpc", "norpc"}:
         return FUNDING_TRACE_MODE_DISABLED
-    return default if default in FUNDING_TRACE_MODES else FUNDING_TRACE_MODE_LIVE_RPC
+    return default if default in FUNDING_TRACE_MODES else FUNDING_TRACE_MODE_DISABLED
 
 
-def funding_trace_mode(default: str = FUNDING_TRACE_MODE_LIVE_RPC) -> str:
+def funding_trace_mode(default: str = FUNDING_TRACE_MODE_DISABLED) -> str:
     load_runtime_env()
     raw = os.environ.get("INSPOLY_FUNDING_TRACE_MODE")
     if raw is not None:
         return normalize_funding_trace_mode(raw, default=default)
     if runtime_env_int("INSPOLY_DISABLE_LIVE_FUNDING_TRACES", 0, minimum=0):
         return FUNDING_TRACE_MODE_DISABLED
-    return normalize_funding_trace_mode(default, default=FUNDING_TRACE_MODE_LIVE_RPC)
+    return normalize_funding_trace_mode(default, default=FUNDING_TRACE_MODE_DISABLED)
 
 
 @dataclass(slots=True)

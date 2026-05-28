@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import traceback
-import subprocess
 import threading
 import webbrowser
 from datetime import datetime
@@ -16,6 +15,19 @@ from urllib.parse import parse_qs, urlparse
 from app.archive_scanner import ArchiveResearchScanner, default_archive_range, parse_local_datetime
 from app.browser_static_assets import is_browser_vendor_asset_path, load_browser_vendor_asset
 from app.config import AppConfig, funding_trace_mode, normalize_funding_trace_mode
+from app.local_server import (
+    LocalRequestError,
+    LocalServerHandle,
+    new_session_token,
+    open_local_path,
+    read_json_body,
+    request_has_valid_session,
+    require_allowed_path,
+    require_local_request,
+    safe_child_path,
+    session_cookie_header,
+    tokenized_local_url,
+)
 from app.polymarket import PolymarketClient, WalletPosition
 from app.scanner import ProgressEvent, Scanner
 from app.side_outcome import normalize_side_outcome
@@ -65,6 +77,7 @@ class BrowserDesktopApp:
         self.visible_cases: list[dict] = []
         self.case_detail_cache: dict[str, dict] = {}
         self.wallet_detail_cache: dict[str, dict] = {}
+        self.session_token = new_session_token()
         self.scan_status = {
             "running": False,
             "stage": "Ready",
@@ -102,7 +115,7 @@ class BrowserDesktopApp:
             "maxSize": "",
             "maxEntryProbability": "",
             "includeRelatedMarkets": True,
-            "includeBlockchain": True,
+            "includeBlockchain": False,
             "fundingTraceMode": funding_trace_mode(),
             "risk": "All risks",
             "topics": self._default_topic_labels(),
@@ -136,18 +149,27 @@ class BrowserDesktopApp:
         return [label for label in preferred if label in available] or [category.label for category in self.site_categories[:4]]
 
     def launch(self) -> None:
-        asset_path = Path(__file__).with_name(self.asset_name)
-        handler = self._make_handler(asset_path)
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-        url = f"http://127.0.0.1:{server.server_port}"
-        print(f"{self.app_meta.get('launchLabel', 'App UI')}: {url}")
-        webbrowser.open(url)
+        handle = self.create_server()
+        print(f"{handle.label}: {handle.url}")
+        webbrowser.open(handle.url)
         try:
-            server.serve_forever()
+            handle.serve_forever()
         except KeyboardInterrupt:
             pass
         finally:
-            server.server_close()
+            handle.close()
+
+    def create_server(self) -> LocalServerHandle:
+        asset_path = Path(__file__).with_name(self.asset_name)
+        handler = self._make_handler(asset_path)
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        self.session_token = new_session_token()
+        url = tokenized_local_url(server.server_port, self.session_token)
+        return LocalServerHandle(
+            server=server,
+            url=url,
+            label=self.app_meta.get("launchLabel", "App UI"),
+        )
 
     def _make_handler(self, asset_path: Path):
         app = self
@@ -156,8 +178,18 @@ class BrowserDesktopApp:
             def do_GET(self) -> None:
                 try:
                     parsed = urlparse(self.path)
+                    if not require_local_request(
+                        self,
+                        parsed,
+                        app.session_token,
+                        require_token=parsed.path.startswith("/api/"),
+                    ):
+                        return
                     if parsed.path == "/":
-                        self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8")
+                        headers = {}
+                        if request_has_valid_session(self, parsed, app.session_token):
+                            headers["Set-Cookie"] = session_cookie_header(app.session_token)
+                        self._send_bytes(asset_path.read_bytes(), "text/html; charset=utf-8", headers=headers)
                         return
                     vendor_asset = load_browser_vendor_asset(parsed.path)
                     if vendor_asset:
@@ -186,9 +218,9 @@ class BrowserDesktopApp:
             def do_POST(self) -> None:
                 try:
                     parsed = urlparse(self.path)
-                    length = int(self.headers.get("Content-Length", "0") or 0)
-                    body = self.rfile.read(length) if length else b"{}"
-                    payload = json.loads(body.decode("utf-8") or "{}")
+                    if not require_local_request(self, parsed, app.session_token, require_token=True):
+                        return
+                    payload = read_json_body(self)
                     if parsed.path == "/api/scan":
                         self._send_json(app.start_scan(payload))
                         return
@@ -202,6 +234,8 @@ class BrowserDesktopApp:
                         self._send_json(app.open_exports_dir())
                         return
                     self.send_error(HTTPStatus.NOT_FOUND, "Not found")
+                except LocalRequestError as exc:
+                    self._send_json({"ok": False, "error": exc.message}, status=int(exc.status))
                 except Exception as exc:
                     app._log_error(f"POST {self.path} failed", exc)
                     self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Internal server error")
@@ -217,10 +251,18 @@ class BrowserDesktopApp:
                 self.end_headers()
                 self.wfile.write(data)
 
-            def _send_bytes(self, data: bytes, content_type: str, status: int = 200) -> None:
+            def _send_bytes(
+                self,
+                data: bytes,
+                content_type: str,
+                status: int = 200,
+                headers: dict[str, str] | None = None,
+            ) -> None:
                 self.send_response(status)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Content-Length", str(len(data)))
+                for key, value in (headers or {}).items():
+                    self.send_header(key, value)
                 self.end_headers()
                 self.wfile.write(data)
 
@@ -251,7 +293,10 @@ class BrowserDesktopApp:
     def load_run(self, name: str) -> dict:
         if not name:
             return {"ok": False, "error": "Missing run name."}
-        json_path = self.config.reports_dir / name
+        try:
+            json_path = safe_child_path(self.config.reports_dir, name, suffix=".json")
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
         if not json_path.exists():
             return {"ok": False, "error": f"Run not found: {name}"}
         try:
@@ -327,19 +372,24 @@ class BrowserDesktopApp:
 
     def open_output(self, payload: dict) -> dict:
         name = str(payload.get("name") or "")
-        if name:
-            path = self.config.outputs_dir / name
-        else:
-            path = self.current_output_path
+        try:
+            if name:
+                path = safe_child_path(self.config.outputs_dir, Path(name).name)
+            else:
+                path = self.current_output_path
+            if path is not None:
+                path = require_allowed_path(path, [self.config.outputs_dir])
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
         if path is None or not path.exists():
             return {"ok": False, "error": "Output file not found."}
-        subprocess.run(["open", str(path)], check=False)
+        open_local_path(path)
         return {"ok": True}
 
     def open_exports_dir(self) -> dict:
         if not self.config.outputs_dir.exists():
             return {"ok": False, "error": "Exports directory not found."}
-        subprocess.run(["open", str(self.config.outputs_dir)], check=False)
+        open_local_path(self.config.outputs_dir)
         return {"ok": True}
 
     def case_detail_payload(self, trade_id: str) -> dict:

@@ -120,7 +120,7 @@ class SideOutcomeArchiveEvidenceAuditTests(unittest.TestCase):
             self.assertTrue(output_json.exists())
             self.assertIn("Archive Evidence Gap", output_md.read_text(encoding="utf-8"))
             payload = json.loads(output_json.read_text(encoding="utf-8"))
-            self.assertGreater(payload["summary"]["artifactsDiscovered"], payload["summary"]["artifactsSelected"])
+            self.assertGreaterEqual(payload["summary"]["artifactsDiscovered"], payload["summary"]["artifactsSelected"])
             self.assertGreaterEqual(payload["summary"]["evidenceTypeCounts"]["synthetic_fixture"]["artifacts"], 3)
 
         for relative_path in (

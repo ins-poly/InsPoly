@@ -1,8 +1,6 @@
 # InsPoly
 
-InsPoly is an experimental, local-first toolkit for investigating suspicious Polymarket trading patterns around political, geopolitical, and high-impact event markets.
-
-This is a raw project. It was vibe-coded by an enthusiast with basic coding experience, but with a strong practical understanding of insider-style trading logic: timing, information asymmetry, wallet behavior, position sizing, funding traces, market structure, and false-positive control.
+InsPoly is an experimental, local-first analyst toolkit for investigating suspicious Polymarket trading patterns around political, geopolitical, and high-impact event markets.
 
 This repository is an open experiment. Issues, pull requests, forks, critiques, test cases, documentation edits, and alternative approaches are welcome. It is not a production compliance system, not investment advice, and not proof that any wallet or trader committed wrongdoing. Treat every output as an analyst lead that requires independent review.
 
@@ -53,6 +51,8 @@ More detail:
 - [Detection model](docs/DETECTION_MODEL.md)
 - [Operations guide](docs/OPERATIONS.md)
 - [Data safety](docs/DATA_SAFETY.md)
+- [Security policy](SECURITY.md)
+- [Contributing guide](CONTRIBUTING.md)
 
 ## Repository Map
 
@@ -91,28 +91,69 @@ All documented commands assume you are running them from the repository root.
 Run the recent scanner UI:
 
 ```bash
+inspoly desktop
+# or
 python3 -m app desktop
 ```
 
 Run a recent CLI scan:
 
 ```bash
+inspoly scan --lookback 4h --categories "Politics,World,Ukraine,Middle East"
+# or
 python3 -m app scan --lookback 4h --categories "Politics,World,Ukraine,Middle East"
 ```
 
 Run the archive researcher UI:
 
 ```bash
+inspoly archive-desktop
+# or
 python3 -m app archive-desktop
 ```
 
 Run the event forensic analyzer UI:
 
 ```bash
+inspoly event-desktop
+# or
 python3 -m app event-desktop
 ```
 
 On macOS, the included launcher files can also be double-clicked from the repository root.
+
+Optional native macOS wrapper:
+
+```bash
+python3 -m pip install -e ".[macos-app]"
+python3 -m app macos-app
+```
+
+The native wrapper keeps the existing three local browser UIs and Python backends. It adds a start window with Recent Scanner, Archive Researcher, and Event Forensic Analyzer choices, plus native controls for stopping an active run and opening local outputs/logs.
+
+To build the local fallback bundle at `dist/InsPoly.app`:
+
+```bash
+tools/build_macos_app.sh
+```
+
+To build a local release DMG and checksum without Apple login/password setup:
+
+```bash
+tools/build_macos_release.sh
+```
+
+The default release script builds `dist/release/InsPoly.dmg` and `dist/release/InsPoly.dmg.sha256` from a clean staging path with local ad-hoc signing. Gatekeeper may warn on another Mac because this default artifact is not notarized.
+
+Optional notarization can be run later only if a Developer ID signing identity and an existing `notarytool` keychain profile already exist:
+
+```bash
+export INSPOLY_MACOS_SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+export INSPOLY_NOTARYTOOL_PROFILE="inspoly-notary-profile"
+tools/build_macos_release.sh --notarize
+```
+
+The release script does not accept Apple ID or password environment variables. Use `tools/build_macos_release.sh --dry-run` to verify the clean staging path without producing a DMG.
 
 ## Optional Runtime Configuration
 
@@ -125,6 +166,10 @@ cp .inspoly_runtime.env.example .inspoly_runtime.env
 ```
 
 Do not commit real API keys, RPC URLs with credentials, private wallets, private notes, SQLite databases, or generated run outputs.
+
+Funding traces are disabled by default. Set `INSPOLY_FUNDING_TRACE_MODE=live_rpc` only when you explicitly want live Polygon RPC lookups. Optional LLM review is also off unless configured; if enabled, selected case-packet context is sent from your local machine to the configured external provider.
+
+`InsPoly.app` can keep the Mac awake while analysis is running. This prevents idle system sleep only; it does not override explicit Sleep, lid close, low battery, shutdown, or other macOS power decisions.
 
 ## Outputs
 
@@ -149,7 +194,25 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 Compile source files:
 
 ```bash
-python3 -m py_compile app/*.py tools/*.py tests/*.py
+python3 -m compileall app tools tests
+```
+
+Run public repository hygiene checks:
+
+```bash
+python3 tools/public_repo_checks.py --all
+```
+
+Run the macOS release validation matrix:
+
+```bash
+tools/validate_macos_release.sh
+```
+
+For the first Event Forensic product-quality campaign after packaging, collect measurement-only performance evidence:
+
+```bash
+tools/run_event_forensic_performance_probe.sh
 ```
 
 Clean-clone smoke test:
@@ -159,13 +222,15 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -e .
 python3 -m app --help
+inspoly --help
 python3 -m app scan --help
 python3 -m app inspect-wallet --help
-python3 -m py_compile app/*.py tools/*.py tests/*.py
+python3 -m compileall app tools tests
 python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tools/public_repo_checks.py --all
 ```
 
-The package name is `inspoly`, but the public launch path is currently `python3 -m app ...` from the cloned repository.
+The package name is `inspoly`, and editable installs expose an `inspoly` command. `python3 -m app ...` remains supported for repository-local use.
 
 Some live workflows depend on external APIs and may fail when Polymarket or RPC providers rate-limit, change payloads, or block a request path.
 
@@ -181,7 +246,7 @@ Useful ways to participate:
 - run the tool on a case and describe what worked or failed;
 - suggest a different heuristic, data source, workflow, or UI shape.
 
-This is intentionally raw. Small, practical improvements are useful.
+Keep pull requests small and reviewable. Separate CI, packaging, browser security, docs cleanup, schema work, scoring refactors, and validation corpus changes.
 
 ## Safety Boundary
 

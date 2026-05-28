@@ -8174,7 +8174,7 @@ class ScannerPatternTests(unittest.TestCase):
         self.assertIn('value="live_rpc"', html)
         self.assertIn('value="cache_only"', html)
         self.assertIn('value="disabled"', html)
-        self.assertIn('fundingTraceMode: ""', html)
+        self.assertIn('fundingTraceMode: "disabled"', html)
         self.assertIn('value={filters.fundingTraceMode || "disabled"}', html)
 
     def test_event_forensic_ui_child_market_picker_does_not_require_scope_toggle(self) -> None:

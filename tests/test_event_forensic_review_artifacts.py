@@ -73,10 +73,10 @@ class EventForensicReviewArtifactsTests(unittest.TestCase):
             )
             app.case_review_status = {"outputs": {}}
             app.current_report = None
-            with patch("app.event_forensic_desktop.subprocess.run") as run_mock:
+            with patch("app.event_forensic_desktop.open_local_path") as open_mock:
                 result = app.open_output({"key": "review_packets"})
         self.assertTrue(result["ok"])
-        run_mock.assert_called_once()
+        open_mock.assert_called_once_with(packet_path.resolve())
 
     def test_event_forensic_progress_metadata_is_preserved_in_status(self) -> None:
         app = EventForensicBrowserApp.__new__(EventForensicBrowserApp)

@@ -12,7 +12,6 @@ import app.scanner as scanner
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RFC_PATH = ROOT / "docs" / "inspoly_side_outcome_phase2_model_migration_rfc_20260522.md"
 
 
 def _trade(*, trade_id: str, side: str, outcome: str, price: str) -> Trade:
@@ -220,12 +219,14 @@ class SideOutcomePhase2ModelContractTests(unittest.TestCase):
         self.assertEqual(sell_no.raw_metrics["event_forensic_model_probability_basis"], "economic_side_probability")
 
     def test_phase2_contract_keeps_phase3_out_of_scope_and_phase4_separate(self) -> None:
-        rfc = RFC_PATH.read_text(encoding="utf-8")
+        capital_source = inspect.getsource(scanner._capital_at_risk_usdc)
+        split_wallet_source = inspect.getsource(scanner._shared_funding_split_groups)
+        timing_key_source = inspect.getsource(event_forensic._timing_cluster_key)
 
-        self.assertIn("Gate decision: `ready_for_phase2_implementation`", rfc)
-        self.assertIn("Phase 3 capital-at-risk migration remains blocked.", rfc)
-        self.assertIn("Phase 4 cluster direction normalization remains blocked.", rfc)
-        self.assertIn("Phase 2 runtime implementation was later approved separately on 2026-05-22", rfc)
+        self.assertNotIn("normalize_side_outcome", capital_source)
+        self.assertNotIn("economic_side_probability", capital_source)
+        self.assertIn("_cluster_direction_for_case", split_wallet_source)
+        self.assertIn("clusterDirection", timing_key_source)
 
     def test_runtime_scorers_use_phase2_model_probability_without_phase3(self) -> None:
         score_trade_source = inspect.getsource(scanner._score_trade)

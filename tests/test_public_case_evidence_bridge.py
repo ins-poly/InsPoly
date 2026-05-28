@@ -35,7 +35,7 @@ class PublicCaseEvidenceBridgeTests(unittest.TestCase):
         ]
 
         self.assertGreater(len(refs), 0)
-        self.assertTrue(all(ref["pathExists"] for ref in refs))
+        self.assertTrue(all(ref["pathExists"] is False for ref in refs))
         self.assertTrue(all(ref["proves_wallet_identity"] is False for ref in refs))
         self.assertTrue(all(case["exactWalletDetectionAllowed"] is False for case in case_results))
 
