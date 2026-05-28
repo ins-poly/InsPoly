@@ -4,15 +4,16 @@ Last updated: 2026-05-28 EEST.
 
 ## Repository State
 - Branch inspected: `codex/inspoly-local-release-candidate-v4`.
-- Draft PR inspected: https://github.com/ins-poly/InsPoly/pull/1.
+- PR inspected: https://github.com/ins-poly/InsPoly/pull/1.
 - Active publication branch: `codex/inspoly-local-release-candidate-v4`.
 - Latest pushed publication checkpoint before PR-readiness audit: `4cd7db9 Record RC V4 draft PR checkpoint`.
 - Latest pushed PR-readiness checkpoint before the local-path hygiene patch: `40ebba2 Record RC V4 PR review readiness`.
-- Current PR-review gate: `rc_v4_ready_for_owner_mark_ready_review`.
-- PR #1 remains Draft / not ready. It is mergeable, but GitHub reports no commit statuses or Actions workflow runs, and there are no comments, reviews, or review threads.
+- Current PR-review gate: `rc_v4_ready_to_merge_owner_approval_required`.
+- PR #1 is open, not Draft, and mergeable. GitHub reports no commit statuses or Actions workflow runs, and there are no comments, reviews, or review threads. The PR body has been manually updated and is publication-ready.
+- Final pre-merge checkpoint on `097b38ed2f5ec56c560ef153af4a5ef9bac9fc39` passed: 207 changed JSON files parsed, compileall passed, full unittest discovery passed 1240 tests, runtime import scan passed, copied warehouse metrics scan passed, privacy/secret scan passed, local-only artifact scan passed, and diff checks passed.
 - Local PR-readiness refresh passed on `4cd7db9`: 201 changed JSON files parsed, compileall passed, 391 focused release tests passed, 1240 full unittest discovery tests passed, runtime import scan passed, pointer copied-metric scan passed, and diff checks passed.
 - PR publication hygiene refresh found no private-key blocks or common hosted-service tokens. It did find committed `<local-user-home>` local path strings in docs/compact outputs; those were redacted to `<repo>` / `<local-user-home>` placeholders, with a follow-up scan reporting 0 blocking findings.
-- Reviewer packaging note: tracked historical `release_manifests/` files were removed from the PR branch in the finalization pass; local manifest files remain ignored/local-only. The remaining owner action is to accept the documented no-CI policy and optionally paste the committed replacement PR body before marking ready.
+- Reviewer packaging note: tracked historical `release_manifests/` files were removed from the PR branch in the finalization pass; local manifest files remain ignored/local-only. The remaining owner action is explicit merge approval, or a separate decision to require GitHub CI/reviews before merge.
 - Latest release-candidate commit verified: `ad27400 Verify local release candidate state`.
 - Latest Release Candidate V3 head verified: `2dd851f Freeze legacy Tk UI as reference-only`.
 - Latest future push/PR packaging dry-run base inspected: `fd12c0b Add release candidate V3 strategic state`.

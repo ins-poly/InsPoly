@@ -3,6 +3,11 @@
 Last updated: 2026-05-28 EEST.
 
 ## Current Strategic Decisions
+- Decision: RC V4 PR #1 is ready to merge only after explicit owner approval.
+  - Why: The final pre-merge checkpoint found PR #1 open, not Draft, mergeable, and publication-ready. Local validation on `097b38ed2f5ec56c560ef153af4a5ef9bac9fc39` passed changed JSON validation, compileall, full unittest discovery with 1240 tests, runtime import scan, copied warehouse metrics scan, privacy/secret scan, local-only artifact scan, and diff checks. GitHub has no configured statuses or Actions workflow runs, and no reviews/comments exist; this is documented as a no-CI/no-review owner decision rather than an unresolved technical failure.
+  - Consequence: Current PR gate is `rc_v4_ready_to_merge_owner_approval_required`. PR #1 remains unmerged; no push to `origin/main` occurred; no runtime behavior changed. The owner may merge PR #1 if they accept the no-CI/no-review GitHub posture and the local validation evidence.
+  - Reversal / revisit condition: If the owner requires GitHub CI or human review before merge, keep the PR open and run that as a separate CI/review campaign before merging.
+
 - Decision: RC V4 PR #1 is ready for the owner to mark ready for review manually; merge remains blocked.
   - Why: The finalization pass cleaned tracked historical `release_manifests/` from the PR branch, documented no-CI handling, added final reviewer/merge/smoke/not-included docs, and preserved a clean privacy/secret posture. Automated PR body update is blocked because the local GitHub CLI is unavailable and the GitHub integration returns `403`, so the replacement PR body is committed for manual owner use.
   - Consequence: Current PR-review gate is `rc_v4_ready_for_owner_mark_ready_review`. Draft PR `#1` remains https://github.com/ins-poly/InsPoly/pull/1 from `codex/inspoly-local-release-candidate-v4` into `main`; no merge, no ready-for-review transition, and no push to `origin/main` occurred. GitHub CI was not added; accepting local validation/no-CI remains an owner decision.
